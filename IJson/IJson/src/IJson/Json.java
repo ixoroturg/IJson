@@ -1,4 +1,7 @@
 package IJson;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 public interface Json extends Iterable<Json>, Map<String, Json>{
@@ -16,6 +19,8 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * return get(0);
 	 * @return return new Json with value of 0th array element
 	 */
+	public Json readFrom(InputStream in) throws IOException;
+	public void writeTo(OutputStream out) throws IOException;
 	public Json get();
 	/**
 	 * return new Json with value of array element with index
