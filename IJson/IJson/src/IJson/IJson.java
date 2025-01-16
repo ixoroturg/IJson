@@ -18,17 +18,22 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	private int offset = 0;
 	private Map<String, Json> map = new LinkedHashMap<String, Json>();
 	private String json;
-	private JsonType type;
+	private JsonType type = null;
 	private LinkedList<Json> array = new LinkedList<Json>();
 	
 	public IJson(String json){
 		//if(json.length() == 0)
 			//throw new JsonInvalidFormatException("Given null string");
 		this.json = json;
+		try {
+			isValidValue(0,true);
+		}catch(JsonInvalidFormatException e) {
+			this.json = "\""+json+"\"";		
+		}
 		proccess();
 	}
 	public IJson(){
-		type = JsonType.object;
+		//type = JsonType.object;
 	}
 	public IJson(JsonType type) {
 		this.type = type;
@@ -274,6 +279,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 						default -> {throw new JsonInvalidFormatException("Unexpected 0 at position: "+(offset+from+i));}
 					}
 				}
+				continue;
 			}
 			// 0 was tested in previous case
 			//'1'(49) - '0'(48) > 0 it's true, 0 and below will <=0
@@ -329,6 +335,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		};
 	}
 	private void format(){
+		//if(!json.equals("true") && !json.equals("false") && !json.equals("null")) {
+			
+		//}
 		json = json.trim();
 		if(json.startsWith("{")) {
 			type = JsonType.object;
@@ -341,8 +350,15 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			return;
 		} else {
 			type = JsonType.value;
-			isValidValue(0, true); //will throw exception is invalid
-			return;
+			try {
+				isValidValue(0, true); //will throw exception is invalid
+			}catch(JsonInvalidFormatException e) {
+				type = JsonType.string;
+				//json = json.substring(1, json.length()-1);
+				//json = "\""+json+"\"";
+				checkUnicodePoints(json, offset+1); 
+			}
+				return;
 		}
 		//System.out.println(json);
 		
@@ -609,6 +625,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public boolean add(Json json) {
+		if(type == null)
+			type = JsonType.array;
 		if(type != JsonType.array)
 			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type);
 		return array.add(json);
@@ -621,16 +639,25 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}*/
 	@Override
 	public void add(String json) {
+		if(type == null)
+			type = JsonType.array;
 		if(type != JsonType.array)
 			throw new JsonIllegalTypeException("add() is able only for arrays");
 		array.add(new IJson(json));
 	}
 	@Override
 	public Json put(String key, Json value) {
+		if(type == null)
+			type = JsonType.object;
 		return map.put(key,value);
 	}
 	public Json put(String key, String value) {
-		return map.put(key, new IJson(value));
+		if(type == null)
+			type = JsonType.object;
+		int offset = 0;
+		if(json != null)
+			offset = json.length()-2;
+		return map.put(key, new IJson(value, this, offset));
 	}
 	@Override
 	public Json remove(String key) {
