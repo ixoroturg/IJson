@@ -22,8 +22,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	private LinkedList<Json> array = new LinkedList<Json>();
 	
 	public IJson(String json){
-		//if(json.length() == 0)
-			//throw new JsonInvalidFormatException("Given null string");
 		this.json = json;
 		try {
 			isValidValue(0,true);
@@ -32,16 +30,13 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		}
 		proccess();
 	}
-	public IJson(){
-		//type = JsonType.object;
-	}
+	public IJson(){}
 	public IJson(JsonType type) {
 		this.type = type;
 	}
 	public IJson(Json[] jsons) {
 		type = JsonType.array;
 		array.addAll(Arrays.asList(jsons));
-		//System.out.println();
 	}
 	public void setMap(Map<String, Json> map){
 		this.map = map;
@@ -50,11 +45,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		this.json = json;
 		this.offset = offset;
 		this.parent = parent;
-		//if(json.length() == 0)
-			//throw new JsonInvalidFormatException("Unexcepted null string at position");
-		//System.out.println(offset+ " "+this.json);
 		proccess();
-		//System.out.println("Cоздано: "+this.offset);
 	}
 	protected int getOffset() {
 		return offset;
@@ -68,10 +59,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	private void proccess(){
 		format();
-		
-		//System.out.println(offset+" "+json);
-		//System.out.println(offset;
-		
 		if(type == JsonType.value || type == JsonType.string)
 			return;
 		if(type == JsonType.array) {
@@ -85,30 +72,18 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 				array.add(new IJson(json.substring(i,end), this, offset+i));
 				i = end; 
 				if( json.charAt(i) != ',' && !(i == json.length()-1 && json.charAt(i) == ']') ) {
-					//System.out.println(json);
-					//System.out.println(json.length()-1+" "+i);
-					//System.out.println((json.charAt(i) == ']') +" " +(i != json.length()-1)+"");
-					
-					throw new JsonInvalidFormatException("Expect , but found "+ json.charAt(i) + " at position: "+(offset+i));
-					
+					throw new JsonInvalidFormatException("Expect , but found "+ json.charAt(i) + " at position: "+(offset+i));	
 				}
 			}
 			return;
 		}
-			
-		
+
 		String key = null;
 		Json value = null;
 		char ch = 0;
 		for(int i = 1; i < json.length()-1; i++) {
-			
-			//int index = findNextQuote(i);
-			
 			ch = json.charAt(i);
-			//if()
-			
 			if(ch != '\"') {
-				//System.out.println(json.substring(i-10));
 				throw new JsonInvalidFormatException("Expect \" for property name, but found " + ch+" at position: "+(offset+i));				
 			}
 			int end = getCloseBracketIndex(i);
@@ -119,10 +94,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			i++; // :<-here " or { or [ <-here+1 in "propertyName":"value"
 			if(!isOpenBracket(json.charAt(i))) {
 				end = isValidValue(i, false) + i;
-				
-				//System.out.println(json.substring(i));
-				//System.out.println(end);
-				//System.out.println("Создание value с offset: "+(offset+i));
 				value = new IJson(json.substring(i,end), this, offset+i);
 				map.put(key, value);
 				key = null;
@@ -130,7 +101,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 				i = end; // value, [<- here]
 				continue;
 			}
-			
 			end = getCloseBracketIndex(i);
 			value = new IJson(json.substring(i,end+1), this, offset+i);
 			map.put(key, value);
@@ -139,54 +109,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			i = end + 1; // "..." or {...} or [...] [<- here] , [<- here+1] "[<- here+1 because "for"] propertyName
 					
 		}
-		
-		/*if(!isOpenBracket(json.charAt(0)))
-			return;
-		int elementNumber = 0;
-		for(int i = 1; i < json.length(); i++){
-			String key;
-			IJson value;
-			if(isOpenBracket(json.charAt(i))){
-				if(json.charAt(i) == '"'){
-					key = json.substring(i+1, i = getCloseBracketIndex(i));
-					i++;
-					if(json.charAt(i) == ','){
-						value = new IJson(key, this);
-						key = "\r"+elementNumber+"";
-						map.put(key, value);
-						elementNumber++;
-						continue;
-					} else
-						i++;
-					// ":" symbol and next bracket;	
-					value = new IJson(json.substring(i, (i = getCloseBracketIndex(i))+1), this);
-					map.put(key, value);
-					elementNumber++;
-					i++;				
-				} else {
-					key = "\r"+elementNumber+"";
-					value = new IJson(json.substring(i, i = getCloseBracketIndex(i)+1), this);
-					map.put(key, value);
-					elementNumber++;
-				}
-			}	
-		}*/
 	}
-	
-	
-	/*private int findNextQuote(int i) {
-		while(true){
-			i = json.indexOf('"', i);
-			if(i == -1)
-				throw new JsonInvalidFormatException("Could not find close symbol for "+json.charAt(i)+" at posotion: "+(offset+i));
-			if(isFunctionalQuote(i))
-				break;
-			else {
-				i++;
-			}
-		}
-		return i;
-	}*/
 	public void writeTo(OutputStream out) throws IOException {
 		var writer = new BufferedOutputStream(out);
 		writer.write(toString().getBytes());
@@ -214,8 +137,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			str = json;
 		else
 			str = json.substring(from);
-		//if(str.length() == 0)
-			//throw new JsonInvalidFormatException("Empty strin");
 		if(str.startsWith("true"))
 			i = 4;
 		if(str.startsWith("false"))
@@ -285,10 +206,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			//'1'(49) - '0'(48) > 0 it's true, 0 and below will <=0
 			//'9'(57) - '10'(58) < 0 it's true, above 9 will >= 0
 			if(ch - '0' > 0 && ch - ('9'+1) < 0)
-				continue;			
-			//System.out.println(str.substring(i));
-			//System.out.println(type);
-			//System.out.println(offset);
+				continue;
 			throw new JsonInvalidFormatException("Unexpected "+ch+" at position: "+(offset+from+i));
 		}
 		if(onlyOneValue)
@@ -317,7 +235,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		
 		try {
 			for(; (i = str.indexOf("\\u", i)) != -1;i++) {
-				//System.out.println(str.substring(i));
 				hex = str.substring(i+2, i+6);
 				Integer.parseInt(hex,16);
 				
@@ -335,9 +252,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		};
 	}
 	private void format(){
-		//if(!json.equals("true") && !json.equals("false") && !json.equals("null")) {
-			
-		//}
 		json = json.trim();
 		if(json.startsWith("{")) {
 			type = JsonType.object;
@@ -354,42 +268,24 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 				isValidValue(0, true); //will throw exception is invalid
 			}catch(JsonInvalidFormatException e) {
 				type = JsonType.string;
-				//json = json.substring(1, json.length()-1);
-				//json = "\""+json+"\"";
 				checkUnicodePoints(json, offset+1); 
 			}
 				return;
 		}
-		//System.out.println(json);
-		
-		//boolean needWrite = false;
-		//int changeIndex = 0;
 		char[] formattedJson = new char[json.length()];
 		int formattedJsonIndex = 0;
 		for(int i = 0; i < json.length(); i++){
 			char ch = json.charAt(i);
 			if(ch == '\"' && isFunctionalQuote(ch)) {
-				//System.out.println("Найдена кавычка");
 				int end = getCloseBracketIndex(i);
 				for(int j = i; j < end+1; j++)
 					formattedJson[formattedJsonIndex++] = json.charAt(j);
 				i = end;
 				continue;
 			}
-			//System.out.println("неНайдена кавычка");
 			if(!isSpaceSymbol(ch))
 				formattedJson[formattedJsonIndex++] = ch;
-			/*if( (ch = json.charAt(i)) == '"' & isFunctionalQuote(i)){
-				needWrite = !needWrite;
-				changeIndex = i;
-			}*/
-				
-			/*if(needWrite){
-				formattedJson[formattedJsonIndex++] = ch;
-			} else if(!isSpaceSymbol(ch))
-				formattedJson[formattedJsonIndex++] = ch;*/
 		}
-		//System.out.println(json);
 		json = new String(formattedJson).trim();
 	}
 	
@@ -509,7 +405,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		.replaceAll("\\\\r", "\r")
 		.replaceAll("\\\\t", "\t");
 		
-		//System.out.println(result);
 		int i = 0;
 		String hex = "";
 		try {
@@ -523,10 +418,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found \\u"+hex+" at posotion: "+(offset+i));
 		}
 			return result.substring(1, result.length()-1);
-	}
-	private String toStringResult = null;
-	private void addToStringResult(String add){
-		toStringResult+=add;
 	}
 	@Override
 	public String toString() {
@@ -547,49 +438,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			result += ",\""+key+"\":"+map.get(key).toString();
 		}
 		return "{"+result.substring(1)+"}";
-	}
-	
-	/*@Override
-	public String toString(){	
-		if(!array.isEmpty()) {
-			String result = "[";
-			boolean first = true;
-			for(Json js: array){
-				if(!first) 
-					result +=",";
-				result += js.toString();
-				first = false;
-				
-			}
-			result += "]";
-			return result;
-		}
-		if(this.json == null)
-			return "{"+guts()+"}";
-		if(json.startsWith("\"")){
-			return json.substring(1,json.length()-1).replaceAll("\\\\\\\"", "\"");
-		}		
-		if(!isOpenBracket(json.charAt(0))){
-			return json.replaceAll("\\\\\\\"", "\"");
-		}	
-		char openBracket = json.charAt(0);
-		
-		return openBracket + guts() + getCloseBracket(openBracket);	
-	}*/
-	
-	private String guts() {
-		toStringResult = "";
-		forEach((key, value) -> {
-			String val = value.toString();
-			if(!isOpenBracket(val.charAt(0)))
-				val = "\"" + val +"\"";
-			if(key.startsWith("\r")){
-				addToStringResult(","+val);
-				return;
-			}
-			addToStringResult(",\""+key+"\":"+val);
-		});	
-		return toStringResult.substring(1);
 	}
 	@Override
 	public int size() {	
@@ -631,12 +479,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type);
 		return array.add(json);
 	}
-	/*@Override
-	public void remove(String json) {
-		if(type != JsonType.array)
-			throw new JsonIllegalTypeException("remove() is able only for arrays");
-		array.remove(new IJson(json));
-	}*/
 	@Override
 	public void add(String json) {
 		if(type == null)
