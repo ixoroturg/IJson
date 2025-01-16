@@ -1,5 +1,6 @@
 package IJson;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-public class IJson implements Json, Cloneable{
+public class IJson implements Json, Cloneable, Iterable<Json>{
 	private IJson parent;
 	private int offset = 0;
 	private Map<String, Json> map = new LinkedHashMap<String, Json>();
@@ -21,6 +22,8 @@ public class IJson implements Json, Cloneable{
 	private LinkedList<Json> array = new LinkedList<Json>();
 	
 	public IJson(String json){
+		//if(json.length() == 0)
+			//throw new JsonInvalidFormatException("Given null string");
 		this.json = json;
 		proccess();
 	}
@@ -39,23 +42,55 @@ public class IJson implements Json, Cloneable{
 		this.map = map;
 	}
 	private IJson(String json, IJson parent, int offset){
-		this(json);
+		this.json = json;
 		this.offset = offset;
-		this.parent = parent;	
+		this.parent = parent;
+		//if(json.length() == 0)
+			//throw new JsonInvalidFormatException("Unexcepted null string at position");
+		//System.out.println(offset+ " "+this.json);
+		proccess();
+		//System.out.println("Cоздано: "+this.offset);
+	}
+	protected int getOffset() {
+		return offset;
 	}
 	@Override
 	public IJson back(){
 		return parent;
 	}
+	public String getRAWFormattedJson() {
+		return json;
+	}
 	private void proccess(){
 		format();
 		
-		//System.out.println(json);
+		//System.out.println(offset+" "+json);
+		//System.out.println(offset;
 		
-		if(type == JsonType.value)
+		if(type == JsonType.value || type == JsonType.string)
 			return;
-		if(type == JsonType.array)
+		if(type == JsonType.array) {
+			int end = -1;
+			for(int i = 1; i < json.length()-1; i++) {
+				if(isOpenBracket(json.charAt(i))) {
+					end = getCloseBracketIndex(i)+1;	
+				} else {
+					end = isValidValue(i, false);				
+				}
+				array.add(new IJson(json.substring(i,end), this, offset+i));
+				i = end; 
+				if( json.charAt(i) != ',' && !(i == json.length()-1 && json.charAt(i) == ']') ) {
+					//System.out.println(json);
+					//System.out.println(json.length()-1+" "+i);
+					//System.out.println((json.charAt(i) == ']') +" " +(i != json.length()-1)+"");
+					
+					throw new JsonInvalidFormatException("Expect , but found "+ json.charAt(i) + " at position: "+(offset+i));
+					
+				}
+			}
 			return;
+		}
+			
 		
 		String key = null;
 		Json value = null;
@@ -67,20 +102,27 @@ public class IJson implements Json, Cloneable{
 			ch = json.charAt(i);
 			//if()
 			
-			if(ch != '\"') 
-				throw new JsonInvalidFormatException("Except \" for property name, but found " + ch+" at position: "+(offset+i));				int end = getCloseBracketIndex(i);
+			if(ch != '\"') {
+				//System.out.println(json.substring(i-10));
+				throw new JsonInvalidFormatException("Expect \" for property name, but found " + ch+" at position: "+(offset+i));				
+			}
+			int end = getCloseBracketIndex(i);
 			key = json.substring(i+1, end);
 			i = end + 1; // propertyName"<-here	:<-here+1 in "propertyName":"value"
 			if(json.charAt(i) != ':')
-				throw new JsonInvalidFormatException("Except : but found "+json.charAt(i)+" at position: "+(offset+i));
+				throw new JsonInvalidFormatException("Expect : but found "+json.charAt(i)+" at position: "+(offset+i));
 			i++; // :<-here " or { or [ <-here+1 in "propertyName":"value"
 			if(!isOpenBracket(json.charAt(i))) {
-				end = isValidValue(i, false);
+				end = isValidValue(i, false) + i;
+				
+				//System.out.println(json.substring(i));
+				//System.out.println(end);
+				//System.out.println("Создание value с offset: "+(offset+i));
 				value = new IJson(json.substring(i,end), this, offset+i);
 				map.put(key, value);
 				key = null;
 				value = null;
-				i = end + 1; // value, [<- here]
+				i = end; // value, [<- here]
 				continue;
 			}
 			
@@ -141,11 +183,17 @@ public class IJson implements Json, Cloneable{
 		return i;
 	}*/
 	public void writeTo(OutputStream out) throws IOException {
-		
+		var writer = new BufferedOutputStream(out);
+		writer.write(toString().getBytes());
+		writer.flush();
+		writer.close();
 	}
 	public Json readFrom(InputStream in) throws IOException{
 		var reader = new BufferedInputStream(in);
 		json = new String(reader.readAllBytes());
+		reader.close();
+		if(json.length() == 0)
+			throw new JsonReadedNothingException("Readed null string from given InputStream");
 		proccess();
 		return this;
 	}
@@ -161,6 +209,8 @@ public class IJson implements Json, Cloneable{
 			str = json;
 		else
 			str = json.substring(from);
+		//if(str.length() == 0)
+			//throw new JsonInvalidFormatException("Empty strin");
 		if(str.startsWith("true"))
 			i = 4;
 		if(str.startsWith("false"))
@@ -172,8 +222,9 @@ public class IJson implements Json, Cloneable{
 				if(onlyOneValue)
 					return i;
 				else 
-					throw new JsonInvalidFormatException("Unexcepted end of line");
+					throw new JsonInvalidFormatException("Unexpected end of line");
 			}
+			return i;
 		}
 		
 		
@@ -181,29 +232,41 @@ public class IJson implements Json, Cloneable{
 		boolean wasExp = false;
 		char ch;
 		for(i = 0; i < str.length(); i++) {
-			ch = json.charAt(i);
+			ch = str.charAt(i);
 			if(ch == '-') {
 				if(i != 0) {
 					if (str.charAt(i-1) != 'e' || str.charAt(i-1) != 'E')
 						throw new JsonInvalidFormatException("Unexpected - at position: "+(offset+from+i));
 				}
+				continue;
 			}
 			if(ch == '+') {
-					if (i == 0 || str.charAt(i-1) != 'e' || str.charAt(i-1) != 'E')
-						throw new JsonInvalidFormatException("Unexpected + at position: "+(offset+from+i));
+				if (i == 0 || str.charAt(i-1) != 'e' || str.charAt(i-1) != 'E')
+					throw new JsonInvalidFormatException("Unexpected + at position: "+(offset+from+i));
+				continue;
 			}
 			if(ch == '.') {
-				if(!wasDot)
+				if(!wasDot) {
 					wasDot = true;
+					continue;
+				}
+					
 				else throw new JsonInvalidFormatException("Unexpected . at position: "+(offset+from+i));
 			}
 			if(ch == 'e' || ch == 'E') {
-				if(!wasExp)
+				if(!wasExp) {
 					wasExp = true;
+					continue;
+				}
+					
 				else throw new JsonInvalidFormatException("Unexpected "+ch+" at position: "+(offset+from+i));
 			}
-			if(isCloseSymbol(ch))
+			if(isCloseSymbol(ch)) {
+				if(i == 0)
+					throw  new JsonInvalidFormatException("Empty value at position: "+(offset+from));
 				return i;
+			}
+				
 			if(ch == '0') {
 				if(i < 2) {
 					switch(str.charAt(i+1)) {
@@ -217,12 +280,47 @@ public class IJson implements Json, Cloneable{
 			//'9'(57) - '10'(58) < 0 it's true, above 9 will >= 0
 			if(ch - '0' > 0 && ch - ('9'+1) < 0)
 				continue;			
+			//System.out.println(str.substring(i));
+			//System.out.println(type);
+			//System.out.println(offset);
 			throw new JsonInvalidFormatException("Unexpected "+ch+" at position: "+(offset+from+i));
 		}
 		if(onlyOneValue)
 			return 1; //need just return non-zero
 		else
-			throw new JsonInvalidFormatException("Unexcepted end of line");
+			throw new JsonInvalidFormatException("Unexpected end of line");
+	}
+	
+	public static String formatString(String json) {
+		json = json
+			.replaceAll("\"", "\\\\\\\\\\\"")
+			.replaceAll("\\\\", "\\\\\\\\")
+			.replaceAll("/", "\\\\/")	
+			.replaceAll("\b", "\\\\b")
+			.replaceAll("\f", "\\\\f")
+			.replaceAll("\n", "\\\\n")
+			.replaceAll("\r", "\\\\r")
+			.replaceAll("\t", "\\\\t");
+			
+		checkUnicodePoints(json, 0);
+		return json;
+	}
+	private static void checkUnicodePoints(String str, int offset) {
+		int i = 0;
+		String hex = "";
+		
+		try {
+			for(; (i = str.indexOf("\\u", i)) != -1;i++) {
+				//System.out.println(str.substring(i));
+				hex = str.substring(i+2, i+6);
+				Integer.parseInt(hex,16);
+				
+			}
+		}catch(NumberFormatException e)	{
+			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found \\u"+hex+" at position: "+(offset+i));
+		}catch(StringIndexOutOfBoundsException e) {
+			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found "+str.substring(i)+" at position: "+(offset+i));
+		}
 	}
 	private boolean isCloseSymbol(char ch) {
 		return switch(ch) {
@@ -239,32 +337,43 @@ public class IJson implements Json, Cloneable{
 		} else if (json.startsWith("\"")){
 			type = JsonType.string;
 			json = json.substring(1, json.length()-1);
+			checkUnicodePoints(json, offset+1);
 			return;
 		} else {
 			type = JsonType.value;
 			isValidValue(0, true); //will throw exception is invalid
 			return;
 		}
+		//System.out.println(json);
 		
-		
-		boolean needWrite = false;
-		int changeIndex = 0;
+		//boolean needWrite = false;
+		//int changeIndex = 0;
 		char[] formattedJson = new char[json.length()];
 		int formattedJsonIndex = 0;
 		for(int i = 0; i < json.length(); i++){
-			char ch;
-			if( (ch = json.charAt(i)) == '"' & isFunctionalQuote(i)){
+			char ch = json.charAt(i);
+			if(ch == '\"' && isFunctionalQuote(ch)) {
+				//System.out.println("Найдена кавычка");
+				int end = getCloseBracketIndex(i);
+				for(int j = i; j < end+1; j++)
+					formattedJson[formattedJsonIndex++] = json.charAt(j);
+				i = end;
+				continue;
+			}
+			//System.out.println("неНайдена кавычка");
+			if(!isSpaceSymbol(ch))
+				formattedJson[formattedJsonIndex++] = ch;
+			/*if( (ch = json.charAt(i)) == '"' & isFunctionalQuote(i)){
 				needWrite = !needWrite;
 				changeIndex = i;
-			}
+			}*/
 				
-			if(needWrite){
+			/*if(needWrite){
 				formattedJson[formattedJsonIndex++] = ch;
 			} else if(!isSpaceSymbol(ch))
-				formattedJson[formattedJsonIndex++] = ch;
+				formattedJson[formattedJsonIndex++] = ch;*/
 		}
-		if(needWrite)
-			throw new IJsonException("No close \" symbol at "+changeIndex);
+		//System.out.println(json);
 		json = new String(formattedJson).trim();
 	}
 	
@@ -330,16 +439,16 @@ public class IJson implements Json, Cloneable{
 	}
 	@Override
 	public Iterator<Json> iterator() {
-		return map.values().iterator();
+		return array.iterator();
 	}
 	@Override
 	public Json get() {
-		return get("0");
+		return get(0);
 	}
 
 	@Override
 	public Json get(int index) {
-		return get("\r"+index);
+		return array.get(index);
 	}
 	@Override
 	public boolean getBoolean(String propertyName) {
@@ -369,6 +478,36 @@ public class IJson implements Json, Cloneable{
 	public long getLong(String propertyName) {
 		return Long.parseLong(get(propertyName).toString());
 	}
+	@Override
+	public String getString(String propertyName){
+		String result = get(propertyName).toString();
+		
+		result = result
+		
+		.replaceAll("\\\\\"", "\"")
+		.replaceAll("\\\\\\\\", "\\\\")
+		.replaceAll("\\\\/", "/")	
+		.replaceAll("\\\\b", "\b")
+		.replaceAll("\\\\f", "\f")
+		.replaceAll("\\\\n", "\n")
+		.replaceAll("\\\\r", "\r")
+		.replaceAll("\\\\t", "\t");
+		
+		//System.out.println(result);
+		int i = 0;
+		String hex = "";
+		try {
+			for(; (i = result.indexOf("\\u", i)) != -1;) {
+				hex = result.substring(i+2, i+6);
+				char ch = (char)Integer.parseInt(hex,16);
+				result = result.substring(0, i)+ch+result.substring(i+6);
+				i=0;
+			}
+		}catch(NumberFormatException e)	{
+			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found \\u"+hex+" at posotion: "+(offset+i));
+		}
+			return result.substring(1, result.length()-1);
+	}
 	private String toStringResult = null;
 	private void addToStringResult(String add){
 		toStringResult+=add;
@@ -378,13 +517,20 @@ public class IJson implements Json, Cloneable{
 		if(type == JsonType.value)
 			return json;
 		if(type == JsonType.string) {
-			return json.replaceAll("\\\\\\\"", "\"");
+			return "\""+json+"\"";
 		}
 		if(type == JsonType.array) {
-			
+			String result = "";
+			for(Json js: array) {
+				result += ","+js.toString();
+			}
+			return "["+result.substring(1)+"]";
 		}
-		
-		return null;
+		String result = "";
+		for(String key: map.keySet()) {
+			result += ",\""+key+"\":"+map.get(key).toString();
+		}
+		return "{"+result.substring(1)+"}";
 	}
 	
 	/*@Override
@@ -447,18 +593,37 @@ public class IJson implements Json, Cloneable{
 	}
 	@Override
 	public Json get(Object key) {
+		if(type != JsonType.object) 
+			throw new JsonIllegalTypeException("get() is able only for objects, this json is "+type);
 		IJson result = (IJson) map.get(key);
 		if(result == null){
-			if(((String) key).charAt(0) == '\r')
-				key = ((String) key).substring(1);
-			throw new IJsonException("No such property \""+key+"\"");
-		}
-			
+			throw new JsonNoSuchPropertyException("Could not find a property with key \""+key+"\"");
+		}		
 		return map.get(key);
 	}
 	@Override
-	public void add(Json json) {
-		array.add(json);
+	public void remove(Json json) {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("remove(Json) is able only for arrays, this json is "+type);
+		array.remove(json);
+	}
+	@Override
+	public boolean add(Json json) {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type);
+		return array.add(json);
+	}
+	/*@Override
+	public void remove(String json) {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("remove() is able only for arrays");
+		array.remove(new IJson(json));
+	}*/
+	@Override
+	public void add(String json) {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays");
+		array.add(new IJson(json));
 	}
 	@Override
 	public Json put(String key, Json value) {
@@ -468,7 +633,9 @@ public class IJson implements Json, Cloneable{
 		return map.put(key, new IJson(value));
 	}
 	@Override
-	public Json remove(Object key) {
+	public Json remove(String key) {
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("remove(String) is able only for objects, this json is "+type);
 		return map.remove(key);
 	}
 	@Override
@@ -478,6 +645,7 @@ public class IJson implements Json, Cloneable{
 	@Override
 	public void clear() {
 		map.clear();
+		array.clear();
 	}
 	@Override
 	public Set<String> keySet() {
@@ -490,5 +658,9 @@ public class IJson implements Json, Cloneable{
 	@Override
 	public Set<Entry<String, Json>> entrySet() {
 		return map.entrySet();		
+	}
+	@Override
+	public Json remove(Object key) {
+		return map.remove(key);
 	}
 }
