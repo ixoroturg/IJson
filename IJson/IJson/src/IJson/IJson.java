@@ -23,11 +23,11 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	
 	public IJson(String json){
 		this.json = json;
-		try {
+		/*try {
 			isValidValue(0,true);
 		}catch(JsonInvalidFormatException e) {
 			this.json = "\""+json+"\"";		
-		}
+		}*/
 		proccess();
 	}
 	public IJson(){}
@@ -59,6 +59,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	private void proccess(){
 		format();
+		//System.out.println(json);
 		if(type == JsonType.value || type == JsonType.string)
 			return;
 		if(type == JsonType.array) {
@@ -194,7 +195,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			}
 				
 			if(ch == '0') {
-				if(i < 2) {
+				if(i == 0 || (i == 1 && str.charAt(0) == '-')) {
+					if(str.length() < i)
 					switch(str.charAt(i+1)) {
 						case '.','e','E' -> {continue;}
 						default -> {throw new JsonInvalidFormatException("Unexpected 0 at position: "+(offset+from+i));}
@@ -274,15 +276,26 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		}
 		char[] formattedJson = new char[json.length()];
 		int formattedJsonIndex = 0;
+		
 		for(int i = 0; i < json.length(); i++){
 			char ch = json.charAt(i);
-			if(ch == '\"' && isFunctionalQuote(ch)) {
+	try {
+			if(ch == '\"' && isFunctionalQuote(i)) {
 				int end = getCloseBracketIndex(i);
 				for(int j = i; j < end+1; j++)
 					formattedJson[formattedJsonIndex++] = json.charAt(j);
 				i = end;
 				continue;
 			}
+	}catch(Exception e) {
+		//System.out.println(json);
+		//System.out.println("index: "+i);
+		e.printStackTrace();
+		try {
+			wait(100);
+		} catch (InterruptedException e1) {}
+		System.exit(0);
+	}
 			if(!isSpaceSymbol(ch))
 				formattedJson[formattedJsonIndex++] = ch;
 		}
@@ -290,6 +303,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	
 	private boolean isFunctionalQuote(int index){
+		//System.out.println("Принято: "+index +" "+json);
+		//System.out.println(json);
 		if(index == 0)
 			return true;
 		return json.charAt(index-1) != '\\';
@@ -320,8 +335,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		};
 	}
 	private int getCloseBracketIndex(int index){
+		//System.out.println(index);
 		char openBracket = json.charAt(index);
-		if(openBracket == '"'){
+		if(openBracket == '\"'){
 			int i;
 			while(true){
 				i = json.indexOf('"', index+1);	
@@ -445,7 +461,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public boolean isEmpty() {
-		return map.isEmpty();
+		return map.isEmpty() && array.isEmpty();
 	}
 	@Override
 	public boolean containsKey(Object key) {
