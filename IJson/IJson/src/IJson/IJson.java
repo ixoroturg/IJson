@@ -447,17 +447,21 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			for(Json js: array) {
 				result += ","+js.toString();
 			}
+			if(result.length() == 0)
+				return "[]";
 			return "["+result.substring(1)+"]";
 		}
 		String result = "";
 		for(String key: map.keySet()) {
 			result += ",\""+key+"\":"+map.get(key).toString();
 		}
+		if(result.length() == 0)
+			return "{}";
 		return "{"+result.substring(1)+"}";
 	}
 	@Override
 	public int size() {	
-		return map.size();
+		return map.size() + array.size();
 	}
 	@Override
 	public boolean isEmpty() {
@@ -469,7 +473,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public boolean containsValue(Object value) {
-		return map.containsValue(value);
+		return map.containsValue(value) || array.contains(value);
 	}
 	@Override
 	public Json get(Object key) {
@@ -482,32 +486,36 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		return map.get(key);
 	}
 	@Override
-	public void remove(Json json) {
+	public Json remove(Json json) {
 		if(type != JsonType.array)
 			throw new JsonIllegalTypeException("remove(Json) is able only for arrays, this json is "+type);
 		array.remove(json);
+		return this;
 	}
 	@Override
-	public boolean add(Json json) {
+	public Json add(Json json) {
 		if(type == null)
 			type = JsonType.array;
 		if(type != JsonType.array)
 			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type);
-		return array.add(json);
+		array.add(json);
+		return this;
 	}
 	@Override
-	public void add(String json) {
+	public Json add(String json) {
 		if(type == null)
 			type = JsonType.array;
 		if(type != JsonType.array)
 			throw new JsonIllegalTypeException("add() is able only for arrays");
 		array.add(new IJson(json));
+		return this;
 	}
 	@Override
 	public Json put(String key, Json value) {
 		if(type == null)
 			type = JsonType.object;
-		return map.put(key,value);
+		map.put(key,value);
+		return this;
 	}
 	public Json put(String key, String value) {
 		if(type == null)
@@ -515,13 +523,15 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		int offset = 0;
 		if(json != null)
 			offset = json.length()-2;
-		return map.put(key, new IJson(value, this, offset));
+		map.put(key, new IJson(value, this, offset));
+		return this;
 	}
 	@Override
 	public Json remove(String key) {
 		if(type != JsonType.object)
 			throw new JsonIllegalTypeException("remove(String) is able only for objects, this json is "+type);
-		return map.remove(key);
+		map.remove(key);
+		return this;
 	}
 	@Override
 	public void putAll(Map<? extends String, ? extends Json> m) {
@@ -546,6 +556,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Json remove(Object key) {
-		return map.remove(key);
+		map.remove(key);
+		return this;
 	}
 }

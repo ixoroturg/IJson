@@ -15,19 +15,19 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @param json to add
 	 * @return true on success
 	 */
-	public boolean add(Json json);
+	public Json add(Json json);
 	/**
 	 * Remove json from array
 	 * @param json to remove
 	 * @return true on success
 	 */
-	public void remove(Json json);
+	public Json remove(Json json);
 	/**
 	 * Add json to array
 	 * @param json to add
 	 * @return true on success
 	 */
-	public void add(String json);
+	public Json add(String json);
 	/**
 	 * Remove json from object by given property name
 	 * @param property name to remove
