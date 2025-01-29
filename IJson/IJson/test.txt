@@ -1,0 +1,17 @@
+{"menu": {
+  "id": "file",
+  "value": "File",
+  "myIntValue": true,
+  "myFlag": false,
+  "myWHString": "string with \"whitespaces\" symbols \u2191",
+  "myNumber": 0.123456789,
+  "nullValue": "",
+  "myNullObject": null,
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclick": "OpenDoc()"},
+      {"value": "Close", "onclick": "CloseDoc()"}
+    ]
+  }
+}}

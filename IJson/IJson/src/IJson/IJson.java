@@ -503,6 +503,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Json add(String json) {
+		if(json == null)
+			return this;
 		if(type == null)
 			type = JsonType.array;
 		if(type != JsonType.array)
@@ -518,6 +520,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		return this;
 	}
 	public Json put(String key, String value) {
+		if(value == null)
+			return this;
 		if(type == null)
 			type = JsonType.object;
 		int offset = 0;
