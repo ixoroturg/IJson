@@ -2,6 +2,7 @@ package IJson;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,7 +60,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	private void proccess(){
 		format();
-		//System.out.println(json);
 		if(type == JsonType.value || type == JsonType.string)
 			return;
 		if(type == JsonType.array) {
@@ -127,11 +127,80 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		return this;
 	}
 	/**
-	 * 
 	 * @param from 
 	 * @return index of next char after value or -1 if value is invalid
 	 */
 	private int isValidValue(int from, boolean onlyOneValue) {
+		int i = 0;
+		String str = json.substring(from).trim();
+		if(str.startsWith("true"))
+			i = 4;
+		if(str.startsWith("false"))
+			i = 5;
+		if(str.startsWith("null"))
+			i = 4;
+		if(i != 0) {
+			if(i == str.length()) {
+				if(onlyOneValue)
+					return i;
+				else 
+					throw new JsonInvalidFormatException("Unexpected end of line");
+			}
+			return i;
+		}	
+		boolean wasDot = false;
+		boolean wasExp = false;
+		char ch;
+		for(i = 0; i < str.length(); i++) {
+			ch = str.charAt(i);
+			boolean isDigit = (ch - '0' >= 0) && (ch - '9' <= 0);
+			switch(ch) {
+			case '-' -> {
+				if(i != 0 && !(str.charAt(i-1) != 'e' ^ str.charAt(i-1) != 'E'))
+					throw new JsonInvalidFormatException("Unexpected - at position: "+(offset+from+i));
+				}
+			case '0' -> {
+				if(i == 0 && str.length() > 1 && !(str.charAt(i + 1) != '.' ^ !(str.charAt(i + 1) != 'e' ^ str.charAt(i + 1) != 'E')) )
+					throw new JsonInvalidFormatException("Unexpected 0 at position: "+(offset+from+i));
+				}
+			case 'e' , 'E' -> {
+				if(wasExp)
+					throw new JsonInvalidFormatException("Unexpected "+ch+" at position: "+(offset+from+i));
+				wasExp = true;
+				}
+			case '.' -> {
+				if(wasDot)
+					throw new JsonInvalidFormatException("Unexpected . at position: "+(offset+from+i));
+				wasDot = true;
+				}
+			case '+' -> {
+				if(str.length() < 2 || i == 0 || !(str.charAt(i-1) != 'e' ^ str.charAt(i-1) != 'E'))
+					throw new JsonInvalidFormatException("Unexpected + at position: "+(offset+from+i));
+			}
+			default -> {
+					if(isDigit) 
+						continue;					
+					if(!isCloseSymbol(ch))
+						throw new JsonInvalidFormatException("Unexpected "+ch+" at position: "+(offset+from+i));
+					if(i == 0)
+						throw  new JsonInvalidFormatException("Empty value at position: "+(offset+from));
+					return i;										
+				}
+			}	
+		}
+		
+		if(onlyOneValue)
+			return 1; //need just return non-zero
+		else
+			throw new JsonInvalidFormatException("Unexpected end of line");
+	}
+	/*
+	/**
+	 * 
+	 * @param from 
+	 * @return index of next char after value or -1 if value is invalid
+	 
+	private int isValidValue2(int from, boolean onlyOneValue) {
 		int i = 0;
 		String str;
 		if(onlyOneValue)
@@ -216,7 +285,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		else
 			throw new JsonInvalidFormatException("Unexpected end of line");
 	}
-	
+	*/
 	public static String formatString(String json) {
 		json = json
 			.replaceAll("\"", "\\\\\\\\\\\"")
@@ -226,8 +295,11 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			.replaceAll("\f", "\\\\f")
 			.replaceAll("\n", "\\\\n")
 			.replaceAll("\r", "\\\\r")
-			.replaceAll("\t", "\\\\t");
+			.replaceAll("\t", "\\\\t")
 			
+				;
+			
+		
 		checkUnicodePoints(json, 0);
 		return json;
 	}
@@ -274,22 +346,32 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			}
 				return;
 		}
-		char[] formattedJson = new char[json.length()];
+		char[] formattedJson = new char[(int)(json.length()*1.1)];
 		int formattedJsonIndex = 0;
+		
+		
 		
 		for(int i = 0; i < json.length(); i++){
 			char ch = json.charAt(i);
 	try {
+		
 			if(ch == '\"' && isFunctionalQuote(i)) {
+				
 				int end = getCloseBracketIndex(i);
-				for(int j = i; j < end+1; j++)
-					formattedJson[formattedJsonIndex++] = json.charAt(j);
+				for(int j = i; j <= end; j++) {
+					char ch2 = json.charAt(j);
+					switch(ch2) {
+					case '{', '[', '}', ']' -> {
+							formattedJson[formattedJsonIndex++] = '\\';
+						}
+					}
+					formattedJson[formattedJsonIndex++] = ch2;
+				}
 				i = end;
 				continue;
 			}
 	}catch(Exception e) {
-		//System.out.println(json);
-		//System.out.println("index: "+i);
+		System.err.println("Ошибка в форматировании "+ ch+" "+i);
 		e.printStackTrace();
 		try {
 			wait(100);
@@ -303,8 +385,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	
 	private boolean isFunctionalQuote(int index){
-		//System.out.println("Принято: "+index +" "+json);
-		//System.out.println(json);
 		if(index == 0)
 			return true;
 		return json.charAt(index-1) != '\\';
@@ -335,12 +415,11 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		};
 	}
 	private int getCloseBracketIndex(int index){
-		//System.out.println(index);
 		char openBracket = json.charAt(index);
 		if(openBracket == '\"'){
 			int i;
 			while(true){
-				i = json.indexOf('"', index+1);	
+				i = json.indexOf('\"', index+1);	
 				if(i == -1)
 					break;
 				if(isFunctionalQuote(i))
@@ -349,16 +428,17 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 					index = i;
 				}
 			}
-			if(i == -1)
-				throw new JsonInvalidFormatException("Could not find close symbol for "+json.charAt(i)+" at posotion: "+(offset+i));
-			return i;
+			if(i == -1) {
+				throw new JsonInvalidFormatException("Could not find close symbol for "+json.charAt(index)+" at posotion: "+(offset+index));		
+			}
+				return i;
 		}
 		char closeBracket = getCloseBracket(openBracket);
 		int bracketCount = 0;
 		for(int i = index+1; i < json.length(); i++){
-			if(json.charAt(i) == openBracket)
+			if(json.charAt(i) == openBracket && i != 0 && json.charAt(i - 1) != '\\')
 				bracketCount++;				
-			if(json.charAt(i) == closeBracket)
+			if(json.charAt(i) == closeBracket  && i != 0 && json.charAt(i - 1) != '\\')
 				bracketCount--;
 			if(bracketCount == -1)
 				return i;
@@ -410,16 +490,17 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	public String getString(String propertyName){
 		String result = get(propertyName).toString();
 		
-		result = result
 		
-		.replaceAll("\\\\\"", "\"")
-		.replaceAll("\\\\\\\\", "\\\\")
-		.replaceAll("\\\\/", "/")	
-		.replaceAll("\\\\b", "\b")
-		.replaceAll("\\\\f", "\f")
-		.replaceAll("\\\\n", "\n")
-		.replaceAll("\\\\r", "\r")
-		.replaceAll("\\\\t", "\t");
+		
+		for(int i = 0; i < result.length(); i++) {
+			char ch = result.charAt(i);
+			if(ch == '{' || ch == '[' || ch == '}' || ch == ']')
+				if(i != 0 && result.charAt(i-1) == '\\')
+					result = result.substring(0,i-1) + result.substring(i);
+					
+		}
+		
+		result = result.translateEscapes();
 		
 		int i = 0;
 		String hex = "";
