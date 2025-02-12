@@ -8,14 +8,20 @@ import java.util.Map;
 public interface Json extends Iterable<Json>, Map<String, Json>{
 	
 	
+	public String getRAWJson();
 	public Json put(String key, String value);
-	
+	public Json put(String key, boolean value);
+	public Json put(String key, long value);
+	public Json put(String key, double value);
 	/**
 	 * Add json to array
 	 * @param json to add
 	 * @return true on success
 	 */
 	public Json add(Json json);
+	public Json add(boolean value);
+	public Json add(long value);
+	public Json add(double value);
 	/**
 	 * Remove json from array
 	 * @param json to remove

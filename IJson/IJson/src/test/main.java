@@ -9,30 +9,24 @@ public class main {
 		
 		int index = 0;
 		//Json ad = null;// = new IJson("{\"id0\": -30456e7}");
-		Json ad = new IJson("{\"station\":\"8826,6{[965,9058,9932,100,7435,8067,787,31,6870,2,10076,7043,10188,8530,9846,826,819,9125,11325,298\",\"data\":\"321,326,325,322,328,327,329,330,324,323\",\"separator\":\",\"}\n"
-				+ "");
-		
+		String js = "{\"key\":{1,\"data\":[[\"Астр{а}хань,ГМО\",5,4,7,4,11,8,12,6,4,7,7,5]]}";
+		//System.out.println(js);
+		Json test = null;
 		try {
-		;
-		//ad.readFrom(new FileInputStream("/home/ixoroturg/Рабочий стол/sample.json"));
-		}catch (Exception e) {
-			//System.out.println(((IJson) ad).getRAWFormattedJson());
+		test = new IJson(js);
+		}catch(JsonException e) {
+			System.out.println(e.getJson().getRAWJson().substring(e.getIndex()));
 			e.printStackTrace();
 		}
-		
-		//String input = new String(new FileInputStream("/home/ixoroturg/Рабочий стол/sample.json").readAllBytes()).trim();
-		
-		//System.out.println("Вход: "+input.substring(95373, 95373 + 200));
-		//System.out.println(((IJson) ad).getRAWFormattedJson());
-		//System.out.println(((IJson) ad).getRAWFormattedJson().substring(0, 120));
-		//ad.put("id", "00.98");
-		
-		//System.out.println((int)'');
-		//30777 error
-		//value = ad.get("id").toString();
-		//value = js.get("menu").get("myWHString").toString();
-		//System.out.println(ad);
-		//System.out.println(ad.getString("station"));
+		//test.add("dsa");
+		test.put("test","1.543e7");
+		test.put("test2", false);
+		test.put("test3", true);
+		test = test.get("data").add(false).back().back();
+		//test = test.back();
+		//test.put("test2", null);
+		System.out.println(test);
+		//System.out.println(test.getBoolean("test"));
 	}
 
 }

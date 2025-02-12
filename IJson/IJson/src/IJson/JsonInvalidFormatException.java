@@ -1,7 +1,7 @@
 package IJson;
 
 public class JsonInvalidFormatException extends JsonException{
-	public JsonInvalidFormatException(String describtion){
-		super(describtion);
+	public JsonInvalidFormatException(String describtion, Json json, int index){
+		super(describtion, json, index);
 	}
 }
