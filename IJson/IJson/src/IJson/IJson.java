@@ -383,7 +383,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	public Json get() {
 		return get(0);
 	}
-
+	private void setParent(Json parent) {
+		this.parent = (IJson) parent;
+	}
 	@Override
 	public Json get(int index) {
 		return array.get(index);
@@ -559,6 +561,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			type = JsonType.array;
 		if(type != JsonType.array)
 			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type,this,-1);
+		((IJson)json).setParent(this);
 		array.add(json);
 		return this;
 	}
@@ -578,6 +581,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	public Json put(String key, Json value) {
 		if(type == null)
 			type = JsonType.object;
+		((IJson)value).setParent(this);
 		map.put(key,value);
 		return this;
 	}
