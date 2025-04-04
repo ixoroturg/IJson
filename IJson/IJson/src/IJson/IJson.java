@@ -1,19 +1,7 @@
 package IJson;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
+import java.util.stream.*;
 public class IJson implements Json, Cloneable, Iterable<Json>{
 	private IJson parent;
 	private int offset = 0;
@@ -21,12 +9,117 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	private String json;
 	private JsonType type = null;
 	private LinkedList<Json> array = new LinkedList<Json>();
+	private List<String> separator = new ArrayList<String>(List.of(".","/"));
+
+	public IJson(byte json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(short json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(int json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(long json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(float json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(double json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(boolean json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	public IJson(char json) {
+		type = JsonType.value;
+		this.json = String.valueOf(json);
+		proccess();
+	}
+	
+	
+	public IJson(byte[] array) {
+		type = JsonType.array;
+		for(byte value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(short[] array) {
+		type = JsonType.array;
+		for(short value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(int[] array) {
+		type = JsonType.array;
+		for(int value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(long[] array) {
+		type = JsonType.array;
+		for(long value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(float[] array) {
+		type = JsonType.array;
+		for(float value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(double[] array) {
+		type = JsonType.array;
+		for(double value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(boolean[] array) {
+		type = JsonType.array;
+		for(boolean value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public IJson(char[] array) {
+		type = JsonType.array;
+		for(char value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+	}
+	public <T> IJson(T[] array) {
+		type = JsonType.array;
+		for(T value: array) {
+			this.array.add(new IJson(String.valueOf(value)).setParent(this));
+		}
+	}
+	public <T> IJson(T object) {
+		type = JsonType.value;
+			this.array.add(new IJson(object.toString()).setParent(this));
+	}
 	
 	public IJson(String json){
 		this.json = json;
 		proccess();
 	}
 	public IJson(){}
+	
+	
+	
 	public IJson(JsonType type) {
 		this.type = type;
 	}
@@ -48,7 +141,19 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		return offset;
 	}
 	@Override
-	public IJson back(){
+	public Json back(int level) {
+		Json result = this;
+		if(level == 0) {
+			while(((IJson)result).parent != null)
+				result =  result.back();
+			return result;
+		}
+		while(level-- > 0)
+			result = result.back();
+		return result;
+	}
+	@Override
+	public Json back(){
 		if(parent == null)
 			throw new JsonNoParentException("This json has no parent",this,-1);
 		return parent;
@@ -377,18 +482,38 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Iterator<Json> iterator() {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("this json is not array",this,-1);
 		return array.iterator();
 	}
 	@Override
 	public Json get() {
 		return get(0);
 	}
-	private void setParent(Json parent) {
-		this.parent = (IJson) parent;
+	private IJson setParent(IJson parent) {
+		this.parent =  parent;
+		return this;
 	}
 	@Override
 	public Json get(int index) {
-		return array.get(index);
+		try {
+			if(type == JsonType.array)
+				return array.get(index);
+		}catch(IndexOutOfBoundsException e) {
+			throw new JsonArrayIndexOutOfBoundsException("index: "+index+", size: "+array.size(),this,-1);
+		}
+		if(type == JsonType.object) {
+			var iter = map.keySet().iterator();
+			int i = index;
+			String key = null;
+			while(i-- >= 0)
+				if(!iter.hasNext())
+					throw new JsonArrayIndexOutOfBoundsException("no such index "+index,this,-1);
+				else 
+					key = iter.next();
+			return map.get(key);
+		}
+		throw new JsonIllegalTypeException("this json is not array or object",this,-1);
 	}
 	@Override
 	public boolean getBoolean(String propertyName) {
@@ -508,7 +633,10 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		if(type == JsonType.array) {
 			String result = "";
 			for(Json js: array) {
-				result += ","+js.toString();
+				if(js == null)
+					result += ",null";
+				else
+					result += ","+js.toString();
 			}
 			if(result.length() == 0)
 				return "[]";
@@ -528,7 +656,12 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public boolean isEmpty() {
-		return map.isEmpty() && array.isEmpty();
+		if(type == JsonType.array)
+			return array.isEmpty();
+		if(type == JsonType.object)
+			return map.isEmpty();
+		throw new JsonIllegalTypeException("this json is not array or object",this,-1);
+//		return map.isEmpty() || array.isEmpty();
 	}
 	@Override
 	public boolean containsKey(Object key) {
@@ -540,6 +673,37 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Json get(Object key) {
+		patternCheck:if(key instanceof String pattern) {
+			String sep = null;
+			for(String s: separator) {
+				if(pattern.indexOf(s) != -1) {
+					sep = s;
+					break;
+				}
+			}
+			if(sep == null)
+				break patternCheck;
+			if(sep.equals("."))
+				sep = "\\"+sep;
+			String[] arr = pattern.split(sep);
+			Json result = this;
+			for(String k: arr) {
+				if(!result.containsKey(k)) {
+					try {
+						int keyIndex = Integer.parseInt(k);
+						result = result.get(keyIndex);
+						continue;
+					}catch(NumberFormatException e) {
+						var e2 = new JsonInvalidFormatException("no such property or array index \""+k+"\"",result,-1);
+//						e2.initCause(e);
+						throw e2;
+					}
+				}
+				result = result.get(k);
+			}
+			return result;
+		}
+		
 		if(type != JsonType.object) 
 			throw new JsonIllegalTypeException("get() is able only for objects, this json is "+type ,this,-1);
 		IJson result = (IJson) map.get(key);
@@ -576,20 +740,76 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		array.add(new IJson(json));
 		return this;
 	}
+	private record PutObj(String key, Json json) {};
+	
+	private PutObj superPut(String key) {
+
+		pattern:if(key instanceof String pattern) {
+			String sep = null;
+			for(String s: separator) {
+				if(pattern.indexOf(s) != -1) {
+					sep = s;
+					break;
+				}
+			}
+//			System.out.println(pattern+" "+key);
+			if(sep == null)
+				break pattern;
+//				throw new JsonNoSuchPropertyException("Could not find a property with key \""+key+"\"",this,-1);
+			if(sep.equals("."))
+				sep = "\\"+sep;
+			String[] arr = pattern.split(sep);
+			Json result = this;
+			for(int i = 0; i < arr.length - 1; i++) {
+				String k = arr[i];
+				if(!result.containsKey(k)) {
+					try {
+						int keyIndex = Integer.parseInt(k);
+						result = result.get(keyIndex);
+						continue;
+					}catch(NumberFormatException e) {;
+						throw new JsonInvalidFormatException("no such property or array index \""+k+"\"",result,-1);
+					}
+				}
+				result = result.get(k);
+			}
+//			System.out.println(result);
+			return new PutObj(arr[arr.length-1],result);
+		}
+//		System.out.println("err");
+		return null;
+	}
 	
 	@Override
 	public Json put(String key, Json value) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,value);
+			return this;
+		}
+		
 		if(type == null)
 			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
 		((IJson)value).setParent(this);
-		map.put(key,value);
+		
+		map.put(key, value);
 		return this;
 	}
 	public Json put(String key, String value) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,value);
+			return this;
+		}
+		
 		if(value == null)
 			value = "null";
 		if(type == null)
 			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
 		int offset = 0;
 		if(json != null)
 			offset = json.length()-2;
@@ -631,32 +851,631 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Json put(String key, boolean value) {
-		map.put(key, new IJson(String.valueOf(value)));
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,value);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(String.valueOf(value),this,offset));
 		return this;
 	}
 	@Override
 	public Json put(String key, long value) {
-		map.put(key, new IJson(String.valueOf(value)));
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,value);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(String.valueOf(value),this,offset));
 		return this;
 	}
 	@Override
 	public Json put(String key, double value) {
-		map.put(key, new IJson(String.valueOf(value)));
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,value);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(String.valueOf(value),this,offset));
 		return this;
 	}
 	@Override
 	public Json add(boolean value) {
-		array.add(new IJson(String.valueOf(value)));
+		if(type == null)
+			type = JsonType.array;
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type,this,-1);
+		array.add(new IJson(String.valueOf(value),this,offset));
 		return this;
 	}
 	@Override
 	public Json add(long value) {
-		array.add(new IJson(String.valueOf(value)));
+		if(type == null)
+			type = JsonType.array;
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type,this,-1);
+		array.add(new IJson(String.valueOf(value),this,offset));
 		return this;
 	}
 	@Override
 	public Json add(double value) {
-		array.add(new IJson(String.valueOf(value)));
+		if(type == null)
+			type = JsonType.array;
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type,this,-1);
+		array.add(new IJson(String.valueOf(value),this,offset));
+		return this;
+	}
+	@Override
+	public boolean equals(Object com) {
+		
+		IJson js = (IJson)com;
+		
+		if(type != js.type)
+			return false;
+		
+		if(type == null) {
+//			System.out.println(this.back());
+			return true;
+		}
+		
+		return switch(type) {
+			case JsonType.object -> {
+				var key1 = map.keySet();
+				var key2 = js.map.keySet();
+				if(key1.size() != key2.size()) {
+					System.out.println("несовпадение размеров ключей в картах: "+key1.size()+" / "+key2.size());	
+					yield false;
+				}
+				
+				var iter1 = key1.iterator();
+				var iter2 = key2.iterator();
+				while(iter1.hasNext()) {
+//					System.out.println(iter1.next()+" / "+iter2.next()+" : "+iter1.next().equals(iter2.next()));
+					
+					if(!iter1.next().equals(iter2.next())) {
+						
+							
+						
+//						System.out.println("несовпадение1: "+iter1.next()+" / "+iter2.next());	
+						yield false;
+					}
+				}
+				iter1 = key1.iterator();
+				iter2 = key2.iterator();
+				while(iter1.hasNext()) {
+					if(! map.get(iter1.next()).equals(js.map.get(iter2.next())) ) {
+//						System.out.println("несовпадение2: "+map.get(iter1.next())+" / "+js.map.get(iter2.next()));	
+						yield false;
+					}
+				}
+				
+				yield true;
+			}
+			case JsonType.array -> {
+				if(array.size() != js.array.size()) {
+//					System.out.println("несовпадение размеров массивов: "+array.size()+" / "+js.array.size());
+					yield false;
+				}
+					
+				
+				for(int i = 0; i < this.array.size(); i++) {
+					
+					if(!array.contains(js.array.get(i))) {
+//						System.out.println("несовпадение3: "+array.get(i)+" / "+js.array.get(i));				
+						yield false;
+					}
+						
+						
+				}
+				yield true;
+			}
+			case JsonType.string, JsonType.value -> {
+//				if(!json.equals(js.json))
+//					System.out.println("Несовпадение4: "+json+" / "+js.json);
+				yield json.equals(js.json);
+			}
+		};
+	}
+	@Override
+	public Json add(Json[] array) {
+		if(type == null)
+			type = JsonType.array;
+		for(Json js: array){
+			if(js instanceof IJson j)
+				j.parent = this;
+			this.array.add(js);
+		}
+		return this;
+	}
+	@Override
+	public Json add(String[] array) {
+		if(type == null)
+			type = JsonType.array;
+		for(String js: array){
+			this.array.add(new IJson(js,this,offset));
+		}
+		return this;
+	}
+	
+	@Override
+	public <T> Json add(T[] array) {
+		if(type == null)
+			type = JsonType.array;
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type,this,-1);
+		for(T value: array) {
+			this.array.add(new IJson(String.valueOf(value),this,offset));
+		}
+		return this;
+	}
+	
+	private void checkArray() {
+		if(type == null)
+			type = JsonType.array;
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("add() is able only for arrays, this json is "+type,this,-1);
+	}
+	private void checkStream() {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("getAnyStream() is able only for arrays, this json is "+type,this,-1);
+	}
+	@Override
+	public Json add(byte[] array) {
+		checkArray();
+		for(byte value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(short[] array) {
+		checkArray();
+		for(short value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(int[] array) {
+		checkArray();
+		for(int value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(long[] array) {
+		checkArray();
+		for(long value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(float[] array) {
+		checkArray();
+		for(float value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(double[] array) {
+		checkArray();
+		for(double value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(char[] array) {
+		checkArray();
+		for(char value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	@Override
+	public Json add(boolean[] array) {
+		checkArray();
+		for(boolean value: array) {
+			this.array.add(new IJson(value).setParent(this));
+		}
+		return this;
+	}
+	
+	@Override
+	public byte[] getByteArray() {
+		checkArray();
+		byte[] result = new byte[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Byte.parseByte(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public short[] getShortArray() {
+		checkArray();
+		short[] result = new short[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Short.parseShort(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public int[] getIntArray() {
+		checkArray();
+		int[] result = new int[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Integer.parseInt(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public long[] getLongArray() {
+		checkArray();
+		long[] result = new long[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Long.parseLong(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public float[] getFloatArray() {
+		checkArray();
+		float[] result = new float[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Float.parseFloat(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public double[] getDoubleArray() {
+		checkArray();
+		double[] result = new double[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Double.parseDouble(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public boolean[] getBooleanArray() {
+		checkArray();
+		boolean[] result = new boolean[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = Boolean.parseBoolean(value.toString());
+		}
+		return result;
+	}
+	@Override
+	public String[] getStringArray() {
+		checkArray();
+		String[] result = new String[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = value.toString();
+		}
+		return result;
+	}
+	@Override
+	public Json[] getJsonArray() {
+		checkArray();
+		Json[] result = new Json[array.size()];
+		int i = 0;
+		for(Json value: array) {
+			result[i++] = value;
+		}
+		return result;
+	}
+	
+	@Override
+	public IntStream getIntStream() {
+		checkStream();
+		return Arrays.stream(getIntArray());
+	}
+	@Override
+	public LongStream getLongStream() {
+		checkStream();
+		return Arrays.stream(getLongArray());
+	}
+	@Override
+	public DoubleStream getDoubleStream() {
+		checkStream();
+		return Arrays.stream(getDoubleArray());
+	}
+	@Override
+	public Stream<String> getStringStream() {
+		checkStream();
+		return Arrays.stream(getStringArray());
+	}
+	@Override
+	public Stream<Json> getJsonStream() {
+		checkStream();
+		return Arrays.stream(getJsonArray());
+	}
+	@Override
+	public byte[] toBytes() {
+		return toString().getBytes();
+	}
+	@Override
+	public int getByteLength() {
+		return toString().getBytes().length;
+	}
+	@Override
+	public Json put(String key, byte[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, short[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, int[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, long[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, float[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, double[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, char[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, boolean[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, String[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public Json put(String key, Json[] array) {
+		PutObj js;
+		if( (js = superPut(key) ) != null) {
+			js.json.put(js.key,array);
+			return this;
+		}
+		if(type == null)
+			type = JsonType.object;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("put() is able only for objects, this json type is "+type,this,-1);
+		map.put(key, new IJson(array).setParent(this));
+		return this;
+	}
+	@Override
+	public byte[] getByteArray(String key) {
+		return get(key).getByteArray();
+	}
+	@Override
+	public short[] getShortArray(String key) {
+		return get(key).getShortArray();
+	}
+	@Override
+	public int[] getIntArray(String key) {
+		return get(key).getIntArray();
+	}
+	@Override
+	public long[] getLongArray(String key) {
+		return get(key).getLongArray();
+	}
+	@Override
+	public float[] getFloatArray(String key) {
+		return get(key).getFloatArray();
+	}
+	@Override
+	public double[] getDoubleArray(String key) {
+		return get(key).getDoubleArray();
+	}
+	@Override
+	public boolean[] getBooleanArray(String key) {
+		return get(key).getBooleanArray();
+	}
+	@Override
+	public String[] getStringArray(String key) {
+		return get(key).getStringArray();
+	}
+	@Override
+	public Json[] getJsonArray(String key) {
+		return get(key).getJsonArray();
+	}
+	
+	@Override
+	public Json add(String key, byte[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, short[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, int[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, long[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, float[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, double[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, char[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, boolean[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public <T> Json add(String key, T[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, String[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, Json[] array) {
+		get(key).add(array);
+		return this;
+	}
+	@Override
+	public Json add(String key, Json json) {
+		get(key).add(json);
+		return this;
+	}
+	@Override
+	public Json add(String key, boolean value) {
+		get(key).add(value);
+		return this;
+	}
+	@Override
+	public Json add(String key, long value) {
+		get(key).add(value);
+		return this;
+	}
+	@Override
+	public Json add(String key, double value) {
+		get(key).add(value);
+		return this;
+	}
+	@Override
+	public Json add(String key, String value) {
+		get(key).add(value);
 		return this;
 	}
 }
