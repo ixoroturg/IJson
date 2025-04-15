@@ -13,6 +13,12 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public Stream<String> getStringStream();
 	public Stream<Json> getJsonStream();
 	
+	public IntStream getIntStream(String key);
+	public LongStream getLongStream(String key);
+	public DoubleStream getDoubleStream(String key);
+	public Stream<String> getStringStream(String key);
+	public Stream<Json> getJsonStream(String key);
+	
 	public byte[] getByteArray();
 	public short[] getShortArray();
 	public int[] getIntArray();
@@ -71,7 +77,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	
 	
 	public String getRAWJson();
+	
 	public Json put(String key, String value);
+	public Json putValue(String key, String value);
 	public Json put(String key, boolean value);
 	public Json put(String key, long value);
 	public Json put(String key, double value);
@@ -91,11 +99,13 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @param json to add
 	 * @return true on success
 	 */
+	public Json add(String json);
 	public Json add(Json json);
 	public Json add(boolean value);
 	public Json add(long value);
 	public Json add(double value);
 	
+	public Json add(String key, String json);
 	public Json add(String key, Json json);
 	public Json add(String key, boolean value);
 	public Json add(String key, long value);
@@ -111,8 +121,7 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @param json to add
 	 * @return true on success
 	 */
-	public Json add(String json);
-	public Json add(String key, String json);
+
 	/**
 	 * Remove json from object by given property name
 	 * @param property name to remove
@@ -199,6 +208,12 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public String getString(String propertyName);
 	
+	public Json parseHttpRequest(String request);
+	public Json parseHttpRequestForce(String request);
+	
+	public String getPropertyName();
+	public String getPropertyNameOrNull();
+	public boolean equals(String json);
+	public Json setType(JsonType type);
 	public byte[] toBytes();
-	public int getByteLength();
 }

@@ -26,27 +26,26 @@ public class main {
 //
 //		System.out.println(test1);
 //		System.out.println(test2);
-		int[] arr = new int[0];
-		Json test = new IJson(arr);
-//		
-//		var c = test.getDoubleStream().map(Math::sqrt).peek(System.out::println).reduce(0, (d1,d2) -> {return (d1+d2)/2;});
-//		System.out.println(c);
-//		System.out.println(test2);
-//		System.out.println("ответ");
+//		int[] arr = new int[0];
+		Json test = new IJson();
+		String[] A = null;
+		test.clear();
+		test.parseHttpRequestForce("key1=value1&key2=value2");
+		test.putValue("key3","0e-1");
+		test = test.get("key3");
+		test2.clear();
+		String t2 = test.getPropertyName();
 		try {
-//			int check = test2.getInt("56/0/key");
-//			System.out.println(check);
-//			Json res = test2.get("56.0.value.0");
-			Json[] arr2 = new Json[]{null, null,null,new IJson().put("null", "not null"), null };
-//			arr2[3] = new IJson().put("null", "not null");
-//			System.out.println(test2.get("56.0").put("lol","ass"));
-			System.out.println(test2.put("56.0.lol", new String[] {"A","B","C"}));
-			System.out.println(test2.add("56.0.lol", "D"));
-			System.out.println(test2.add("56.0.value", arr2));
-//			System.out.println(test2.get("56.0.value.5"));
-			System.out.println(test2.put("56.0.value.5.next", new int[] {11,22,33,44,55}));
+			String[] b = {null, "hello"};
+			byte[] a = {1,2,3};
+			System.out.println(new IJson().put("arr", (String)null));
+			System.out.println(new IJson(0e-1));
+//			System.out.println(test2.put("56.0.next",-5e+2));
+//			System.out.println(test2.get("56.0.next").getPropertyName());
+//			System.out.println(test2.put("56.0.value.0.next", new int[] {11,22,33,44,55}));
 		}catch(JsonNoSuchPropertyException e) {
-			System.err.println(e.getJson());
+//			System.err.println(e.getJson());
+			e.printStackTrace();
 		}
 		
 
