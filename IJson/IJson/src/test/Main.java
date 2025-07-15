@@ -26,21 +26,22 @@ public class Main {
 //					.get("more_mods")
 //					.put("mode1","easy") // и свойства
 //					.put("mode2","hard");
-		Json js = new IJson().parseHttpRequestForce("key1=[1,2,3]&key2={\"name\":\"ixoroturg\"}");
-		System.out.println(js);
-//		Json js = new IJson()
-//				.put("name", "ixoroturg") // вставляем имя
-//				.put("attributes", new IJson())
-//				.put("attributes/age",22)
-//				.put("attributes/height",173)
-//				.put("attributes/addon", new IJson())
-//				.add("attributes/addon",new int[] {1,2,3,4,5})
-//				.add("attributes/addon",new double[] {1.5,2.5})
-//				.add("attributes/addon",new String[] {"Даже",null,"можно"})
-//				.put("attributes/more_mods", new IJson())
-//				.put("attributes/more_mods/mode1","easy")
-//				.put("attributes/more_mods/mode2","hard")
-//					.get("attributes/more_mods");
+//		Json js = new IJson().parseHttpRequestForce("key1=[1,2,3]&key2={\"name\":\"ixoroturg\"}");
+////		js.set
+//		System.out.println(js);
+		Json js = new IJson()
+				.put("name", "ixoroturg") // вставляем имя
+				.put("attributes", new IJson())
+				.put("attributes/age",22)
+				.put("attributes/height",173)
+				.put("attributes/addon", new IJson())
+				.add("attributes/addon",new int[] {1,2,3,4,5})
+				.add("attributes/addon",new double[] {1.5,2.5})
+				.add("attributes/addon",new String[] {"Даже",null,"можно"})
+				.put("attributes/more_mods", new IJson())
+				.put("attributes/more_mods/mode1","easy")
+				.put("attributes/more_mods/mode2","hard")
+					.get("attributes/more_mods");
 //				
 //		System.out.println("1:\n"+js);
 //		js = js.back(); // вернулись в attributes
@@ -48,7 +49,9 @@ public class Main {
 //		System.out.println("2:\n"+js);
 //		js = js.back(); // вернулись к родителю
 ////		System.out.println("3:\n"+Arrays.toString(js.getStringArray("attributes/addon/8")));
-//		System.out.println(js.getString("attributes/addon/8") == null);
+		js.put("../../more",1)
+		.put("../more2",2);
+		System.out.println(js.get(".."));
 		
 		System.exit(0);
 //		Json test1 = new IJson()

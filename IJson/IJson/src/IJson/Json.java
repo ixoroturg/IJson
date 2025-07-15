@@ -75,7 +75,6 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public Json add(String key, String[] array);
 	public Json add(String key, Json[] array);
 	
-	
 	public String getRAWJson();
 	
 	public Json put(String key, String value);
@@ -101,11 +100,16 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @return true on success
 	 */
 	public Json add(String json);
+	public Json addString(String json);
+	public Json addValue(String json);
 	public Json add(Json json);
 	public Json add(boolean value);
 	public Json add(long value);
 	public Json add(double value);
 	
+	
+	public Json addString(String key, String json);
+	public Json addValue(String key, String value);
 	public Json add(String key, String json);
 	public Json add(String key, Json json);
 	public Json add(String key, boolean value);
@@ -128,8 +132,10 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @param property name to remove
 	 * @return removed Json
 	 */
-	public Json remove(String json);
-	
+	public Json remove(String key);
+	public Json remove(int index);
+	public Json remove(String key, int index);
+	public Json remove();
 	/**
 	 * Read all bytes as string from given InputStream and parse it into this json
 	 * @param in InputStream to read
@@ -143,6 +149,7 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @throws IOException
 	 */
 	public void writeTo(OutputStream out) throws IOException;
+	public int getIndex();
 	/**
 	 * Return first json from array
 	 * @return return first json from array
@@ -165,49 +172,65 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 * @param propertyName - name  of property
 	 * @return boolean from json
 	 */
+	public boolean getBoolean();
 	public boolean getBoolean(String propertyName);
+	public boolean getBoolean(int index);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
 	 * @return float from json
 	 */
+	public float getFloat();
 	public float getFloat(String propertyName);
+	public float getFloat(int index);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
 	 * @return double from json
 	 */
+	public double getDouble();
 	public double getDouble(String propertyName);
+	public double getDouble(int index);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
 	 * @return byte from json
 	 */	
+	public byte getByte();
 	public byte getByte(String propertyName);
+	public byte getByte(int index);
 	/**
 	 * get and parse
 	 * @param propertyName - name  of property
 	 * @return short from json
 	 */
+	public short getShort();
 	public short getShort(String propertyName);
+	public short getShort(int index);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
 	 * @return int from json
 	 */
+	public int getInt();
 	public int getInt(String propertyName);
+	public int getInt(int index);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
 	 * @return long from json
 	 */
+	public long getLong();
 	public long getLong(String propertyName);
+	public long getLong(int index);
 	/**
 	 * Get string and format it for human readable output
 	 * @param propertyName - name  of property
 	 * @return String from json
 	 */
+	public String getString();
 	public String getString(String propertyName);
+	public String getString(int index);
 	
 	public Json parseHttpRequest(String request);
 	public Json parseHttpRequestForce(String request);

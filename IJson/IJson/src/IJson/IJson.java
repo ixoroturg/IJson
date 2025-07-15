@@ -9,7 +9,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	private String json;
 	private JsonType type = null;
 	private LinkedList<Json> array = new LinkedList<Json>();
-	private List<String> separator = new ArrayList<String>(List.of(".","/"));
+//	private List<String> separator = new ArrayList<String>(List.of(".","/"));
 	private String PropertyName = null;
 	
 	private IJson(String json, int offset){
@@ -440,11 +440,13 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 				continue;
 			}
 	}catch(Exception e) {
-		System.err.println("Ошибка в форматировании "+ ch+" "+i);
+		System.err.println("Ошибк	а в форматировании "+ ch+" "+i);
 		e.printStackTrace();
 		try {
 			wait(100);
-		} catch (InterruptedException e1) {}
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		return;
 	}
 			if(!isSpaceSymbol(ch))
@@ -643,37 +645,38 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public String getString(String propertyName){
-		IJson tmp = (IJson)get(propertyName);
-		if(tmp.type == JsonType.value) {
-			return tmp.json;
-		}
-		if(tmp.type == JsonType.object || tmp.type == JsonType.array) {
-			throw new JsonWrongTypeException("This is not a string",tmp,-1);
-		}
-		String result = tmp.toString();
-		for(int i = 0; i < result.length(); i++) {
-			char ch = result.charAt(i);
-			if(ch == '{' || ch == '[' || ch == '}' || ch == ']')
-				if(i != 0 && result.charAt(i-1) == '\\')
-					result = result.substring(0,i-1) + result.substring(i);
-					
-		}
-		
-		result = result.translateEscapes();
-		
-		int i = 0;
-		String hex = "";
-		try {
-			for(; (i = result.indexOf("\\u", i)) != -1;) {
-				hex = result.substring(i+2, i+6);
-				char ch = (char)Integer.parseInt(hex,16);
-				result = result.substring(0, i)+ch+result.substring(i+6);
-				i=0;
-			}
-		}catch(NumberFormatException e)	{
-			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found \\u"+hex+" at posotion: ",this,(offset+i));
-		}
-			return result.substring(1, result.length()-1);
+//		IJson tmp = (IJson)get(propertyName);
+//		if(tmp.type == JsonType.value) {
+//			return tmp.json;
+//		}
+//		if(tmp.type == JsonType.object || tmp.type == JsonType.array) {
+//			throw new JsonWrongTypeException("This is not a string",tmp,-1);
+//		}
+//		String result = tmp.toString();
+//		for(int i = 0; i < result.length(); i++) {
+//			char ch = result.charAt(i);
+//			if(ch == '{' || ch == '[' || ch == '}' || ch == ']')
+//				if(i != 0 && result.charAt(i-1) == '\\')
+//					result = result.substring(0,i-1) + result.substring(i);
+//					
+//		}
+//		
+//		result = result.translateEscapes();
+//		
+//		int i = 0;
+//		String hex = "";
+//		try {
+//			for(; (i = result.indexOf("\\u", i)) != -1;) {
+//				hex = result.substring(i+2, i+6);
+//				char ch = (char)Integer.parseInt(hex,16);
+//				result = result.substring(0, i)+ch+result.substring(i+6);
+//				i=0;
+//			}
+//		}catch(NumberFormatException e)	{
+//			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found \\u"+hex+" at posotion: ",this,(offset+i));
+//		}
+//			return result.substring(1, result.length()-1);
+		return get(propertyName).getString();
 	}
 	@Override
 	public String toString() {
@@ -704,7 +707,11 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public int size() {	
-		return map.size() + array.size();
+		if(type == JsonType.object)
+			return map.size();
+		if(type == JsonType.array)
+			return array.size();
+		return 0;
 	}
 	@Override
 	public boolean isEmpty() {
@@ -718,29 +725,35 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public boolean containsKey(Object key) {
+		if(type == null)
+			return false;
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("containsKey is able only for object, this json type is "+type.name(),this,-1);
 		return map.containsKey(key);
 	}
 	@Override
 	public boolean containsValue(Object value) {
-		return map.containsValue(value) || array.contains(value);
+		if(type == JsonType.object)
+			return map.containsValue(value);
+		if(type == JsonType.array)
+			return array.contains(value);
+		return false;
 	}
 	@Override
 	public Json get(Object key) {
 		patternCheck:if(key instanceof String pattern) {
-			String sep = null;
-			for(String s: separator) {
-				if(pattern.indexOf(s) != -1) {
-					sep = s;
-					break;
-				}
-			}
-			if(sep == null)
+			if("..".equals(pattern))
+				return back();
+			if(pattern.indexOf("/") == -1) {
 				break patternCheck;
-			if(sep.equals("."))
-				sep = "\\"+sep;
-			String[] arr = pattern.split(sep);
+			}
+			String[] arr = pattern.split("/");
 			Json result = this;
 			for(String k: arr) {
+				if("..".equals(k)) {
+					result = result.back();
+					continue;
+				}
 				if(!result.containsKey(k)) {
 					try {
 						int keyIndex = Integer.parseInt(k);
@@ -756,8 +769,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			return result;
 		}
 		
-		if(type != JsonType.object) 
-			throw new JsonIllegalTypeException("get() is able only for objects, this json is "+type ,this,-1);
+		if(type != JsonType.object)
+			throw new JsonIllegalTypeException("get(Object key) is able only for objects, this json is "+type ,this,-1);
 		IJson result = (IJson) map.get(key);
 		if(result == null){
 			throw new JsonNoSuchPropertyException("Could not find a property with key \""+key+"\"",this,-1);
@@ -788,49 +801,13 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	public Json add(String json) {
 		return add(new IJson(json));
 	}
-	
-	private record PutObj(String key, Json json) {};
-	
-	
-	private PutObj superPut(String key) {
-
-		pattern:if(key instanceof String pattern) {
-			String sep = null;
-			for(String s: separator) {
-				if(pattern.indexOf(s) != -1) {
-					sep = s;
-					break;
-				}
-			}
-			if(sep == null)
-				break pattern;
-			if(sep.equals("."))
-				sep = "\\"+sep;
-			String[] arr = pattern.split(sep);
-			Json result = this;
-			for(int i = 0; i < arr.length - 1; i++) {
-				String k = arr[i];
-				if(!result.containsKey(k)) {
-					try {
-						int keyIndex = Integer.parseInt(k);
-						result = result.get(keyIndex);
-						continue;
-					}catch(NumberFormatException e) {;
-						throw new JsonInvalidFormatException("no such property or array index \""+k+"\"",result,-1);
-					}
-				}
-				result = result.get(k);
-			}
-			return new PutObj(arr[arr.length-1],result);
-		}
-		return null;
-	}
-	
 	@Override
 	public Json put(String key, Json value) {
-		PutObj js;
-		if( (js = superPut(key) ) != null) {
-			js.json.put(js.key,value);
+		if(key.indexOf("/") != -1) {
+			String[] arr = key.split("/");
+			String innerKey = arr[arr.length - 1];
+			key = String.join("/",Arrays.copyOf(arr, arr.length-1));
+			get(key).put(innerKey,value);
 			return this;
 		}
 		
@@ -850,11 +827,14 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Json remove(String key) {
-		if(type != JsonType.object)
-			throw new JsonIllegalTypeException("remove(String) is able only for objects, this json is "+type,this,-1);
+		if("..".equals(key) || key.indexOf("/") != -1) {
+			get(key).remove();
+			return this;
+		}
 		map.remove(key);
 		return this;
 	}
+	
 	@Override
 	public void putAll(Map<? extends String, ? extends Json> m) {
 		map.putAll(m);
@@ -880,8 +860,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Json remove(Object key) {
-		map.remove(key);
-		return this;
+		return remove((String)key);
+//		map.remove(key);
+//		return this;
 	}
 	@Override
 	public Json put(String key, boolean value) {
@@ -1457,5 +1438,176 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	@Override
 	public Json putString(String key, String value) {
 		return put(key,new IJson("\""+value+"\""));
+	}
+
+	@Override
+	public Json addString(String json) {
+		add(new IJson("\""+json+"\""));
+		return this;
+	}
+
+	@Override
+	public Json addValue(String json) {
+		String tmp = this.json;
+		this.json = json;
+		isValidValue(0,true);
+		this.json = tmp;
+		add(json);
+		return this;
+	}
+
+	@Override
+	public Json addString(String key, String json) {
+		get(key).addString(json);
+		return this;
+	}
+
+	@Override
+	public Json addValue(String key, String value) {
+		get(key).addValue(value);
+		return this;
+	}
+
+	@Override
+	public Json remove(int index) {
+		if(type != JsonType.array)
+			throw new JsonIllegalTypeException("remove(int index) is able only for array, this json type is "+type.name(),this,-1);
+		array.remove(index);
+		return this;
+	}
+
+	@Override
+	public boolean getBoolean() {
+		return Boolean.parseBoolean(toString());
+	}
+	@Override
+	public boolean getBoolean(int index) {
+		return Boolean.parseBoolean(array.get(index).toString());
+	}
+
+	@Override
+	public float getFloat() {
+		return Float.parseFloat(toString());
+	}
+
+	@Override
+	public float getFloat(int index) {
+		return Float.parseFloat(array.get(index).toString());
+	}
+
+	@Override
+	public double getDouble() {
+		return Double.parseDouble(toString());
+	}
+
+	@Override
+	public double getDouble(int index) {
+		return Double.parseDouble(array.get(index).toString());
+	}
+
+	@Override
+	public byte getByte() {
+		return Byte.parseByte(toString());
+	}
+
+	@Override
+	public byte getByte(int index) {
+		return Byte.parseByte(array.get(index).toString());
+	}
+
+	@Override
+	public short getShort() {
+		return Short.parseShort(toString());
+	}
+
+	@Override
+	public short getShort(int index) {
+		return Short.parseShort(array.get(index).toString());
+	}
+
+	@Override
+	public int getInt() {
+		return Integer.parseInt(toString());
+	}
+
+	@Override
+	public int getInt(int index) {
+		return Integer.parseInt(array.get(index).toString());
+	}
+
+	@Override
+	public long getLong() {
+		return Long.parseLong(toString());
+	}
+
+	@Override
+	public long getLong(int index) {
+		return Long.parseLong(array.get(index).toString());
+	}
+
+	@Override
+	public String getString() {
+		IJson tmp = this;
+		if(tmp.type == JsonType.value) {
+			return tmp.json;
+		}
+		if(tmp.type == JsonType.object || tmp.type == JsonType.array) {
+			throw new JsonWrongTypeException("This is not a string",tmp,-1);
+		}
+		String result = tmp.toString();
+		for(int i = 0; i < result.length(); i++) {
+			char ch = result.charAt(i);
+			if(ch == '{' || ch == '[' || ch == '}' || ch == ']')
+				if(i != 0 && result.charAt(i-1) == '\\')
+					result = result.substring(0,i-1) + result.substring(i);
+					
+		}
+		
+		result = result.translateEscapes();
+		
+		int i = 0;
+		String hex = "";
+		try {
+			for(; (i = result.indexOf("\\u", i)) != -1;) {
+				hex = result.substring(i+2, i+6);
+				char ch = (char)Integer.parseInt(hex,16);
+				result = result.substring(0, i)+ch+result.substring(i+6);
+				i=0;
+			}
+		}catch(NumberFormatException e)	{
+			throw new JsonInvalidFormatException("Expected \\uXXXX, where XXXX is 0-9 digit numbers, but found \\u"+hex+" at posotion: ",this,(offset+i));
+		}
+			return result.substring(1, result.length()-1);
+	}
+
+	@Override
+	public String getString(int index) {
+		return get(index).getString();
+	}
+
+	@Override
+	public Json remove(String key, int index) {
+		get(key).remove(index);
+		return this;
+	}
+
+	@Override
+	public Json remove() {
+		IJson tmp = (IJson)back();
+		if(tmp.type == JsonType.object) {
+			tmp.map.remove(getPropertyName());
+		} else if (tmp.type == JsonType.array) {
+			tmp.array.remove(this);
+		}
+		return this;
+	}
+
+	@Override
+	public int getIndex() {
+		IJson tmp = (IJson)back();
+		if(tmp.type != JsonType.array) {
+			throw new JsonIllegalTypeException("getIndex() is able only if this json is in array",this,-1);
+		}
+		return tmp.array.indexOf(this);
 	}
 }
