@@ -79,6 +79,7 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public String getRAWJson();
 	
 	public Json put(String key, String value);
+	public Json putString(String key, String value);
 	public Json putValue(String key, String value);
 	public Json put(String key, boolean value);
 	public Json put(String key, long value);
@@ -216,4 +217,5 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public boolean equals(String json);
 	public Json setType(JsonType type);
 	public byte[] toBytes();
+//	public boolean has
 }

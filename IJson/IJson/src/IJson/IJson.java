@@ -16,6 +16,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		this.json = json;
 		proccess();
 	}
+	
 	public IJson(Map<String,String> map) {
 		type = JsonType.object;
 		map.forEach((key,value) -> {
@@ -270,8 +271,6 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	public void writeTo(OutputStream out) throws IOException {
 		var writer = new BufferedOutputStream(out);
 		writer.write(toString().getBytes());
-		writer.flush();
-		writer.close();
 	}
 	public Json readFrom(InputStream in) throws IOException{
 		var reader = new BufferedInputStream(in);
@@ -748,6 +747,7 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 						result = result.get(keyIndex);
 						continue;
 					}catch(NumberFormatException e) {
+						System.err.println(result);
 						throw new JsonNoSuchPropertyException("no such property or array index \""+k+"\"",result,-1);
 					}
 				}
@@ -788,7 +788,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	public Json add(String json) {
 		return add(new IJson(json));
 	}
+	
 	private record PutObj(String key, Json json) {};
+	
 	
 	private PutObj superPut(String key) {
 
@@ -868,7 +870,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	}
 	@Override
 	public Collection<Json> values() {
-		return map.values();
+			return map.values();
+//		if(type == JsonType.array)
+//			return array.
 	}
 	@Override
 	public Set<Entry<String, Json>> entrySet() {
@@ -1176,7 +1180,11 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		String[] result = new String[array.size()];
 		int i = 0;
 		for(Json value: array) {
-			result[i++] = value.toString();
+			result[i] = value.toString();
+			if(result[i].startsWith("\"")) {
+				result[i] = result[i].substring(1, result[i].length()-1);
+			}
+			i++;
 		}
 		return result;
 	}
@@ -1383,6 +1391,8 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			type = JsonType.object;
 		if(type != JsonType.object)
 			throw new JsonIllegalTypeException("this json is not object and you will lose all previous data, use parseHttpRequest(request, true) to force this action",this,-1);
+		if(request == null || request.indexOf("=") == -1)
+			return this;
 		String[] entries = request.trim().split("&");
 		for(String entry: entries) {
 			String key = entry.split("=")[0];
@@ -1443,5 +1453,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	@Override
 	public boolean equals(String json) {
 		return equals(new IJson(json));
+	}
+	@Override
+	public Json putString(String key, String value) {
+		return put(key,new IJson("\""+value+"\""));
 	}
 }
