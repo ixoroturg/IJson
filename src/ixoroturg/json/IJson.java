@@ -3,16 +3,15 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 public class IJson implements Json, Cloneable, Iterable<Json>{
+
 	IJson parent;
 	private int offset = 0;
-  private String separator = "/", parentJson = "..";
+  public static String separator = "/", parentJson = "..";
 	private Map<String, Json> map = new LinkedHashMap<String, Json>();
-  private boolean useSquareBrackets = true;
-  // private boolean SeparatorBeforeSquareBrackets = false;
+  public static boolean useSquareBrackets = true;
 	private String json;
 	private JsonType type = null;
 	private LinkedList<Json> array = new LinkedList<Json>();
-//	private List<String> separator = new ArrayList<String>(List.of(".","/"));
 	private String PropertyName = null;
 	
 	private IJson(String json, int offset){
@@ -773,9 +772,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 					try {
             String checkKey = k;
             if(useSquareBrackets){
-              if(checkKey.charAt(0) != '[' || checkKey.charAt(checkKey.length-1) != ']')
+              if(checkKey.charAt(0) != '[' || checkKey.charAt(checkKey.length()-1) != ']')
                 throw new JsonInvalidFormatException("you should use [index] syntax for indexing an array. Current syntax: \""+k+"\"",this,1);
-              k = checkKey.substring(1,checkKey.lenght - 1)
+              k = checkKey.substring(1,checkKey.length() - 1);
             }
 						int keyIndex = Integer.parseInt(k);
 						result = result.get(keyIndex);
@@ -1629,5 +1628,231 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			throw new JsonIllegalTypeException("getIndex() is able only if this json is in array",this,-1);
 		}
 		return tmp.array.indexOf(this);
-	}
+  }
+
+    @Override
+    public byte[] getByteArrayOr(String key, byte[] value) {
+      try{
+        return getByteArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public short[] getShortArrayOr(String key, short[] value) {
+      try{
+        return getShortArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public int[] getIntArrayOr(String key, int[] value) {
+      try{
+        return getIntArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public long[] getLongArrayOr(String key, long[] value) {
+      try{
+        return getLongArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public float[] getFloatArrayOr(String key, float[] value) {
+      try{
+        return getFloatArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public double[] getDoubleArrayOr(String key, double[] value) {
+      try{
+        return getDoubleArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public boolean[] getBooleanArrayOr(String key, boolean[] value) {
+      try{
+        return getBooleanArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public String[] getStringArrayOr(String key, String[] value) {
+      try{
+        return getStringArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public Json[] getJsonArrayOr(String key, Json[] value) {
+      try{
+        return getJsonArray(key);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public boolean getBooleanOr(String propertyName, boolean value) {
+      try{
+        return getBoolean(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public boolean getBooleanOr(int index, boolean value) {
+      try{
+        return getBoolean(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public float getFloatOr(String propertyName, float value) {
+      try{
+        return getFloat(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public float getFloatOr(int index, float value) {
+      try{
+        return getFloat(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public double getDoubleOr(String propertyName, double value) {
+      try{
+        return getDouble(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public double getDoubleOr(int index, double value) {
+      try{
+        return getDouble(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public byte getByteOr(String propertyName, byte value) {
+      try{
+        return getByte(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public byte getByteOr(int index, byte value) {
+      try{
+        return getByte(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public short getShortOr(String propertyName, short value) {
+      try{
+        return getShort(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public short getShortOr(int index, short value) {
+      try{
+        return getShort(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public int getIntOr(String propertyName, int value) {
+      try{
+        return getInt(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public int getIntOr(int index, int value) {
+      try{
+        return getInt(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public long getLongOr(String propertyName, long value) {
+      try{
+        return getLong(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public long getLongOr(int index, long value) {
+      try{
+        return getLong(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public String getStringOr(String propertyName, String value) {
+      try{
+        return getString(propertyName);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+
+    @Override
+    public String getStringOr(int index, String value) {
+      try{
+        return getString(index);
+      }catch(JsonNoSuchPropertyException e){
+        return value;
+      }
+    }
+	
 }

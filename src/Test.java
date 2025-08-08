@@ -52,7 +52,9 @@ public class Test {
 		js.put("../../more",1)
 		.put("../more2",2);
 		System.out.println(js.get(".."));
-		
+	
+
+    System.out.println(js.getStringOr("nothing","or this String"));
 		System.exit(0);
 //		Json test1 = new IJson()
 //						.put("1", new IJson().put("name2", "ixoroturg").put("name","kronos"))

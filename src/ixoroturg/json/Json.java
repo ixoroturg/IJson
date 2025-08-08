@@ -13,11 +13,11 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public Stream<String> getStringStream();
 	public Stream<Json> getJsonStream();
 
-	public IntStream getIntStreamOr(String default);
-	public LongStream getLongStreamOr(String default);
-	public DoubleStream getDoubleStreamOr(String default);
-	public Stream<String> getStringStreamOr(String default);
-	public Stream<Json> getJsonStreamOr(String default);
+	// public IntStream getIntStreamOr(String value);
+	// public LongStream getLongStreamOr(String value);
+	// public DoubleStream getDoubleStreamOr(String value);
+	// public Stream<String> getStringStreamOr(String value);
+	// public Stream<Json> getJsonStreamOr(String value);
 	
 	public IntStream getIntStream(String key);
 	public LongStream getLongStream(String key);
@@ -48,7 +48,20 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public boolean[] getBooleanArray(String key);
 	public String[] getStringArray(String key);
 	public Json[] getJsonArray(String key);
+	// or
+
+	public byte[] getByteArrayOr(String key, byte[] value);
+	public short[] getShortArrayOr(String key, short[] value);
+	public int[] getIntArrayOr(String key, int[] value);
+	public long[] getLongArrayOr(String key, long[] value);
 	
+	public float[] getFloatArrayOr(String key, float[] value);
+	public double[] getDoubleArrayOr(String key,double[] value);
+	
+	public boolean[] getBooleanArrayOr(String key, boolean[] value);
+	public String[] getStringArrayOr(String key,String[] value);
+	public Json[] getJsonArrayOr(String key, Json[] value);
+
 	public Json add(byte[] array);
 	public Json add(short[] array);
 	public Json add(int[] array);
@@ -180,7 +193,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public boolean getBoolean();
 	public boolean getBoolean(String propertyName);
+	public boolean getBooleanOr(String propertyName, boolean value);
 	public boolean getBoolean(int index);
+	public boolean getBooleanOr(int index, boolean value);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
@@ -188,7 +203,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public float getFloat();
 	public float getFloat(String propertyName);
+	public float getFloatOr(String propertyName, float value);
 	public float getFloat(int index);
+	public float getFloatOr(int index, float value);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
@@ -196,7 +213,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public double getDouble();
 	public double getDouble(String propertyName);
+	public double getDoubleOr(String propertyName, double value);
 	public double getDouble(int index);
+	public double getDoubleOr(int index, double value);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
@@ -204,7 +223,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */	
 	public byte getByte();
 	public byte getByte(String propertyName);
+	public byte getByteOr(String propertyName, byte value);
 	public byte getByte(int index);
+	public byte getByteOr(int index, byte value);
 	/**
 	 * get and parse
 	 * @param propertyName - name  of property
@@ -212,7 +233,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public short getShort();
 	public short getShort(String propertyName);
+	public short getShortOr(String propertyName, short value);
 	public short getShort(int index);
+	public short getShortOr(int index, short value);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
@@ -220,7 +243,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public int getInt();
 	public int getInt(String propertyName);
+	public int getIntOr(String propertyName, int value);
 	public int getInt(int index);
+	public int getIntOr(int index, int value);
 	/**
 	 * Get and parse
 	 * @param propertyName - name  of property
@@ -228,7 +253,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public long getLong();
 	public long getLong(String propertyName);
+	public long getLongOr(String propertyName, long value);
 	public long getLong(int index);
+	public long getLongOr(int index, long value);
 	/**
 	 * Get string and format it for human readable output
 	 * @param propertyName - name  of property
@@ -236,7 +263,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	 */
 	public String getString();
 	public String getString(String propertyName);
+	public String getStringOr(String propertyName, String value);
 	public String getString(int index);
+	public String getStringOr(int index, String value);
 	
 	public Json parseHttpRequest(String request);
 	public Json parseHttpRequestForce(String request);
