@@ -1,5 +1,8 @@
 package ixoroturg.json;
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.*;
 public class IJson implements Json, Cloneable, Iterable<Json>{
@@ -258,9 +261,9 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 			}
 		}catch(Exception e) {
 			if(e instanceof JsonParseException e2) {
-				JsonException cause = (JsonException) e2.getCause();
-				var e3 = new JsonParseException("Parse error at position: ",cause.getJson(), cause.getIndex());
-				e3.initCause(cause);
+				// JsonException cause = (JsonException) e2.getCause();
+				var e3 = new JsonParseException("Parse error at position: ",this, -1);
+				e3.initCause(e.getCause());
 				throw e3;
 			}
 			else {	
@@ -288,8 +291,18 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 	 * @return index of next char after value or -1 if value is invalid
 	 */
 	private int isValidValue(int from, boolean onlyOneValue) {
+    int end = -1;
+    for(int i = from; i < json.length(); i++){
+      if(isCloseSymbol(json.charAt(i))){
+        end = i;
+        break;
+      }
+    }
+    if(end == -1 && !onlyOneValue){
+      throw new JsonInvalidFormatException("Unexpected end of line at position: ",this,(offset+from));
+    }
 		int i = 0;
-		String str = json.substring(from).trim();
+		String str = json.substring(from, end == -1 ? json.length() : end).trim();
 		if(str.startsWith("true"))
 			i = 4;
 		if(str.startsWith("false"))
@@ -346,11 +359,11 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 				}
 			}	
 		}
-		
-		if(onlyOneValue)
-			return 1; //need just return non-zero
-		else
-			throw new JsonInvalidFormatException("Unexpected end of line at position: ",this,(offset+from+i));
+	  return i;	
+		// if(onlyOneValue)
+		// 	return 1; //need just return non-zero
+		// else
+		// 	throw new JsonInvalidFormatException("Unexpected end of line at position: ",this,(offset+from+i));
 	}
 	public String formatString(String json) {
 		json = json
@@ -1390,15 +1403,45 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
 		if(type == null)
 			type = JsonType.object;
 		if(type != JsonType.object)
-			throw new JsonIllegalTypeException("this json is not object and you will lose all previous data, use parseHttpRequest(request, true) to force this action",this,-1);
-		if(request == null || request.indexOf("=") == -1)
+			throw new JsonIllegalTypeException("this json is not object and you will lose all previous data, use parseHttpRequestForce(String request) to force this action",this,-1);
+		if(request == null || request.isBlank())
 			return this;
+    try{
+      request = URLDecoder.decode(request, StandardCharsets.UTF_8);
+    } catch(IllegalArgumentException e){
+      JsonInvalidFormatException e1 = new JsonInvalidFormatException("Unsupported characters after %", this, -1);
+      e1.initCause(e);
+      throw e1;
+    }
 		String[] entries = request.trim().split("&");
 		for(String entry: entries) {
-			String key = entry.split("=")[0];
-			Json value = new IJson(entry.split("=")[1],0);
-			map.put(key, value);
-			((IJson)value).setParent(this);
+      String key = null;
+      String value = null;
+      if(entry.indexOf("=") != -1){
+
+        String[] ent = entry.split("=");
+        key = ent[0];
+        value = null;
+        if(ent.length > 1){
+          value = ent[1];
+          if(value.isBlank())
+            value = "true";
+        }
+        
+      } else {
+        key = entry;
+        value = "true";
+      }
+      
+      Json js = null;
+      
+        if(value != null && value.indexOf(",") != -1){
+          js = new IJson(value.split(","));
+        } else {
+          js = new IJson(value);
+        }
+			map.put(key, js);
+			((IJson)js).setParent(this);
 		}
 		return this;
 	}
@@ -1854,5 +1897,28 @@ public class IJson implements Json, Cloneable, Iterable<Json>{
         return value;
       }
     }
+
+	@Override
+	public Json putJson(String key) {
+    return put(key, new IJson());
+	}
+  @Override
+  public Json putGetJson(String key){
+    Json js = new IJson();
+    put(key,js);
+    return js;
+  }
+	@Override
+	public Json addJson() {
+    Json js = new IJson();
+    add(js);
+    return js;
+	}
+  @Override
+  public Json addJson(String key){
+    Json js = new IJson();
+    get(key).add(js);
+    return js;
+  }
 	
 }

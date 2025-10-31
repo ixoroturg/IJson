@@ -1,2 +1,4 @@
 bin/
 IJson.jar
+IJson/
+*.class

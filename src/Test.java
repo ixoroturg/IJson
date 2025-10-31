@@ -6,7 +6,10 @@ import ixoroturg.json.*;
 public class Test {
 
 	public static void main(String[] args) throws IOException {
-    System.out.println("Hello");
+    Json js2 = new IJson("[0,10029]");
+    System.out.println(js2);
+    System.exit(0);
+    // System.out.println("Hello");
 		//{"station":[11336,787,10024,7861,10033,7889,6965,31],"data":[164,166,244,165]}
 		
 //		Json js = new IJson().parseHttpRequest("path={\"1C\":true}");

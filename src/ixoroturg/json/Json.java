@@ -276,5 +276,9 @@ public interface Json extends Iterable<Json>, Map<String, Json>{
 	public Json setType(JsonType type);
 	public byte[] toBytes();
 
+  public Json putJson(String key);
+  public Json putGetJson(String key);
+  public Json addJson();
+  public Json addJson(String key);
 	// public boolean hasKey(String key);
 }
