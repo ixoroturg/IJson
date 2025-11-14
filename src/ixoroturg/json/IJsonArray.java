@@ -25,7 +25,7 @@ class IJsonArray extends IJsonEntry<List<IJsonEntry>>{
         }
         continue;
       }
-      if(ch == -1 || ch == 0)
+      if(ch == 65535 || ch == 0)
         throw new JsonParseException("Unexpected end of line", ctx);
       if(ch == '[' && firstPass){
         firstPass = false;

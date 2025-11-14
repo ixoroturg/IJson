@@ -19,7 +19,7 @@ public class IJsonNumber extends IJsonEntry<Double>{
     return (ch >= '0') && (ch <= '9');
   }
   private static boolean isEnd(char ch){
-    return IJsonSetting.isWhiteSpace(ch) || ch == ',' || ch == '\"' || ch == '}' || ch == ']';
+    return IJsonSetting.isWhiteSpace(ch) || ch == ',' || ch == '}' || ch == ']';
   }
 
   @Override
@@ -48,7 +48,7 @@ public class IJsonNumber extends IJsonEntry<Double>{
     }
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
       char ch = ctx.buffer[ctx.pointer];
-      if(ch == -1 || ch == 0)
+      if(ch == 65535 || ch == 0)
         throw new JsonParseException("Unexpected end of line",ctx);
       if(ctx.shouldDot && ch != '.')
         throw new JsonInvalidNumberException("After 0 must be dot",ctx);
