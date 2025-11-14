@@ -6,9 +6,6 @@ import ixoroturg.json.*;
 public class Test {
 
 	public static void main(String[] args) throws IOException {
-    Json js2 = new IJson("[0,10029]");
-    System.out.println(js2);
-    System.exit(0);
     // System.out.println("Hello");
 		//{"station":[11336,787,10024,7861,10033,7889,6965,31],"data":[164,166,244,165]}
 		
@@ -54,10 +51,9 @@ public class Test {
 ////		System.out.println("3:\n"+Arrays.toString(js.getStringArray("attributes/addon/8")));
 		js.put("../../more",1)
 		.put("../more2",2);
-		System.out.println(js.get(".."));
 	
+    System.out.println(js.back(0).toFormatedString());
 
-    System.out.println(js.getStringOr("nothing","or this String"));
 		System.exit(0);
 //		Json test1 = new IJson()
 //						.put("1", new IJson().put("name2", "ixoroturg").put("name","kronos"))

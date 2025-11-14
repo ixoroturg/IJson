@@ -1,0 +1,15 @@
+{
+  "string": "text",
+  "number_int": 42,
+  "number_float": 3.14,
+  "boolean_true": true,
+  "boolean_false": false,
+  "null_value": null,
+  "array": [1, "two", false],
+  "object": {
+    "nested_key": "nested_value",
+    "count": 5
+  },
+  "empty_array": [],
+  "empty_object": {}
+}

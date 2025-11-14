@@ -1,0 +1,236 @@
+package ixoroturg.json;
+
+import java.util.Map;
+import java.io.StringWriter;
+import java.util.TreeMap;
+import java.util.Set;
+import java.io.IOException;
+import java.io.Writer;
+
+public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
+  int contentLength = 0;
+  Map<String, IJsonEntry> map = new TreeMap<>();
+
+  String key;
+  boolean needKey = true;
+  boolean firstPass = true;
+  boolean needQuote = false;
+  boolean wasQuote = false;
+  boolean needDot = false;
+  boolean wasDot = false;
+  @Override
+  void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
+
+
+    for(;ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
+      char ch = ctx.buffer[ctx.pointer];
+      if(IJsonUtil.isWhiteSpace(ch)){
+        if(ch == '\n'){
+          ctx.row++;
+          ctx.column = 0;
+        }
+        continue;
+      }
+      if(ch == '{' && firstPass){
+        firstPass = false;
+        continue;
+      }
+      if(ch == '}')
+        return;
+      if(ch == -1 || ch == 0){
+          throw new JsonParseException("Unexpected end of line",ctx);
+      }
+      if(needKey && ch != '\"'){
+        throw new JsonInvalidObjectException("Expected \" but found "+ch, ctx);
+      }
+      if(needQuote && ch != ':'){
+        throw new JsonInvalidObjectException("Expected : but found "+ch, ctx);
+      }
+      if(needDot && ch != ','){
+        throw new JsonInvalidObjectException("Expected , but found "+(int)ch, ctx);
+      }
+      // ctx.pointer = i;
+      switch(ch){
+        case ',' -> {
+          if(wasDot)
+            throw new JsonInvalidObjectException("Unexpected second ,", ctx);
+          wasDot = true;
+          needDot = false;
+          needKey = true;
+        }
+        case '\"' -> {
+          if(needKey){
+            // ctx.pointer = i;
+            key = IJsonString.validate(ctx);
+            // i = ctx.pointer;
+            needKey = false;
+            needQuote = true;
+          } else {
+            addEntry(new IJsonString(), ctx);
+          }
+        }
+        case ':' -> {
+          if(wasQuote){
+            throw new JsonInvalidObjectException("Unexpected second :",ctx);
+          }
+          wasQuote = true;
+          needQuote = false;
+          continue;
+        }
+        case 'n' -> {
+          // ctx.pointer = i;
+          if(!IJsonUtil.testNull(ctx))
+            throw new JsonParseException("Expected null", ctx);
+          // i = ctx.pointer;
+          ctx.pointer--;
+          addEntry(null,ctx);
+        }
+        
+        case '{' -> {
+          addEntry(new IJsonObject(), ctx);
+        }
+        case '[' -> {
+          addEntry(new IJsonArray(), ctx);
+        }
+        case 't', 'f' -> {
+          addEntry(new IJsonBoolean(), ctx);
+        }
+        
+        default -> {
+          addEntry(new IJsonNumber(),ctx);
+        }
+      }
+    }
+    // ctx.pointer = i;
+    ctx.read();
+    parse(ctx);
+  }
+    
+    private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
+      contentLength += key.length() + 2;
+      // needKey = true;
+      wasQuote = false;
+      needDot = true;
+      wasDot = false;
+      if(value == null){
+        contentLength += 4;
+      } else {
+        int start = ctx.index;
+        value.parse(ctx);
+        int end = ctx.index;
+        if(value instanceof IJsonObject obj){
+          contentLength += obj.buffSize();
+        } else if (value instanceof IJsonArray arr){
+          contentLength += arr.buffSize();
+        } else {
+          contentLength += end - start + 1;
+        }
+      }
+      map.put(key,value);
+      // ctx.pointer--;
+      return ctx.pointer;
+    }
+
+  @Override
+  public String toString(){
+    IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
+    ctx.format = false;
+    StringWriter writer = new StringWriter(buffSize(ctx));
+    ctx.writer = writer;
+    try{
+      toString(ctx);
+    }catch(IOException e){}
+    String result = writer.toString();
+    ctx.close();
+    return result;
+  }
+  @Override
+  public String toFormatedString() {
+    IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
+    ctx.format = true;
+    StringWriter writer = new StringWriter(buffSize(ctx));
+    ctx.writer = writer;
+
+    try{
+      toString(ctx);
+    } catch(IOException e){}
+    String result = writer.toString();
+    ctx.close();
+    return result;
+  }
+
+  @Override
+  public int buffSize() {
+    if(map.size() == 0)
+      return 2;
+    return contentLength + map.size() * 2 + 1 ;
+  }
+
+  @Override
+  public int buffSizeFormat() {
+    IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
+    int size = buffSize(ctx);
+    ctx.close();
+    return size;
+  }
+
+  @Override
+  void toString(IJsonFormatContext ctx) throws IOException{
+      if(map.size() == 0){
+        ctx.writer.write("{}");
+        return;
+      }
+      ctx.depth++;
+      ctx.writer.write('{');
+      // if(ctx.format)
+      //   ctx.writer.write('\n');
+      boolean first = true;
+      IJsonEntry test;
+      for(Map.Entry<String, IJsonEntry> entry: map.entrySet()){
+        if(!first){
+          ctx.writer.write(',');
+          // if(ctx.format)
+        }
+        first = false;
+        if(ctx.format){
+          ctx.writer.write('\n');
+          for(int j = 0; j < IJsonSetting.FORMAT_INDENT_COUNT * ctx.depth; j++){
+            ctx.writer.write(IJsonSetting.FORMAT_INDENT_SYMBOL);
+          }
+        }
+
+        ctx.writer.write('\"');
+        ctx.writer.write(entry.getKey());
+        ctx.writer.write("\":");
+        if(ctx.format)
+          ctx.writer.write(' ');
+        test = entry.getValue();
+        if(test == null)
+          ctx.writer.write("null");
+        else
+          test.toString(ctx);
+      }
+      ctx.depth--;
+      if(ctx.format){
+        ctx.writer.write('\n');
+        for(int j = 0; j < IJsonSetting.FORMAT_INDENT_COUNT * ctx.depth; j++){
+          ctx.writer.write(IJsonSetting.FORMAT_INDENT_SYMBOL);
+        }
+      }
+      ctx.writer.write('}');
+  }
+
+  @Override
+  int buffSize(IJsonFormatContext ctx) {
+    if(map.size() == 0)
+      return 2;
+
+    int result = 2;
+    result += map.size() * 2 - 1;
+    if(ctx.format){
+      result += 2 + map.size() * (1 + IJsonSetting.FORMAT_INDENT_COUNT * (ctx.depth + 1)) + ctx.depth*IJsonSetting.FORMAT_INDENT_COUNT;
+    }
+    result += contentLength;
+    return result;
+  }
+}

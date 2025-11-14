@@ -1,0 +1,42 @@
+package ixoroturg.json;
+
+import java.io.Writer;
+import java.io.IOException;
+
+abstract class IJsonEntry<T> {
+  T value;
+  int size;
+  IJsonEntry parent;
+  String paramName;
+  
+  public String propertyName() throws JsonNoParentException{
+    if(paramName == null)
+      throw new JsonNoParentException("This json has no parent");
+    return paramName;
+  }
+  public String propertyNameOrNull() {
+    return paramName;
+  }
+  public String propertyNameOr(String value){
+    if(paramName == null)
+      return value;
+    return paramName;
+  }
+
+  public IJsonEntry back() throws JsonNoParentException{
+    if(parent == null)
+      throw new JsonNoParentException("This json has no parent");
+    return parent;
+  }
+  public IJsonEntry backOrNull() {
+    return parent;
+  }
+
+  abstract void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidObjectException, JsonInvalidArrayException;
+  public abstract String toFormatedString();
+  public abstract int buffSize();
+  public abstract int buffSizeFormat();
+
+  abstract int buffSize(IJsonFormatContext ctx);
+  abstract void toString(IJsonFormatContext ctx) throws IOException;
+}
