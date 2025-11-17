@@ -4,7 +4,7 @@ public class IJsonSetting {
   public static byte CHARACTERS_BEFORE_ERROR_INDEX = 16;
   public static byte CHARACTERS_AFTER_ERROR_INDEX = 16;
   public static boolean DECODE_UNICODE_SEQUENCE = true;
-  public static int BUFFER_SIZE = 8;
+  public static int BUFFER_SIZE = 10;
   public static int STRING_BUILDER_BUFFER_SIZE = 16;
   public static byte PARSE_CONTEXT_COUNT = 8;
 

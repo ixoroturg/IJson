@@ -11,6 +11,7 @@ import java.io.Writer;
 
 public class IJson implements Json {
     IJsonEntry currentJson = null;
+    private long parseTime = -1;
     private IJson(IJsonEntry json){
       currentJson = json;
     }
@@ -32,13 +33,16 @@ public class IJson implements Json {
     public static IJson of(Reader reader) throws JsonParseException{
       IJsonParseContext ctx = IJsonParseContext.openContext(reader);
       IJson result = of(ctx);
-      ctx.close();
+      // parseTime = ctx.close();
       return result;
     }
+    @Override
+    public long getParseTime(){
+      return parseTime;
+    }
     private static IJson of(IJsonParseContext ctx) throws JsonParseException{
-      int i;
-      for(i = ctx.pointer; i < ctx.buffer.length; i++, ctx.index++, ctx.column++){
-        char ch = ctx.buffer[i];
+      for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
+        char ch = ctx.buffer[ctx.pointer];
         if(IJsonUtil.isWhiteSpace(ch)){
           if(ch == '\n'){
             ctx.row++;
@@ -50,7 +54,7 @@ public class IJson implements Json {
           return null;
         }
         // System.out.println("Найден не пустой символ на "+i);
-        ctx.pointer = i;
+        // ctx.pointer = i;
         switch(ch){
           case '{' -> {
             return createEntry(new IJsonObject(), ctx);
@@ -65,7 +69,7 @@ public class IJson implements Json {
             return createEntry(new IJsonBoolean(), ctx);
           }
           case 'n' -> {
-            ctx.pointer = i;
+            // ctx.pointer = i;
             if(!IJsonUtil.testNull(ctx))
               throw new JsonParseException("Expected null", ctx);
             if(IJsonSetting.NULL_STRING_AS_NULL_VALUE)
@@ -80,13 +84,14 @@ public class IJson implements Json {
           }
         }
       }
-      ctx.pointer = i;
+      // ctx.pointer = i;
       ctx.read();
       return of(ctx);
     }
     private static IJson createEntry(IJsonEntry entry, IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidNumberException, JsonInvalidStringException, JsonInvalidBooleanException{
       entry.parse(ctx);
       IJson result = new IJson(entry);
+      result.parseTime = ctx.close();
       return result;
     }
 

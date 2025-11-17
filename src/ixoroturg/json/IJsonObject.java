@@ -22,7 +22,6 @@ public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
 
-
     for(;ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
       char ch = ctx.buffer[ctx.pointer];
       if(IJsonUtil.isWhiteSpace(ch)){

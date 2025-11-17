@@ -15,16 +15,18 @@ public class JsonException extends Exception{
 
   
   protected static String createMessage(String description, IJsonParseContext ctx){
-    StringBuilder builder = new StringBuilder( description.length() + 1 + IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX + 1 +IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX + 1 + IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX + 1 + 7 + 16);
+    StringBuilder builder = new StringBuilder( description.length() + 1 + IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX + 1 +IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX + 1 + IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX + 1 + 8 + 24);
     builder.append(description);
     // builder.append(' ');
     builder.append(" at (");
     builder.append(String.valueOf(ctx.row+1));
     builder.append(',');
     builder.append(String.valueOf(ctx.column));
+    builder.append('/');
+    builder.append(String.valueOf(ctx.index));
     builder.append(')');
     builder.append('\n');
-    int test = ctx.pointer - 1 - IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
+    int test = ctx.pointer - IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
     int length = IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
     if(test < 0){
       length += test;

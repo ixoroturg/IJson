@@ -18,7 +18,7 @@ class IJsonParseContext {
   boolean shouldDot = false;
   boolean needKey = true;
   String key;
-  
+  long timer; 
   StringBuilder builder = new StringBuilder(IJsonSetting.STRING_BUILDER_BUFFER_SIZE);
   boolean firstPass = true;
 
@@ -46,10 +46,17 @@ class IJsonParseContext {
       return openContext(reader);
   }
 
-  void close(){
+  long close(){
     open = false;
+    long result = System.currentTimeMillis() - timer;
+    // System.out.println("Миллисекунды на момент закрытия: "+System.currentTimeMillis());
+    // System.out.println("Таймер на момент закрытия: "+result);
+    return result;
   }
   private void open(Reader reader) throws JsonParseException{
+    timer = System.currentTimeMillis();
+    // System.out.println("Таймер на момент открытия: "+timer);
+    // System.out.println("Миллисекунды на момент закрытия: "+System.currentTimeMillis());
     open = true;
     index = 0;
     pointer = 0;

@@ -19,9 +19,12 @@ public interface Json {
   public Json parse(InputStream stream) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
   public Json parse(Reader reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
 
+
   public String toStringFormat();
   public void writeTo(OutputStream stream) throws IOException;
   public void writeTo(Writer writer) throws IOException;
   public void writeToFormat(OutputStream stream) throws IOException;
   public void writeToFormat(Writer writer) throws IOException;
+
+  public long getParseTime();
 }

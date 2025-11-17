@@ -1,6 +1,7 @@
 #!/bin/bash
 
+# rm -rf bin/*
 javac -cp src -d bin src/ixoroturg/json/*
-javac -cp bin:./src/* -d test src/test/*
+javac -cp bin -d test src/test/*
 java -cp bin:test test.Test 2>&1 | nvim
 
