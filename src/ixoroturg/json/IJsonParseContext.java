@@ -59,7 +59,9 @@ class IJsonParseContext {
     firstPass = true;
     this.reader = reader;
     try{
-      reader.read(buffer);
+      int pos = reader.read(buffer);
+      if(pos < buffer.length)
+        buffer[pos] = (char)-1;
     }catch(IOException e){
       JsonParseException exp = new JsonParseException("Cannot read the stream");
       exp.initCause(e);
@@ -76,7 +78,7 @@ class IJsonParseContext {
       exp.initCause(e);
       throw exp;
     }
-    index -= buf;
+    pointer -= buf;
     return buf;
   }
 

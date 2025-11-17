@@ -52,6 +52,7 @@ public class JsonException extends Exception{
       builder.append(" ".repeat(length));
     builder.append('^');
     // builder.append('\n');
+
     // builder.append("buffer shapshot:\n");
     // for(int i = 0; i < ctx.buffer.length; i++){
     //   if(IJsonUtil.isWhiteSpace(ctx.buffer[i])){
@@ -60,6 +61,7 @@ public class JsonException extends Exception{
     //   }
     //   builder.append(ctx.buffer[i]);
     // }
+
     // builder.append('\n');
     // if(ctx.pointer > 0)
     //   builder.append(" ".repeat(ctx.pointer-1));

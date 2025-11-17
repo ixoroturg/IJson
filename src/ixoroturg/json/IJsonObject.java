@@ -18,6 +18,7 @@ public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
   boolean wasQuote = false;
   boolean needDot = false;
   boolean wasDot = false;
+  // boolean needValue = false;
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
 
@@ -35,8 +36,11 @@ public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
         firstPass = false;
         continue;
       }
-      if(ch == '}')
+      if(ch == '}'){
+        if(wasQuote)
+          throw new JsonParseException("Unexpected end of line",ctx);
         return;
+      }
       if(ch == -1 || ch == 0){
           throw new JsonParseException("Unexpected end of line",ctx);
       }
@@ -61,7 +65,8 @@ public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
         case '\"' -> {
           if(needKey){
             // ctx.pointer = i;
-            key = IJsonString.validate(ctx);
+            StringBuilder result = IJsonString.validate(ctx);
+            key = result.substring(1, result.length()-1);
             // i = ctx.pointer;
             needKey = false;
             needQuote = true;

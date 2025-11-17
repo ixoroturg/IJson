@@ -13,6 +13,7 @@ public class IJsonSetting {
   public static byte FORMAT_INDENT_COUNT = 1;
   public static boolean NULL_STRING_AS_NULL_VALUE = true;
   public static boolean ESCAPE_CONTROL_CHARACTERS = false;
+  public static boolean SHOW_INNER_DOUBLE_VALUE = false;
   // public static boolean PRIMITIVES_IN_ONE_ROW = true;
 
   static boolean isWhiteSpace(int ch){

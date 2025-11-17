@@ -1,6 +1,6 @@
 #!/bin/bash
 
 javac -cp src -d bin src/ixoroturg/json/*
-javac -cp bin:./src/* -d test src/test/Test.java src/test/FileIO.java
- java -cp bin:test test.Test
+javac -cp bin:./src/* -d test src/test/*
+java -cp bin:test test.Test 2>&1 | nvim
 

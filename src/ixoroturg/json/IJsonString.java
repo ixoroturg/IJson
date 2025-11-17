@@ -60,18 +60,16 @@ class IJsonString extends IJsonEntry<String>{
 
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException {
-      value = validate(ctx);
-      StringBuilder builder = new StringBuilder(value.length() + 2);
-      builder.append('\"')
-        .append(value)
-        .append('\"');
-      strValue = builder.toString();
+      StringBuilder result = validate(ctx);
+      value = result.substring(1,result.length()-1);
+      strValue = result.toString();
   }
   
-  static String validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
+  static StringBuilder validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
     // System.out.println("Начало парсинга: " + ctx.pointer);
     if(ctx.firstPass){
       ctx.builder.setLength(0);
+      ctx.builder.append('\"');
       ctx.column++;
       ctx.index++;
       ctx.pointer++;
@@ -119,7 +117,8 @@ class IJsonString extends IJsonEntry<String>{
           } else {
             // ctx.pointer = i;
             ctx.firstPass = true;
-            return ctx.builder.toString();
+            ctx.builder.append('\"');
+            return ctx.builder;
           }
         }
         case 'u' -> {
@@ -132,7 +131,9 @@ class IJsonString extends IJsonEntry<String>{
         default -> {
           if(ctx.wasSlash){
             switch(ch){
-              case 't', 'b', 'r', 'f', '/' -> {}
+              case 't', 'b', 'r', 'f', '/' -> {
+                ctx.wasSlash = false;
+              }
               default -> {
                 throw new JsonInvalidStringException("No special character found after slash",ctx);
               }
@@ -147,12 +148,31 @@ class IJsonString extends IJsonEntry<String>{
 
               if(IJsonSetting.DECODE_UNICODE_SEQUENCE){
                 ctx.unicode = ctx.unicode << 4;
-                if(ch < '9')
+                if(ch <= '9')
                   ctx.unicode += (ch - '0');
                 else
                   ctx.unicode += (ch - 'a' + 10);
                 if(ctx.hex == 3){
-                  ctx.builder.setCharAt(ctx.builder.length() - 1, (char) ctx.unicode);
+                  switch((char) ctx.unicode){
+                    case '\t' -> {
+                      ctx.builder.append('t');
+                    }
+                    case '\f' -> {
+                      ctx.builder.append('f');
+                    }
+                    case '\n' -> {
+                      ctx.builder.append('n');
+                    }
+                    case '\r' -> {
+                      ctx.builder.append('r');
+                    }
+                    case '\b' -> {
+                      ctx.builder.append('b');
+                    }
+                    default -> {
+                      ctx.builder.setCharAt(ctx.builder.length() - 1, (char) ctx.unicode);
+                    }
+                  }
                   ctx.hex = -1;
                   continue;
                 } 

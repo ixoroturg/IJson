@@ -50,9 +50,6 @@ public class IJsonNumber extends IJsonEntry<Double>{
       char ch = ctx.buffer[ctx.pointer];
       if(ch == 65535 || ch == 0)
         throw new JsonParseException("Unexpected end of line",ctx);
-      if(ctx.shouldDot && ch != '.')
-        throw new JsonInvalidNumberException("After 0 must be dot",ctx);
-      ctx.shouldDot = false;
       if(isEnd(ch)){
         if(!isDigit(ctx.buffer[ctx.pointer-1]))
           throw new JsonInvalidNumberException("Unexpected end of line",ctx);
@@ -61,8 +58,11 @@ public class IJsonNumber extends IJsonEntry<Double>{
         ctx.firstPass = true;
         return ctx.builder.toString();
       }
+      if(ctx.shouldDot && ch != '.' && ch != 'e' && ch != 'E')
+        throw new JsonInvalidNumberException("After 0 must be dot or exponent",ctx);
+      ctx.shouldDot = false;
       if(ctx.builder.length() == 0){
-        if(!(isDigit(ch) || ch != '-'))
+        if(!(isDigit(ch) || ch == '-'))
           throw new JsonInvalidNumberException("At first place must be digit or minus", ctx);
       }
       switch(ch){
@@ -83,7 +83,7 @@ public class IJsonNumber extends IJsonEntry<Double>{
         case '0' -> {
           if(ctx.builder.length() == 0){
             ctx.shouldDot = true;
-          } else if(ctx.builder.length() == 1 && ctx.buffer[ctx.pointer] == '-'){
+          } else if(ctx.builder.length() == 1 && ctx.buffer[ctx.pointer-1] == '-'){
             ctx.shouldDot = true;
           }
         }
@@ -124,7 +124,10 @@ public class IJsonNumber extends IJsonEntry<Double>{
 
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
-    ctx.writer.write(strValue);
+    if(IJsonSetting.SHOW_INNER_DOUBLE_VALUE)
+      ctx.writer.write(String.valueOf(value));
+    else 
+      ctx.writer.write(strValue);
   }
 
   @Override
