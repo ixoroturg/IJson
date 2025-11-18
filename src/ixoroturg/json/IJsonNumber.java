@@ -26,7 +26,8 @@ public class IJsonNumber extends IJsonEntry<Double>{
   void parse(IJsonParseContext ctx) throws JsonInvalidNumberException, JsonParseException {
     strValue = validate(ctx);
     try{
-      value = Double.parseDouble(strValue);
+      // value = Double.parseDouble(strValue);
+      value = ctx.numberValue;
     }catch(NumberFormatException e){
       JsonInvalidNumberException exp = new JsonInvalidNumberException("Unexpected error");
       exp.initCause(e);
@@ -45,6 +46,11 @@ public class IJsonNumber extends IJsonEntry<Double>{
       ctx.wasDot = false;
       ctx.shouldDot = false;
       ctx.wasExp = false;
+      ctx.unicode = 0; // число после экспоненты
+      ctx.wasSlash = false; // был ли минус
+      ctx.fracSize = 0;
+      ctx.numberValue = 0;
+      ctx.wasMinus = false;
     }
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
       char ch = ctx.buffer[ctx.pointer];
@@ -56,6 +62,14 @@ public class IJsonNumber extends IJsonEntry<Double>{
         // ctx.pointer = i;
         ctx.pointer--;
         ctx.firstPass = true;
+        if(ctx.wasSlash){
+          ctx.unicode = - ctx.unicode;
+        }
+        ctx.wasSlash = false;
+        ctx.unicode += ctx.fracSize;
+        ctx.numberValue *= Math.pow(10,ctx.unicode);
+        if(ctx.wasMinus)
+          ctx.numberValue = -ctx.numberValue;
         return ctx.builder.toString();
       }
       if(ctx.shouldDot && ch != '.' && ch != 'e' && ch != 'E')
@@ -69,14 +83,20 @@ public class IJsonNumber extends IJsonEntry<Double>{
         case '.' -> {
           if(ctx.wasDot)
             throw new JsonInvalidNumberException("Dot already was",ctx);
-          ctx.wasDot = true;
           if(!isDigit(ctx.buffer[ctx.pointer-1]))
             throw new JsonInvalidNumberException("Before dot must be digit",ctx);
+          ctx.wasDot = true;
+          if(ctx.wasSlash){
+            // ctx.numberValue = -ctx.numberValue;
+            // System.out.println("Обратка: "+ctx.numberValue);
+            ctx.wasSlash = false;
+          }
         }
         case 'e', 'E' -> {
           if(ctx.wasExp)
             throw new JsonInvalidNumberException("Exponent already was", ctx);
           ctx.wasExp = true;
+          ctx.wasDot = true;
           if(!isDigit(ctx.buffer[ctx.pointer-1]))
             throw new JsonInvalidNumberException("Before exponent must be digit",ctx);
         }
@@ -91,8 +111,11 @@ public class IJsonNumber extends IJsonEntry<Double>{
           if(ctx.builder.length() != 0){
             if(!(ctx.buffer[ctx.pointer] == 'e' || ctx.buffer[ctx.pointer] != 'E'))
               throw new JsonInvalidNumberException("Before "+ch+" should be exponent",ctx);
-          } else if(ch == '+'){
-            throw new JsonInvalidNumberException("At first place must be digit or minus", ctx);
+          } else {
+            ctx.wasMinus = true;
+          }
+          if(ch == '-' && ctx.wasDot){ 
+            ctx.wasSlash = true;
           }
         }
         default -> {
@@ -101,6 +124,23 @@ public class IJsonNumber extends IJsonEntry<Double>{
         }
       }
       ctx.builder.append(ch);
+      if(isDigit(ch)){
+        if(!ctx.wasDot){
+          if(ctx.numberValue < (1L << 51)){
+            ctx.numberValue = ctx.numberValue * 10 + ch - '0';
+          } else {
+            ctx.fracSize++;
+          }
+        }
+        else if(!ctx.wasExp){
+          if(ctx.numberValue < (1L << 51))
+            ctx.numberValue = ctx.numberValue * 10 + ch - '0';
+          ctx.fracSize--;
+        }
+        else {
+          ctx.unicode = ctx.unicode * 10 + ch - '0';
+        }
+      }
     }
     // ctx.pointer = i;
     ctx.read();

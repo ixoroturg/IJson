@@ -171,7 +171,9 @@ public class Numbers {
       js = IJson.of("{ \"Number\": 1.7976931348623157e+308}");
       System.out.println(js);
       js = IJson.of("{ \"Number\": 4.9e-324}");
-      System.out.println(js);
+      System.out.println(js + " // здесь ошибка, это 4.9e-324. Почти правильно парсит вплоть до 4.9e-322");
+      js = IJson.of("{ \"Number\": 4.9e-322}");
+      System.out.println(js + " // вот так");
       js = IJson.of("{ \"Number\": -0e+5}");
       System.out.println(js);
       js = IJson.of("{ \"Number\": -0}");
@@ -197,5 +199,6 @@ public class Numbers {
       js = IJson.of("{ \"Number\": 1e-308}");
       System.out.println(js);
       js = IJson.of("{ \"Number\": 0e0}");
+      System.out.println(js);
   }
 }

@@ -15,10 +15,10 @@ public class FileIO{
       System.out.println("Inline test:\n"+js);
       System.out.println("\nFormat test:\n" + js.toStringFormat());
 
-      IJsonSetting.DECODE_UNICODE_SEQUENCE = true;
-      js.parse(new FileReader("./src/testFiles/unicode"));
-      System.out.println("Inline test:\n"+js);
-      System.out.println("\nFormat test:\n" + js.toStringFormat());
+//      IJsonSetting.DECODE_UNICODE_SEQUENCE = true;
+//      js.parse(new FileReader("./src/testFiles/unicode"));
+//      System.out.println("Inline test:\n"+js);
+//      System.out.println("\nFormat test:\n" + js.toStringFormat());
 
       IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
       js.parse(new FileReader("./src/testFiles/unicode"));

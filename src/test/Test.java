@@ -8,10 +8,10 @@ public class Test {
 
     IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX = 2;
     IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX = 2;
-    // IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
+     IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
     IJsonSetting.FORMAT_INDENT_COUNT = 2;
     IJsonSetting.FORMAT_INDENT_SYMBOL = ' ';
-    
+//    IJson.Setting.De/
     // KeyCloakApiTest.test();
     // System.exit(0);
     try{
