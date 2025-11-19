@@ -26,8 +26,10 @@ public class IJsonNumber extends IJsonEntry{
   void parse(IJsonParseContext ctx) throws JsonInvalidNumberException, JsonParseException {
     strValue = validate(ctx);
     try{
-      // value = Double.parseDouble(strValue);
-      value = ctx.numberValue;
+      if(!IJsonSetting.USE_FAST_NUMBER_PARSE)
+        value = Double.parseDouble(strValue);
+      else
+        value = ctx.numberValue;
       // System.out.println("int: "+(int)value);
     }catch(NumberFormatException e){
       JsonInvalidNumberException exp = new JsonInvalidNumberException("Unexpected error");
@@ -73,7 +75,6 @@ public class IJsonNumber extends IJsonEntry{
         // System.out.println("fracSize: "+ctx.fracSize +", zeroCount: "+ctx.zeroCount+ ", new power: "+ctx.unicode+ ", inner value: "+ctx.numberValue+", original: "+ctx.builder.toString());
         if(ctx.wasMinus)
           ctx.numberValue = -ctx.numberValue;
-
         ctx.numberValue *= Math.pow(10,ctx.unicode);
         // System.out.println("Десятка: "+ Math.pow(10,ctx.unicode));
         return ctx.builder.toString();
@@ -131,16 +132,14 @@ public class IJsonNumber extends IJsonEntry{
       }
       ctx.builder.append(ch);
 
-      if(isDigit(ch)){
+      if(isDigit(ch) && IJsonSetting.USE_FAST_NUMBER_PARSE){
         if(!ctx.wasExp){
           ctx.numberValue = ctx.numberValue * 10 + ch - '0';
           if(ctx.wasDot)
             ctx.fracSize--;
         } else {
-          ctx.unicode = ctx.unicode * 10 + ch - '0';
-          if(ctx.unicode > 1000){
-            ctx.unicode = 1000;
-          }
+          if((ctx.unicode & 0xffff) < 1000)
+            ctx.unicode = ctx.unicode * 10 + ch - '0';
         }
         
 
@@ -216,6 +215,18 @@ public class IJsonNumber extends IJsonEntry{
   @Override
   public String toString(){
     return strValue;
+  }
+  @Override
+  public boolean equals(Object obj){
+    if(obj instanceof IJsonNumber num){
+      return value == num.value;
+    }
+    return false;
+  }
+  @Override
+  public IJsonEntry iClone(){
+    IJsonNumber js = new IJsonNumber(value);
+    return js;
   }
 }
   // int parse(Reader r, int offset) throws JsonParseException, JsonInvalidNumberException{

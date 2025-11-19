@@ -2,14 +2,14 @@ package ixoroturg.json;
 
 import java.util.Map;
 import java.io.StringWriter;
-import java.util.TreeMap;
+import java.util.HashMap;
 import java.util.Set;
 import java.io.IOException;
 import java.io.Writer;
 
 public class IJsonObject extends IJsonEntry {
   int contentLength = 0;
-  Map<String, IJsonEntry> map = new TreeMap<>();
+  Map<String, IJsonEntry> map = new HashMap<>();
 
   String key;
   boolean needKey = true;
@@ -18,6 +18,14 @@ public class IJsonObject extends IJsonEntry {
   boolean wasQuote = false;
   boolean needDot = false;
   boolean wasDot = false;
+
+  IJsonObject(){}
+  IJsonObject(Map<String, IJsonEntry> map){
+    for(Map.Entry<String, IJsonEntry> entry: map.entrySet()){
+      this.map.put(entry.getKey(), entry.getValue().iClone());
+    }
+  }
+
   // boolean needValue = false;
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
@@ -237,5 +245,29 @@ public class IJsonObject extends IJsonEntry {
     }
     result += contentLength;
     return result;
+  }
+
+  @Override
+  public IJsonEntry iClone(){
+    IJsonObject js = new IJsonObject(map);
+    return js;
+  }
+  @Override
+  public boolean equals(Object obj){
+    if(obj instanceof IJsonObject o){
+      if(map.size() != o.map.size())
+        return false;
+      int i = 0;
+      for(Map.Entry<String,IJsonEntry> entry: o.map.entrySet()){
+        if(!o.map.get(entry.getKey()).equals(entry.getValue())){
+          return false;
+        }
+        i++;
+      }
+      if(i != map.size())
+        return false;
+      return true;
+    }
+    return false;
   }
 }

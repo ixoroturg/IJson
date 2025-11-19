@@ -3,25 +3,25 @@ package ixoroturg.json;
 import java.io.Writer;
 import java.io.IOException;
 
-abstract class IJsonEntry {
+public abstract class IJsonEntry{
   // T value;
   int size;
   IJsonEntry parent;
   String paramName;
   
-  public String propertyName() throws JsonNoParentException{
-    if(paramName == null)
-      throw new JsonNoParentException("This json has no parent");
-    return paramName;
-  }
-  public String propertyNameOrNull() {
-    return paramName;
-  }
-  public String propertyNameOr(String value){
-    if(paramName == null)
-      return value;
-    return paramName;
-  }
+  // String propertyName() throws JsonNoParentException{
+  //   if(paramName == null)
+  //     throw new JsonNoParentException("This json has no parent");
+  //   return paramName;
+  // }
+  // String propertyNameOrNull() {
+  //   return paramName;
+  // }
+  // String propertyNameOr(String value){
+  //   if(paramName == null)
+  //     return value;
+  //   return paramName;
+  // }
 
   IJsonEntry back() throws JsonNoParentException{
     if(parent == null)
@@ -39,4 +39,6 @@ abstract class IJsonEntry {
 
   abstract int buffSize(IJsonFormatContext ctx);
   abstract void toString(IJsonFormatContext ctx) throws IOException;
+
+  abstract IJsonEntry iClone();
 }

@@ -3,6 +3,7 @@ package ixoroturg.json;
 import java.io.Writer;
 import java.io.StringWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -10,9 +11,18 @@ class IJsonArray extends IJsonEntry{
   int contentLength = 0;
   List<IJsonEntry> list = new LinkedList<>();
   
+  // List<IJsonEntry> list = IJsonSetting.LIST_INSTANCE.clone();
   boolean firstPass = true;
   boolean needDot = false;
   boolean wasDot = false;
+
+  IJsonArray(List<IJsonEntry> list){
+    for(IJsonEntry entry: list){
+      this.list.add(entry.iClone());
+    }
+  }
+  IJsonArray(){}
+
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidObjectException{
     // int i;
@@ -206,5 +216,27 @@ class IJsonArray extends IJsonEntry{
     //     result += entry.buffSize(ctx);
     // }
     return result;
+  }
+
+  @Override
+  public IJsonEntry iClone(){
+    IJsonArray js = new IJsonArray(list);
+    return js;
+  }
+
+  @Override
+  public boolean equals(Object obj){
+    if(obj instanceof IJsonArray a){
+      if(list.size() != a.list.size())
+        return false;
+      Iterator i1 = list.iterator();
+      Iterator i2 = a.list.iterator();
+      for(;i1.hasNext();){
+        if(!i1.next().equals(i2.next()))
+          return false;
+      }
+      return true;
+    }
+    return false;
   }
 }

@@ -52,6 +52,7 @@ public class BigFileTest {
     long my3 = 0;
     long my4 = 0;
     long jack = 0;
+    long jack2 = 0;
     int count = 1000;
     long start = 0;
     long fullTest = 0;
@@ -71,6 +72,7 @@ public class BigFileTest {
         }
         path += ".json";
 
+
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
@@ -78,7 +80,6 @@ public class BigFileTest {
         jack += System.currentTimeMillis() - start;
         in.close();
       }
-
       IJsonSetting.setBufferSize(8);
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
@@ -114,12 +115,20 @@ public class BigFileTest {
         my4 += System.currentTimeMillis() - start;
         in.close();
       }
+      for(int i = 0; i < count; i++){
+        in = new FileInputStream(path);
+        start = System.currentTimeMillis();
+        JsonNode result = mapper.readTree(in);
+        jack2 += System.currentTimeMillis() - start;
+        in.close();
+      }
       System.out.println("\n"+j+" parse time:");
-      System.out.println("\njackson: "+jack/count);
-      System.out.println("\nIJson with 1KiB buffer: "+my/count);
-      System.out.println("\nIJson with 32KiB buffer: "+my2/count);
-      System.out.println("\nIJson with 64KiB buffer: "+my3/count);
-      System.out.println("\nIJson with 16MiB buffer: "+my4/count);
+      System.out.println("jackson: "+jack/count);
+      System.out.println("IJson with 1KiB buffer: "+my/count);
+      System.out.println("IJson with 32KiB buffer: "+my2/count);
+      System.out.println("IJson with 64KiB buffer: "+my3/count);
+      System.out.println("IJson with 16MiB buffer: "+my4/count);
+      System.out.println("jackson 2: "+jack2/count);
     }
     fullTest = System.currentTimeMillis() - fullTest;
     System.out.println("\nWhole test time: "+fullTest);

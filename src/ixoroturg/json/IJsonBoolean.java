@@ -86,4 +86,16 @@ class IJsonBoolean extends IJsonEntry{
   public String toString() {
     return value ? "true" : "false";
   }
+  @Override
+  public IJsonEntry iClone(){
+    IJsonBoolean js = new IJsonBoolean(value);
+    return js;
+  }
+  @Override
+  public boolean equals(Object obj){
+    if(obj instanceof IJsonBoolean bool){
+      return bool.value == value;
+    }
+    return false;
+  }
 }

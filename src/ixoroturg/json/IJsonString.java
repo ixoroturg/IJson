@@ -223,6 +223,20 @@ class IJsonString extends IJsonEntry{
   int buffSize(IJsonFormatContext ctx) {
     return value.length()+2;
   }
+
+  @Override
+  public IJsonEntry iClone(){
+    IJsonString js = new IJsonString(value);
+    return js;
+  }
+
+  @Override
+  public boolean equals(Object obj){
+    if(obj instanceof IJsonString str){
+      return str.value.equals(value);
+    }
+    return false;
+  }
 }
   // int parse(Reader reader, int offset) throws JsonInvalidStringException, JsonParseException  {
   //   StringBuilder builder = new StringBuilder(16);

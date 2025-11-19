@@ -1,4 +1,8 @@
 package ixoroturg.json;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class IJsonSetting {
   /**
@@ -74,7 +78,27 @@ public class IJsonSetting {
    */
   public static boolean FORMAT_DIRECT_WRITE_CONTROL_CHARACTER = false;
 
+  /**
+   * If TRUE then parser use Double.parseDouble() method.<br>
+   * Then FALSE then parser use custom double parse algorithm. It is more faster, but can do mistake near 1e-16 position.
+   * So very sensetivity data should parse with FALSE. But if you parse Integer value less then 2^53 then it is safety.
+   * Unsafety only last bits of mantiss.
+   * Default: false
+   */
+  public static boolean USE_FAST_NUMBER_PARSE = false;
 
+  /**
+   * This map will be use as map.clone() for JsonObject representation.<br>
+   * Signature: Map(String,IJsonEntry)<br>
+   * Default: java.util.TreeMap
+   */
+  static Map<String, IJsonEntry> MAP_INSTANCE = new TreeMap<String,IJsonEntry>();
+  /**
+   * This list will be use as list.clone() for JsonArray representaion.<br>
+   * Signature: List(IJsonEntry)<br>
+   * Default: java.util.LinkedList
+   */
+  static List<IJsonEntry> LIST_INSTANCE = new LinkedList<IJsonEntry>();
 
   // public static boolean PRIMITIVES_IN_ONE_ROW = true;
 

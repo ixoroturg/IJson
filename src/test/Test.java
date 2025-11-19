@@ -11,15 +11,16 @@ public class Test {
      IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
     IJsonSetting.FORMAT_INDENT_COUNT = 2;
     IJsonSetting.FORMAT_INDENT_SYMBOL = ' ';
+    IJsonSetting.USE_FAST_NUMBER_PARSE = true;
 //    IJson.Setting.De/
     // KeyCloakApiTest.test();
     // System.exit(0);
     try{
-      // FileIO.test();
+      FileIO.test();
       Numbers.test();
-      // BooleanAndNullTest.test();
-      // StringTest.test();
-      // BigFileTest.test();
+      BooleanAndNullTest.test();
+      StringTest.test();
+      BigFileTest.test();
     } catch(TestException e){
       System.out.println("Test failed");
       System.out.println(e);
