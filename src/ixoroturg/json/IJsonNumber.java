@@ -65,17 +65,17 @@ public class IJsonNumber extends IJsonEntry{
         ctx.pointer--;
         ctx.firstPass = true;
         if(ctx.wasSlash){
-          ctx.unicode = - ctx.unicode;
+          ctx.unicode = -ctx.unicode;
         }
         ctx.wasSlash = false;
         // System.out.println("power: "+ctx.unicode);
-        ctx.unicode += ctx.fracSize + ctx.zeroCount;
+        ctx.unicode += ctx.fracSize;
         // System.out.println("fracSize: "+ctx.fracSize +", zeroCount: "+ctx.zeroCount+ ", new power: "+ctx.unicode+ ", inner value: "+ctx.numberValue+", original: "+ctx.builder.toString());
+        if(ctx.wasMinus)
+          ctx.numberValue = -ctx.numberValue;
 
         ctx.numberValue *= Math.pow(10,ctx.unicode);
         // System.out.println("Десятка: "+ Math.pow(10,ctx.unicode));
-        if(ctx.wasMinus)
-          ctx.numberValue = -ctx.numberValue;
         return ctx.builder.toString();
       }
       if(ctx.shouldDot && ch != '.' && ch != 'e' && ch != 'E')
@@ -130,40 +130,55 @@ public class IJsonNumber extends IJsonEntry{
         }
       }
       ctx.builder.append(ch);
+
       if(isDigit(ch)){
-        if(!ctx.wasDot){
-          if(ctx.numberValue < ((1L << 53) / 10 + (ch - '0'))){
-            ctx.numberValue = ctx.numberValue * 10 + ch - '0';
-          } else {
+        if(!ctx.wasExp){
+          ctx.numberValue = ctx.numberValue * 10 + ch - '0';
+          if(ctx.wasDot)
             ctx.fracSize--;
-          }
-        }
-        else if(!ctx.wasExp){
-          if(ch == '0')
-            ctx.zeroCount++;
-          else {
-            for(int i = 0; i < ctx.zeroCount; i++){
-              if(ctx.numberValue < (1L << 53) / 10)
-                ctx.numberValue *=10;
-              else
-                ctx.fracSize++;
-            }
-            ctx.zeroCount = 0;
-            if(ctx.numberValue < ((1L << 53) / 10 + (ch - '0')))
-                ctx.numberValue = ctx.numberValue * 10 + ch - '0';
-              else
-                ctx.fracSize++;
-          }
-          ctx.fracSize--;
-          // if(ch == '0')
-          //   ctx.zeroCount++;
-          // else
-          //   ctx.zeroCount = 0;
-        }
-        else {
+        } else {
           ctx.unicode = ctx.unicode * 10 + ch - '0';
+          if(ctx.unicode > 1000){
+            ctx.unicode = 1000;
+          }
         }
+        
+
       }
+      // if(isDigit(ch)){
+      //   if(!ctx.wasDot){
+      //     if(ctx.numberValue < ((1L << 53) / 10 + (ch - '0'))){
+      //       ctx.numberValue = ctx.numberValue * 10 + ch - '0';
+      //     } else {
+      //       ctx.fracSize--;
+      //     }
+      //   }
+      //   else if(!ctx.wasExp){
+      //     if(ch == '0')
+      //       ctx.zeroCount++;
+      //     else {
+      //       for(int i = 0; i < ctx.zeroCount; i++){
+      //         if(ctx.numberValue < (1L << 53) / 10)
+      //           ctx.numberValue *=10;
+      //         else
+      //           ctx.fracSize++;
+      //       }
+      //       ctx.zeroCount = 0;
+      //       if(ctx.numberValue < ((1L << 53) / 10 + (ch - '0')))
+      //           ctx.numberValue = ctx.numberValue * 10 + ch - '0';
+      //         else
+      //           ctx.fracSize++;
+      //     }
+      //     ctx.fracSize--;
+      //     // if(ch == '0')
+      //     //   ctx.zeroCount++;
+      //     // else
+      //     //   ctx.zeroCount = 0;
+      //   }
+      //   else {
+      //     ctx.unicode = ctx.unicode * 10 + ch - '0';
+      //   }
+      // }
     }
     // ctx.pointer = i;
     ctx.read();
