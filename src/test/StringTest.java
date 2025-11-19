@@ -40,6 +40,23 @@ public class StringTest {
       IJsonSetting.ESCAPE_CONTROL_CHARACTERS = true;
       System.out.println("\nУправляющие последовательности допустимы:\n");
       testControl();
+
+      IJsonSetting.FORMAT_DIRECT_WRITE_CONTROL_CHARACTER = false;
+      js = IJson.of("{\"control_chars\": \"formfeed: \\u000c, newLine: \\u000a, Tab: \\u0009, CR: \\u000D\", \"another\": \"one tow three four five\"}");
+      System.out.println("\nЭкранированные символы: "+js.toStringFormat());
+
+      IJsonSetting.FORMAT_DIRECT_WRITE_CONTROL_CHARACTER = true;
+      js = IJson.of("{\"control_chars\": \"formfeed: \\u000c, newLine: \\u000a, Tab: \\u0009, CR: \\u000D\", \"another\": \"one tow three four five\"}");
+      System.out.println("\nНеэкранированные символы: "+js.toStringFormat());
+
+      IJsonSetting.NULL_STRING_AS_NULL_VALUE = false;
+      js = IJson.of("{\"Null string\": \"null\"}");
+      System.out.println("\nNull string: "+js.toStringFormat());
+
+      IJsonSetting.NULL_STRING_AS_NULL_VALUE = true;
+      js = IJson.of("{\"Null string\": null}");
+      System.out.println("\nNull value: "+js.toStringFormat());
+
       try{
         js = IJson.of("{\"Forbidden\": \"\\\\\\ \"}");
         System.out.println(js);

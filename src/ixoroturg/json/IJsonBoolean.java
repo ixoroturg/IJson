@@ -3,7 +3,7 @@ package ixoroturg.json;
 import java.io.Writer;
 import java.io.IOException;
 
-class IJsonBoolean extends IJsonEntry<Boolean>{
+class IJsonBoolean extends IJsonEntry{
   boolean value;
   private static final char[] t = {'t', 'r', 'u', 'e'};
   private static final char[] f = {'f', 'a', 'l', 's', 'e'};
@@ -23,28 +23,39 @@ class IJsonBoolean extends IJsonEntry<Boolean>{
       ctx.read();
       // i = ctx.pointer;
     }
+
+
+    char[] test;
       switch(ctx.buffer[ctx.pointer]){
         case 't' -> {
-          for(int j = 0; j < 4; j++, ctx.column++, ctx.index++){
-            if(ctx.buffer[ctx.pointer + j] != t[j])
-              throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer+j], ctx);
-          }
-          ctx.pointer+=4;
-          return true;
+          // for(int j = 0; j < 4; j++, ctx.column++, ctx.index++){
+          //   if(ctx.buffer[ctx.pointer + j] != t[j])
+          //     throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer+j], ctx);
+          // }
+          // ctx.pointer+=4;
+          // return true;
+          test = t;
         }
         case 'f' -> {
-          for(int j = 0; j < 5; j++, ctx.column++, ctx.index++){
-            if(ctx.buffer[ctx.pointer + j] != f[j])
-              throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer+j], ctx);
-          }
-          ctx.pointer+=5;
-          return false;
+          // for(int j = 0; j < 5; j++, ctx.column++, ctx.index++){
+          //   if(ctx.buffer[ctx.pointer + j] != f[j])
+          //     throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer+j], ctx);
+          // }
+          // ctx.pointer+=5;
+          // return false;
+          test = f;
         }
         default -> {
           throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer], ctx);
         }
       }
-    
+
+      for(int i = 0; i < test.length; i++, ctx.pointer++, ctx.index++, ctx.column++){
+        if(test[i] != ctx.buffer[ctx.pointer]){
+          throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer], ctx);
+        }
+      }
+      return test == t;
   }
 
   @Override

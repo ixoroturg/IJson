@@ -3,8 +3,8 @@ package ixoroturg.json;
 import java.io.Writer;
 import java.io.IOException;
 
-abstract class IJsonEntry<T> {
-  T value;
+abstract class IJsonEntry {
+  // T value;
   int size;
   IJsonEntry parent;
   String paramName;
@@ -23,12 +23,12 @@ abstract class IJsonEntry<T> {
     return paramName;
   }
 
-  public IJsonEntry back() throws JsonNoParentException{
+  IJsonEntry back() throws JsonNoParentException{
     if(parent == null)
       throw new JsonNoParentException("This json has no parent");
     return parent;
   }
-  public IJsonEntry backOrNull() {
+  IJsonEntry backOrNull() {
     return parent;
   }
 

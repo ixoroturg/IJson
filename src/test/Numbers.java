@@ -140,6 +140,43 @@ public class Numbers {
   private static void innerTest() throws Exception{
       Json js = IJson.of("{ \"Number\": 12345}");
       System.out.println(js);
+
+
+      js = IJson.of("{ \"Number\": 0.5}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.25}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.125}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.625}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.333333333333333}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.666666666666666}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.999999999999999}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 9.999999999999999999999999}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 3.14}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 3.649374018374928}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.000000000000001}");
+      System.out.println(js);
+
+
+      js = IJson.of("{ \"Number\": 0.0000000000000010000000000}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.00090000000000000000000000000000000000}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.000000000000000000000000000000000000000}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.00000000000000}");
+      System.out.println(js);
+      js = IJson.of("{ \"Number\": 0.6425629900000000000000000000000}");
+      System.out.println(js);
+
       js = IJson.of("{ \"Number\": 0}");
       System.out.println(js);
       js = IJson.of("{ \"Number\": 1}");

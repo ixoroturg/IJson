@@ -48,13 +48,19 @@ public class BigFileTest {
 //  // Прогрев
     String test = canada;
     long my = 0;
+    long my2 = 0;
+    long my3 = 0;
+    long my4 = 0;
     long jack = 0;
     int count = 1000;
     long start = 0;
+    long fullTest = 0;
     String[] files = {canada, twitter, citm};
 
     ObjectMapper mapper = new ObjectMapper();
     System.out.println("0 = canada, 1 = twitter, 2 = citm_catalog");
+
+    fullTest = System.currentTimeMillis();
     for(int j = 0; j < files.length; j++){
 
         String path = "./src/testFiles/";
@@ -67,20 +73,56 @@ public class BigFileTest {
 
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
-
         start = System.currentTimeMillis();
         JsonNode result = mapper.readTree(in);
         jack += System.currentTimeMillis() - start;
         in.close();
+      }
+
+      IJsonSetting.setBufferSize(8);
+      for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
         js = IJson.of(in);
         my += System.currentTimeMillis() - start;
         in.close();
       }
-      System.out.println("\n"+j+" parse time:\nIJson: "+my/ count);
-      System.out.println("jackson: "+jack/count);
+      
+      IJsonSetting.setBufferSize(14);
+      for(int i = 0; i < count; i++){
+        in = new FileInputStream(path);
+        start = System.currentTimeMillis();
+        js = IJson.of(in);
+        my2 += System.currentTimeMillis() - start;
+        in.close();
+      }  
+
+      IJsonSetting.setBufferSize(15);
+      for(int i = 0; i < count; i++){
+        in = new FileInputStream(path);
+        start = System.currentTimeMillis();
+        js = IJson.of(in);
+        my3 += System.currentTimeMillis() - start;
+        in.close();
+      }
+
+      IJsonSetting.setBufferSize(22);
+      for(int i = 0; i < count; i++){
+        in = new FileInputStream(path);
+        start = System.currentTimeMillis();
+        js = IJson.of(in);
+        my4 += System.currentTimeMillis() - start;
+        in.close();
+      }
+      System.out.println("\n"+j+" parse time:");
+      System.out.println("\njackson: "+jack/count);
+      System.out.println("\nIJson with 1KiB buffer: "+my/count);
+      System.out.println("\nIJson with 32KiB buffer: "+my2/count);
+      System.out.println("\nIJson with 64KiB buffer: "+my3/count);
+      System.out.println("\nIJson with 16MiB buffer: "+my4/count);
     }
+    fullTest = System.currentTimeMillis() - fullTest;
+    System.out.println("\nWhole test time: "+fullTest);
     
     
 //    System.out.println(result);

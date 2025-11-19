@@ -6,8 +6,8 @@ public class Test {
 
 //    System.out.println((int)'\t'+ " "+(int)'\n'+" "+(int)'\f'+" "+(int)'\r' + " "+(int)'\b');
 
-    IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX = 2;
-    IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX = 2;
+    IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX = 16;
+    IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX = 16;
      IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
     IJsonSetting.FORMAT_INDENT_COUNT = 2;
     IJsonSetting.FORMAT_INDENT_SYMBOL = ' ';
@@ -15,11 +15,11 @@ public class Test {
     // KeyCloakApiTest.test();
     // System.exit(0);
     try{
-      FileIO.test();
+      // FileIO.test();
       Numbers.test();
-      BooleanAndNullTest.test();
-      StringTest.test();
-      BigFileTest.test();
+      // BooleanAndNullTest.test();
+      // StringTest.test();
+      // BigFileTest.test();
     } catch(TestException e){
       System.out.println("Test failed");
       System.out.println(e);

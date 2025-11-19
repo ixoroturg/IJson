@@ -4,17 +4,18 @@ import java.io.Reader;
 import java.io.IOException;
 import java.io.Writer;
 
-class IJsonString extends IJsonEntry<String>{
+class IJsonString extends IJsonEntry{
 
-  String strValue;
+  // String strValue;
+  String value;
   IJsonString(){}
   IJsonString(String value){
     this.value = value;
-    StringBuilder builder = new StringBuilder(value.length());
-    builder.append('\"')
-      .append(value)
-      .append('\"');
-    strValue = builder.toString();
+    // StringBuilder builder = new StringBuilder(value.length());
+    // builder.append('\"')
+    //   .append(value)
+    //   .append('\"');
+    // strValue = builder.toString();
   }
   @Override
   public String toString(){
@@ -26,18 +27,45 @@ class IJsonString extends IJsonEntry<String>{
   }
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
+    if(!IJsonSetting.FORMAT_DIRECT_WRITE_CONTROL_CHARACTER){
+      ctx.writer.write('\"');
+      ctx.writer.write(value);
+      ctx.writer.write('\"');
+      return;
+    }
     ctx.writer.write('\"');
-    ctx.writer.write(value);
+    boolean wasSlash = false;
+    for(int i = 0; i < value.length(); i++){
+      if(wasSlash){
+        switch(value.charAt(i)){
+          case 't' -> {ctx.writer.write('\t');}
+          case 'r' -> {ctx.writer.write('\r');}
+          case 'n' -> {ctx.writer.write('\n');}
+          case 'f' -> {ctx.writer.write('\f');}
+          case 'b' -> {ctx.writer.write('\b');}
+          default -> {ctx.writer.write('\\'); ctx.writer.write(value.charAt(i));}
+        }
+        wasSlash = false;
+        continue;
+      }
+      if(value.charAt(i) == '\\'){
+        if(!wasSlash){
+          wasSlash = true;
+          continue;
+        }
+      }
+      ctx.writer.write(value.charAt(i));
+    }
     ctx.writer.write('\"');
   }
 
   @Override
   public int buffSize(){
-    return strValue.length();
+    return value.length()+2;
   }
   @Override
   public int buffSizeFormat(){
-    return strValue.length();
+    return value.length()+2;
   }
   @Override
   public String toFormatedString(){
@@ -61,15 +89,15 @@ class IJsonString extends IJsonEntry<String>{
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException {
       StringBuilder result = validate(ctx);
-      value = result.substring(1,result.length()-1);
-      strValue = result.toString();
+      // value = result.substring(1,result.length()-1);
+      value = result.toString();
   }
   
   static StringBuilder validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
     // System.out.println("Начало парсинга: " + ctx.pointer);
     if(ctx.firstPass){
       ctx.builder.setLength(0);
-      ctx.builder.append('\"');
+      // ctx.builder.append('\"');
       ctx.column++;
       ctx.index++;
       ctx.pointer++;
@@ -117,7 +145,7 @@ class IJsonString extends IJsonEntry<String>{
           } else {
             // ctx.pointer = i;
             ctx.firstPass = true;
-            ctx.builder.append('\"');
+            // ctx.builder.append('\"');
             return ctx.builder;
           }
         }
@@ -193,7 +221,7 @@ class IJsonString extends IJsonEntry<String>{
 
   @Override
   int buffSize(IJsonFormatContext ctx) {
-    return strValue.length();
+    return value.length()+2;
   }
 }
   // int parse(Reader reader, int offset) throws JsonInvalidStringException, JsonParseException  {

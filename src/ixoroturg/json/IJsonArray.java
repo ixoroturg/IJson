@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.LinkedList;
 
-class IJsonArray extends IJsonEntry<List<IJsonEntry>>{
+class IJsonArray extends IJsonEntry{
   int contentLength = 0;
   List<IJsonEntry> list = new LinkedList<>();
   

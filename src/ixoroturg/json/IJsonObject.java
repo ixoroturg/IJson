@@ -7,7 +7,7 @@ import java.util.Set;
 import java.io.IOException;
 import java.io.Writer;
 
-public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
+public class IJsonObject extends IJsonEntry {
   int contentLength = 0;
   Map<String, IJsonEntry> map = new TreeMap<>();
 
@@ -65,7 +65,8 @@ public class IJsonObject extends IJsonEntry<Map<String, IJsonEntry>> {
           if(needKey){
             // ctx.pointer = i;
             StringBuilder result = IJsonString.validate(ctx);
-            key = result.substring(1, result.length()-1);
+            // key = result.substring(1, result.length()-1);
+            key = result.toString();
             // i = ctx.pointer;
             needKey = false;
             needQuote = true;

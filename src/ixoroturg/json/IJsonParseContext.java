@@ -5,7 +5,7 @@ import java.io.IOException;
 
 class IJsonParseContext {
   Reader reader;
-  char[] buffer = new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
+  char[] buffer; //= new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
   int column;
   int row;
   int index;
@@ -20,7 +20,8 @@ class IJsonParseContext {
   int fracSize = 0;
   double numberValue = 0;
   boolean wasMinus = false;
-  
+  boolean updateBuffer = false;
+  int zeroCount = 0;
 
   String key;
   long timer; 
@@ -30,7 +31,7 @@ class IJsonParseContext {
 
   private boolean open = false;
 
-  private static IJsonParseContext[] ctx = new IJsonParseContext[IJsonSetting.PARSE_CONTEXT_COUNT];
+  static IJsonParseContext[] ctx = new IJsonParseContext[IJsonSetting.PARSE_CONTEXT_COUNT];
 
   static IJsonParseContext openContext(Reader reader) throws JsonParseException {
       for(int i = 0; i < ctx.length; i++){
@@ -58,6 +59,10 @@ class IJsonParseContext {
   }
   private void open(Reader reader) throws JsonParseException{
     timer = System.currentTimeMillis();
+    if(buffer == null || updateBuffer){
+      buffer = new char[1 << (IJsonSetting.BUFFER_SIZE + 1)];
+      updateBuffer = false;
+    }
     open = true;
     index = 0;
     pointer = 0;

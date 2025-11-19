@@ -33,6 +33,9 @@ public class JsonException extends Exception{
     }
 
     for(int i = ctx.pointer - length, j = 0; j < length + 1; i++, j++){
+      if(ctx.buffer[i] == 0 || ctx.buffer[i] == (char)65535){
+        break;
+      }
       if(IJsonUtil.isWhiteSpace(ctx.buffer[i])){
         builder.append(' ');
         continue;
@@ -41,9 +44,10 @@ public class JsonException extends Exception{
     }
     for(int i = ctx.pointer+1, j = 0; j < IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX && i < ctx.buffer.length; i++, j++){
       char ch = ctx.buffer[i];
-      if(ch == -1)
+      if(ch == 0 || ch == (char)65535){
         break;
-      if(IJsonUtil.isWhiteSpace(ctx.buffer[i])){
+      }
+      if(IJsonUtil.isWhiteSpace(ch)){
         builder.append(' ');
         continue;
       }

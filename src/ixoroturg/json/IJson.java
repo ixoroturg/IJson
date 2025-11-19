@@ -72,12 +72,14 @@ public class IJson implements Json {
             // ctx.pointer = i;
             if(!IJsonUtil.testNull(ctx))
               throw new JsonParseException("Expected null", ctx);
-            if(IJsonSetting.NULL_STRING_AS_NULL_VALUE)
-              return null;
-            else {
-              IJsonString result = new IJsonString("null");
-              return new IJson(result);
-            }
+            // if(IJsonSetting.NULL_STRING_AS_NULL_VALUE)
+            return null;
+            // else {
+            //   IJsonString result = new IJsonString("null");
+            //   return new IJson(result);
+            // }
+            // IJsonString result = new IJsonString("null");
+            // return new IJson(result);
           }
           default -> {
             return createEntry(new IJsonNumber(), ctx);
