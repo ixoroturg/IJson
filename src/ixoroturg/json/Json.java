@@ -11,6 +11,8 @@ public interface Json {
 
   public Json put(String key, String value);
   public Json add(String value);
+  public Json get(String key) throws JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException;
+  public Json get(int key) throws JsonNoSuchPropertyException;
 
   public int buffSize();
   public int buffSizeFormat();
@@ -26,5 +28,19 @@ public interface Json {
   public void writeToFormat(OutputStream stream) throws IOException;
   public void writeToFormat(Writer writer) throws IOException;
 
+
+  // public Json getParent() throws JsonNoParentException;
+  // public Json getParentOrNull();
+  public String getPropertyName() throws JsonNoParentException;
+  public String getPropertyNameOr(String value);
+  public Json back() throws JsonNoParentException;
+  public Json back(int depth) throws JsonNoParentException;
+  public boolean has(String key);
+  public int size() throws UnsupportedOperationException;
   public long getParseTime();
+
+
+
+  
+
 }

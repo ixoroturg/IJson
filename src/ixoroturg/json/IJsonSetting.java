@@ -45,7 +45,7 @@ public class IJsonSetting {
   static byte FORMAT_CONTEXT_COUNT = 8;
   /**
    * Then create formatted output, which symbol should be use for indent.<br>
-   * Default: \\t (tab, 0x0009)
+   * Default: \t (tab, 0x0009)
    */
   public static char FORMAT_INDENT_SYMBOL = '\t';
   /**
@@ -59,7 +59,7 @@ public class IJsonSetting {
    */
   public static boolean NULL_STRING_AS_NULL_VALUE = false;
   /**
-   * Control characters (\\t, \\f, \\b, \\n, \\r) is not allowed and it will be throw an exception if found.
+   * Control characters (\t, \f, \b, \n, \r) is not allowed and it will be throw an exception if found.
    * Set this to TRUE to escape them with slash and their character as www.json.org specific<br>
    * Default: false
    */
@@ -82,11 +82,40 @@ public class IJsonSetting {
    * If TRUE then parser use Double.parseDouble() method.<br>
    * Then FALSE then parser use custom double parse algorithm. It is more faster, but can do mistake near 1e-16 position.
    * So very sensetivity data should parse with FALSE. But if you parse Integer value less then 2^53 then it is safety.
-   * Unsafety only last bits of mantiss.
+   * Unsafety only last bits of mantiss.<br>
+   * This setting works only if IJsonSetting.USE_LAZY_NUMBER_PARSER = false, but it's true by default.<br>
    * Default: false
    */
   public static boolean USE_FAST_NUMBER_PARSE = false;
 
+  /**
+   * If TRUE then number parsing will be defer until the first get() method<br>
+   * In these case parser use Double.parseDouble()<br>
+   * Default: true
+   */
+  public static boolean USE_LAZY_NUMBER_PARSER = true;
+  
+  
+  /**
+   * This character using as splitter for keys<br>
+   * <p>Example: users.theme.color;</p>
+   * <p>If there is a 0x0000 then it is disabled</p>
+   * Default: 0x0000
+   */
+  public static char KEY_DELIMETER = 0;
+  /**
+   * These character is using as a parent ref, then with backslash.
+   * <p>Example: \p.\p.anotherChild.child</p>
+   * If there is 0x0000 then it is disabled
+   * Default: 0x0000
+   */
+  public static char PARENT_CHARACTER = 0;
+  /**
+   * If TRUE then property someProp[3] will interpreted as thied element of array with name someProp
+   * Default: false
+   */
+  public static boolean USE_ARRAY_SYNTAX = false;
+  
   /**
    * This map will be use as map.clone() for JsonObject representation.<br>
    * Signature: Map(String,IJsonEntry)<br>
@@ -114,6 +143,7 @@ public class IJsonSetting {
    * Default: 12, this is 2^13 = 8KiB of memmory by one parsing proccess.
    */
   public static void setBufferSize(int power){
+	  
     BUFFER_SIZE = (byte)power;
     for(int i = 0; i < IJsonParseContext.ctx.length; i++){
       if(IJsonParseContext.ctx[i] != null)

@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 public class IJsonNumber extends IJsonEntry{
-  protected double value;
+  protected double value = Double.NaN;
   String strValue;
   IJsonNumber(){}
   IJsonNumber(double value){
@@ -25,16 +25,17 @@ public class IJsonNumber extends IJsonEntry{
   @Override
   void parse(IJsonParseContext ctx) throws JsonInvalidNumberException, JsonParseException {
     strValue = validate(ctx);
-    try{
-      if(!IJsonSetting.USE_FAST_NUMBER_PARSE)
-        value = Double.parseDouble(strValue);
-      else
-        value = ctx.numberValue;
-      // System.out.println("int: "+(int)value);
-    }catch(NumberFormatException e){
-      JsonInvalidNumberException exp = new JsonInvalidNumberException("Unexpected error");
-      exp.initCause(e);
-      throw exp;
+    if(!IJsonSetting.USE_LAZY_NUMBER_PARSER){
+      try{
+        if(!IJsonSetting.USE_FAST_NUMBER_PARSE)
+          value = Double.parseDouble(strValue);
+        else
+          value = ctx.numberValue;
+      }catch(NumberFormatException e){
+        JsonInvalidNumberException exp = new JsonInvalidNumberException("Unexpected error");
+        exp.initCause(e);
+        throw exp;
+      }
     }
   }
   // static boolean wasExp = false;
@@ -131,8 +132,8 @@ public class IJsonNumber extends IJsonEntry{
         }
       }
       ctx.builder.append(ch);
-
-      if(isDigit(ch) && IJsonSetting.USE_FAST_NUMBER_PARSE){
+      
+      if(!IJsonSetting.USE_LAZY_NUMBER_PARSER && IJsonSetting.USE_FAST_NUMBER_PARSE  && isDigit(ch)){
         if(!ctx.wasExp){
           ctx.numberValue = ctx.numberValue * 10 + ch - '0';
           if(ctx.wasDot)
@@ -141,8 +142,6 @@ public class IJsonNumber extends IJsonEntry{
           if((ctx.unicode & 0xffff) < 1000)
             ctx.unicode = ctx.unicode * 10 + ch - '0';
         }
-        
-
       }
       // if(isDigit(ch)){
       //   if(!ctx.wasDot){
@@ -201,8 +200,11 @@ public class IJsonNumber extends IJsonEntry{
 
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
-    if(IJsonSetting.SHOW_INNER_DOUBLE_VALUE)
+    if(IJsonSetting.SHOW_INNER_DOUBLE_VALUE){
+      if(Double.isNaN(value))
+        value = Double.parseDouble(strValue);
       ctx.writer.write(String.valueOf(value));
+    }
     else 
       ctx.writer.write(strValue);
   }

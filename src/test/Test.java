@@ -11,7 +11,7 @@ public class Test {
      IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
     IJsonSetting.FORMAT_INDENT_COUNT = 2;
     IJsonSetting.FORMAT_INDENT_SYMBOL = ' ';
-    IJsonSetting.USE_FAST_NUMBER_PARSE = true;
+    // IJsonSetting.USE_FAST_NUMBER_PARSE = true;
 //    IJson.Setting.De/
     // KeyCloakApiTest.test();
     // System.exit(0);
