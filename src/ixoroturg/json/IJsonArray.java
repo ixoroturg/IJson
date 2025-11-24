@@ -104,6 +104,8 @@ class IJsonArray extends IJsonEntry{
       }
     }
     list.add(value);
+    if(value != null)
+    	value.parent = this;
     return ctx.pointer;
   }
   // private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{

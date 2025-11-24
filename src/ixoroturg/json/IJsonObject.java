@@ -140,6 +140,8 @@ public class IJsonObject extends IJsonEntry {
         }
       }
       map.put(key,value);
+      if(value != null)
+    	  value.parent = this;
       // ctx.pointer--;
       return ctx.pointer;
     }

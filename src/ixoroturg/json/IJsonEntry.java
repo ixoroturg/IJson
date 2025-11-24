@@ -1,6 +1,6 @@
 package ixoroturg.json;
 
-import java.io.Writer;
+//import java.io.Writer;
 import java.io.IOException;
 
 public abstract class IJsonEntry{
@@ -33,9 +33,9 @@ public abstract class IJsonEntry{
   }
 
   abstract void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidObjectException, JsonInvalidArrayException;
-  public abstract String toFormatedString();
-  public abstract int buffSize();
-  public abstract int buffSizeFormat();
+  abstract String toFormatedString();
+  abstract int buffSize();
+  abstract int buffSizeFormat();
 
   abstract int buffSize(IJsonFormatContext ctx);
   abstract void toString(IJsonFormatContext ctx) throws IOException;

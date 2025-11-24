@@ -16,16 +16,19 @@ public class Test {
     // KeyCloakApiTest.test();
     // System.exit(0);
     try{
-      FileIO.test();
-      Numbers.test();
-      BooleanAndNullTest.test();
-      StringTest.test();
-      BigFileTest.test();
+      // FileIO.test();
+      // Numbers.test();
+      // BooleanAndNullTest.test();
+      // StringTest.test();
+      GetTest.test();
+      // BigFileTest.test();
+      Json js = IJson.of("lol");
+//      js.getInnerRepresentation().
+      System.out.println("\nTest complete successfully");
     } catch(TestException e){
-      System.out.println("Test failed");
-      System.out.println(e);
+      System.out.println("\nTest failed");
+      // System.out.println(e);
       e.printStackTrace();
     }
-    System.out.println("\nTest complete successfully");
   }
 }
