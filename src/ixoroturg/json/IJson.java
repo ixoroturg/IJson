@@ -27,10 +27,10 @@ public class IJson implements Json {
     public static IJson ofArray(){
       return new IJson(new IJsonArray());
     }
-    public static IJson ofString(String value) {
-    	IJsonString str = new IJsonString(value);
-    	return new IJson(str);
-    }
+//    public static IJson ofString(String value) {
+//    	IJsonString str = new IJsonString(value);
+//    	return new IJson(str);
+//    }
     public static Json ofInnerRepresentation(IJsonEntry entry) {
     	return new IJson(entry);
     }
