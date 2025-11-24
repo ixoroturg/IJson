@@ -948,7 +948,9 @@ public class IJson implements Json {
 				UnsupportedOperationException, JsonNoSuchPropertyException {
 			IJsonArray arr = (IJsonArray) returnBeforeLastEntry(key, ARRAY).entry;
 			for(int i = 0; i < value.length; i++) {
-				arr.list.add(new IJsonBoolean(value[i]));
+				IJsonEntry val = new IJsonBoolean(value[i]);
+				val.parent = arr;
+				arr.list.add(val);
 			}
 			return this;
 		}
@@ -958,7 +960,9 @@ public class IJson implements Json {
 				UnsupportedOperationException, JsonNoSuchPropertyException {
 			IJsonArray arr = (IJsonArray) returnBeforeLastEntry(key, ARRAY).entry;
 			for(int i = 0; i < value.length; i++) {
-				arr.list.add(new IJsonString(value[i]));
+				IJsonEntry val = new IJsonString(value[i]);
+				val.parent = arr;
+				arr.list.add(val);
 			}
 			return this;
 		}
@@ -968,7 +972,9 @@ public class IJson implements Json {
 				UnsupportedOperationException, JsonNoSuchPropertyException {
 			IJsonArray arr = (IJsonArray) returnBeforeLastEntry(key, ARRAY).entry;
 			for(int i = 0; i < value.length; i++) {
-				arr.list.add(value[i].getInnerRepresentation());
+				IJsonEntry val = value[i].getInnerRepresentation();
+				val.parent = arr;
+				arr.list.add(val);
 			}
 			return this;
 		}
@@ -978,7 +984,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonNumber(value[i]));
+			IJsonEntry val = new IJsonNumber(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -988,7 +996,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonNumber(value[i]));
+			IJsonEntry val = new IJsonNumber(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -998,7 +1008,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonNumber(value[i]));
+			IJsonEntry val = new IJsonNumber(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1008,7 +1020,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonNumber(value[i]));
+			IJsonEntry val = new IJsonNumber(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1018,7 +1032,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonNumber(value[i]));
+			IJsonEntry val = new IJsonNumber(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1028,7 +1044,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonNumber(value[i]));
+			IJsonEntry val = new IJsonNumber(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1038,7 +1056,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonBoolean(value[i]));
+			IJsonEntry val = new IJsonBoolean(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1048,7 +1068,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(new IJsonString(value[i]));
+			IJsonEntry val = new IJsonString(value[i]);
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1058,7 +1080,9 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		IJsonArray arr = new IJsonArray();
 		for(int i = 0; i < value.length; i++) {
-			arr.list.add(value[i].getInnerRepresentation());
+			IJsonEntry val = value[i].getInnerRepresentation();
+			val.parent = arr;
+			arr.list.add(val);
 		}
 		return add(key, arr);
 	}
@@ -1067,7 +1091,9 @@ public class IJson implements Json {
 		public Json addAll(byte[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonNumber(value[i]));
+					IJsonEntry val = new IJsonNumber(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1078,7 +1104,9 @@ public class IJson implements Json {
 		public Json addAll(short[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonNumber(value[i]));
+					IJsonEntry val = new IJsonNumber(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1089,7 +1117,9 @@ public class IJson implements Json {
 		public Json addAll(int[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonNumber(value[i]));
+					IJsonEntry val = new IJsonNumber(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1100,7 +1130,9 @@ public class IJson implements Json {
 		public Json addAll(long[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonNumber(value[i]));
+					IJsonEntry val = new IJsonNumber(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1111,7 +1143,9 @@ public class IJson implements Json {
 		public Json addAll(float[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonNumber(value[i]));
+					IJsonEntry val = new IJsonNumber(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1122,7 +1156,9 @@ public class IJson implements Json {
 		public Json addAll(double[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonNumber(value[i]));
+					IJsonEntry val = new IJsonNumber(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1133,7 +1169,9 @@ public class IJson implements Json {
 		public Json addAll(boolean[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonBoolean(value[i]));
+					IJsonEntry val = new IJsonBoolean(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1144,7 +1182,9 @@ public class IJson implements Json {
 		public Json addAll(String[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(new IJsonString(value[i]));
+					IJsonEntry val = new IJsonString(value[i]);
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
@@ -1155,7 +1195,9 @@ public class IJson implements Json {
 		public Json addAll(Json[] value) throws UnsupportedOperationException {
 			if(currentJson instanceof IJsonArray arr) {
 				for(int i = 0; i < value.length; i++) {
-					arr.list.add(value[i].getInnerRepresentation());
+					IJsonEntry val = value[i].getInnerRepresentation();
+					val.parent = arr;
+					arr.list.add(val);
 				}
 			} else
 				throw new UnsupportedOperationException("addAll() is allowed only for array");
