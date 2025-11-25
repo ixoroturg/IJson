@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -2712,5 +2713,40 @@ public class IJson implements Json {
 			}
 		} else
 			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	private class Iter implements Iterator<Json>{
+		IJsonArray array;
+		int index = 0;
+		Iter(IJsonArray array){
+			this.array = array;
+		}
+		@Override
+		public boolean hasNext() {
+			return array.list.size() <= index;
+		}
+
+		@Override
+		public Json next() {
+			return new IJson(array.list.get(index));
+		}
+		
+	}
+	@Override
+	public Iterator<Json> iterator() {
+		if(currentJson instanceof IJsonArray arr) {
+			return new Iter(arr);
+		} else
+			throw new UnsupportedOperationException("Iterator is allowed only for object");
+	}
+	
+
+	@Override
+	public Json iClone() {
+		return new IJson(currentJson.iClone());
+	}
+	@Override
+	public boolean equals(Object obj) {
+		return currentJson.equals(obj);
 	}
 }

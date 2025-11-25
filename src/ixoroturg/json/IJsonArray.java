@@ -231,8 +231,8 @@ class IJsonArray extends IJsonEntry{
     if(obj instanceof IJsonArray a){
       if(list.size() != a.list.size())
         return false;
-      Iterator i1 = list.iterator();
-      Iterator i2 = a.list.iterator();
+      Iterator<IJsonEntry> i1 = list.iterator();
+      Iterator<IJsonEntry> i2 = a.list.iterator();
       for(;i1.hasNext();){
         if(!i1.next().equals(i2.next()))
           return false;

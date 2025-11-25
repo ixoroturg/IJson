@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-public interface Json {
+public interface Json extends Iterable<Json>{
 
 
   public Json get(String key) throws JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException, JsonParseException;
@@ -25,7 +25,8 @@ public interface Json {
   public Json parse(InputStream stream) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
   public Json parse(Reader reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
 
-
+  public Json iClone();
+  
   public String toStringFormat();
   public void writeTo(OutputStream stream) throws IOException;
   public void writeTo(Writer writer) throws IOException;
