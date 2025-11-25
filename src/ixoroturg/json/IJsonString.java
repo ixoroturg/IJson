@@ -19,6 +19,8 @@ class IJsonString extends IJsonEntry{
   }
   @Override
   public String toString(){
+    if(value == null)
+      return null;
     StringBuilder builder = new StringBuilder(value.length() + 2);
     builder.append('\"')
       .append(value)
@@ -27,6 +29,10 @@ class IJsonString extends IJsonEntry{
   }
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
+    if(value == null){
+      ctx.writer.write("null");
+      return;
+    }
     if(!IJsonSetting.FORMAT_DIRECT_WRITE_CONTROL_CHARACTER){
       ctx.writer.write('\"');
       ctx.writer.write(value);

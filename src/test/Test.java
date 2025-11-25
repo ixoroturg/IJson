@@ -16,13 +16,14 @@ public class Test {
     // KeyCloakApiTest.test();
     // System.exit(0);
     try{
-      // FileIO.test();
-      // Numbers.test();
-      // BooleanAndNullTest.test();
-      // StringTest.test();
+      FileIO.test();
+      Numbers.test();
+      BooleanAndNullTest.test();
+      StringTest.test();
       GetTest.test();
+      PutAddGetTest.test();
       // BigFileTest.test();
-      Json js = IJson.of("lol");
+      // Json js = IJson.of("lol");
 //      js.getInnerRepresentation().
       System.out.println("\nTest complete successfully");
     } catch(TestException e){
