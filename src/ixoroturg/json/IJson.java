@@ -400,7 +400,7 @@ public class IJson implements Json {
     	throw new JsonParseException("Unexpected error");
     }
 
-    private final byte OBJECT = 0, ARRAY = 1, BEFORE_ARRAY = 2;
+    private final byte OBJECT = 0, ARRAY = 1;
     private innerEntry returnBeforeLastEntry(String key, byte type) throws JsonNoParentException, JsonParseException,
 	UnsupportedOperationException, JsonNoSuchPropertyException {
     	if(type == ARRAY) {
@@ -1918,7 +1918,7 @@ public class IJson implements Json {
 			}
 			return Arrays.<Json>stream(result);
 		} else
-			throw new UnsupportedOperationException("getJsonArray() is allowed only for array");
+			throw new UnsupportedOperationException("getJsonStream() is allowed only for array");
 	}
 
 	// search:getStream(key)
@@ -2120,5 +2120,597 @@ public class IJson implements Json {
 		add(key, js);
 		currentJson = js;
 		return this;
+	}
+
+	// search:getType(int index)
+	@Override
+	public byte getByte(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		return (byte)getDouble(index);
+	}
+
+	@Override
+	public short getShort(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		return (short)getDouble(index);
+	}
+
+	@Override
+	public int getInt(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		return (int)getDouble(index);
+	}
+
+	@Override
+	public long getLong(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		return (long)getDouble(index);
+	}
+
+	@Override
+	public float getFloat(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		return (float)getDouble(index);
+	}
+
+	@Override
+	public double getDouble(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonNumber num) {
+				return num.value;
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array and number value");
+		}	else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public boolean getBoolean(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonBoolean bool) {
+				return bool.value;
+			} else
+				throw new JsonIllegalTypeException("getBoolean(int index) is allowed only for array and boolean value");
+		}	else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public String getString(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonString str) {
+				return str.value;
+			} else
+				throw new JsonIllegalTypeException("getString(int index) is allowed only for array and string value");
+		}	else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+	// search:getTypeArray(int index)
+	@Override
+	public byte[] getByteArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				byte[] result = new byte[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = (byte)((IJsonNumber)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public short[] getShortArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				short[] result = new short[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = (short)((IJsonNumber)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public int[] getIntArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				int[] result = new int[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = (int)((IJsonNumber)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public long[] getLongArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				long[] result = new long[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = (long)((IJsonNumber)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public float[] getFloatArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				float[] result = new float[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = (float)((IJsonNumber)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public double[] getDoubleArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				double[] result = new double[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = ((IJsonNumber)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getNumberType(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public boolean[] getBooleanArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				boolean[] result = new boolean[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = ((IJsonBoolean)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getBoolean(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public String[] getStringArray(int index) throws UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
+			IJsonEntry entry = arr.list.get(index);
+			if(entry instanceof IJsonArray arr2) {
+				String[] result = new String[arr2.list.size()];
+				try {
+					for(int i = 0; i < result.length; i++) {
+						result[i] = ((IJsonString)arr2.list.get(i)).value;
+					}
+					return result;
+				}catch(ClassCastException e) {
+					JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
+					t.initCause(e);
+					throw t;
+				}
+			} else
+				throw new JsonIllegalTypeException("getString(int index) is allowed only for array");	
+		} else
+			throw new UnsupportedOperationException("getType(int index) is allowed only for array");
+	}
+
+	@Override
+	public IntStream getIntStream(int index)
+			throws UnsupportedOperationException, JsonIllegalTypeException, JsonNoSuchPropertyException {
+		return Arrays.stream(getIntArray(index));
+	}
+
+	@Override
+	public LongStream getLongStream(int index)
+			throws UnsupportedOperationException, JsonIllegalTypeException, JsonNoSuchPropertyException {
+		return Arrays.stream(getLongArray(index));
+	}
+
+	@Override
+	public DoubleStream getDoubleStream(int index)
+			throws UnsupportedOperationException, JsonIllegalTypeException, JsonNoSuchPropertyException {
+		return Arrays.stream(getDoubleArray(index));
+	}
+
+	@Override
+	public Stream<String> getStringStream(int index)
+			throws UnsupportedOperationException, JsonIllegalTypeException, JsonNoSuchPropertyException {
+		return Arrays.<String>stream(getStringArray(index));
+	}
+
+	@Override
+	public Stream<Json> getJsonStream(int index)
+			throws UnsupportedOperationException, JsonIllegalTypeException, JsonNoSuchPropertyException {
+		if(currentJson instanceof IJsonArray test) {
+			if(test.list.size() <= index)
+				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+test.list.size());
+			IJsonEntry entry = test.list.get(index);
+			if(entry instanceof IJsonArray arr) {	
+				Json[] result = new Json[arr.list.size()];
+				for(int i = 0; i < result.length; i++) {
+					result[i] = new IJson(arr.list.get(i));
+				}
+				return Arrays.<Json>stream(result);
+			} else
+				throw new UnsupportedOperationException("getJsonStream(int index) is allowed only for array");
+		}else
+			throw new UnsupportedOperationException("getJsonStream(int index) is allowed only for array");
+		
+	}
+	// search:getTypeStreamOr(int index, value)
+	@Override
+	public IntStream getIntStreamOr(int index, int[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return Arrays.stream(value);
+			else
+			try {
+				return getIntStream(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeStreamOr(int index, value[]) methods");
+				return null;
+			}
+				
+		} else
+			throw new UnsupportedOperationException("getTypeStreamOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public LongStream getLongStreamOr(int index, long[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return Arrays.stream(value);
+			else
+			try {
+				return getLongStream(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeStreamOr(int index, value[]) methods");
+				return null;
+			}
+				
+		} else
+			throw new UnsupportedOperationException("getTypeStreamOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public DoubleStream getDoubleStreamOr(int index, double[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return Arrays.stream(value);
+			else
+			try {
+				return getDoubleStream(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeStreamOr(int index, value[]) methods");
+				return null;
+			}
+				
+		} else
+			throw new UnsupportedOperationException("getTypeStreamOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public Stream<String> getStringStreamOr(int index, String[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return Arrays.stream(value);
+			else
+			try {
+				return getStringStream(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeStreamOr(int index, value[]) methods");
+				return null;
+			}
+				
+		} else
+			throw new UnsupportedOperationException("getTypeStreamOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public Stream<Json> getJsonStreamOr(int index, Json[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return Arrays.stream(value);
+			else
+			try {
+				return getJsonStream(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeStreamOr(int index, value[]) methods");
+				return null;
+			}
+				
+		} else
+			throw new UnsupportedOperationException("getTypeStreamOr(int index, value[]) is allowed only for array");
+	}
+	// search:getTypeOr(int index, value)
+	@Override
+	public byte getByteOr(int index, byte value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		return (byte)getDoubleOr(index, value);
+	}
+
+	@Override
+	public short getShortOr(int index, short value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		return (short)getDoubleOr(index, value);
+	}
+
+	@Override
+	public int getIntOr(int index, int value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		return (int)getDoubleOr(index, value);
+	}
+
+	@Override
+	public long getLongOr(int index, long value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		return (long)getDoubleOr(index, value);
+	}
+
+	@Override
+	public float getFloatOr(int index, float value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		return (float)getDoubleOr(index, value);
+	}
+
+	@Override
+	public double getDoubleOr(int index, double value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getDouble(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getType(int index, value) methods");
+				return Double.NaN;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeOr(int index, value) is allowed only for array");
+	}
+
+	@Override
+	public boolean getBooleanOr(int index, boolean value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getBoolean(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getType(int index, value) methods");
+				return false;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeOr(int index, value) is allowed only for array");
+	}
+
+	@Override
+	public String getStringOr(int index, String value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getString(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getType(int index, value) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeOr(int index, value) is allowed only for array");
+	}
+	// search:getTypeArrayOr(int index, value[])
+	@Override
+	public byte[] getByteArrayOr(int index, byte[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getByteArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public short[] getShortArrayOr(int index, short[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getShortArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public int[] getIntArrayOr(int index, int[] value) throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getIntArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public long[] getLongArrayOr(int index, long[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getLongArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public float[] getFloatArrayOr(int index, float[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getFloatArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public double[] getDoubleArrayOr(int index, double[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getDoubleArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public boolean[] getBooleanArrayOr(int index, boolean[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getBooleanArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
+	}
+
+	@Override
+	public String[] getStringArrayOr(int index, String[] value)
+			throws UnsupportedOperationException, JsonIllegalTypeException {
+		if(currentJson instanceof IJsonArray arr) {
+			if(arr.list.size() <= index)
+				return value;
+			try {
+				return getStringArray(index);
+			}catch(JsonNoSuchPropertyException e) {
+				System.err.println("Unexpected error on getTypeArray(int index, value[]) methods");
+				return null;
+			}
+		} else
+			throw new UnsupportedOperationException("getTypeArrayOr(int index, value[]) is allowed only for array");
 	}
 }
