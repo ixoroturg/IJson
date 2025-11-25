@@ -168,7 +168,10 @@ public class IJson implements Json {
 
     @Override
     public String getPropertyNameOr(String value) {
-      return currentJson.paramName;
+      String result = currentJson.paramName;
+      if(result == null)
+        return value;
+      return result;
     }
 
     @Override
