@@ -1,6 +1,5 @@
 package ixoroturg.json;
 
-import java.io.Writer;
 import java.io.IOException;
 
 class IJsonBoolean extends IJsonEntry{
@@ -18,31 +17,15 @@ class IJsonBoolean extends IJsonEntry{
     ctx.pointer--;
   }
   static boolean validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidBooleanException {
-    // int i = ctx.pointer;
     if(ctx.buffer.length - ctx.pointer < 6){
       ctx.read();
-      // i = ctx.pointer;
     }
-
-
     char[] test;
       switch(ctx.buffer[ctx.pointer]){
         case 't' -> {
-          // for(int j = 0; j < 4; j++, ctx.column++, ctx.index++){
-          //   if(ctx.buffer[ctx.pointer + j] != t[j])
-          //     throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer+j], ctx);
-          // }
-          // ctx.pointer+=4;
-          // return true;
           test = t;
         }
         case 'f' -> {
-          // for(int j = 0; j < 5; j++, ctx.column++, ctx.index++){
-          //   if(ctx.buffer[ctx.pointer + j] != f[j])
-          //     throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer+j], ctx);
-          // }
-          // ctx.pointer+=5;
-          // return false;
           test = f;
         }
         default -> {

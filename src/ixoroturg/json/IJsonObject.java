@@ -3,9 +3,7 @@ package ixoroturg.json;
 import java.util.Map;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.Set;
 import java.io.IOException;
-import java.io.Writer;
 
 public class IJsonObject extends IJsonEntry {
   int contentLength = 0;
@@ -25,8 +23,6 @@ public class IJsonObject extends IJsonEntry {
       this.map.put(entry.getKey(), entry.getValue().iClone());
     }
   }
-
-  // boolean needValue = false;
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
 
@@ -60,7 +56,6 @@ public class IJsonObject extends IJsonEntry {
       if(needDot && ch != ','){
         throw new JsonInvalidObjectException("Expected , but found "+(int)ch, ctx);
       }
-      // ctx.pointer = i;
       switch(ch){
         case ',' -> {
           if(wasDot)
@@ -71,11 +66,8 @@ public class IJsonObject extends IJsonEntry {
         }
         case '\"' -> {
           if(needKey){
-            // ctx.pointer = i;
             StringBuilder result = IJsonString.validate(ctx);
-            // key = result.substring(1, result.length()-1);
             key = result.toString();
-            // i = ctx.pointer;
             needKey = false;
             needQuote = true;
           } else {
@@ -91,10 +83,8 @@ public class IJsonObject extends IJsonEntry {
           continue;
         }
         case 'n' -> {
-          // ctx.pointer = i;
           if(!IJsonUtil.testNull(ctx))
             throw new JsonParseException("Expected null", ctx);
-          // i = ctx.pointer;
           ctx.pointer--;
           addEntry(null,ctx);
         }
@@ -114,14 +104,12 @@ public class IJsonObject extends IJsonEntry {
         }
       }
     }
-    // ctx.pointer = i;
     ctx.read();
     parse(ctx);
   }
     
     private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
       contentLength += key.length() + 2;
-      // needKey = true;
       wasQuote = false;
       needDot = true;
       wasDot = false;
@@ -142,7 +130,6 @@ public class IJsonObject extends IJsonEntry {
       map.put(key,value);
       if(value != null)
     	  value.parent = this;
-      // ctx.pointer--;
       return ctx.pointer;
     }
 
@@ -197,8 +184,6 @@ public class IJsonObject extends IJsonEntry {
       }
       ctx.depth++;
       ctx.writer.write('{');
-      // if(ctx.format)
-      //   ctx.writer.write('\n');
       boolean first = true;
       IJsonEntry test;
       for(Map.Entry<String, IJsonEntry> entry: map.entrySet()){

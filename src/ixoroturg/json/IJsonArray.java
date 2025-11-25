@@ -1,6 +1,5 @@
 package ixoroturg.json;
 
-import java.io.Writer;
 import java.io.StringWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -10,8 +9,6 @@ import java.util.LinkedList;
 class IJsonArray extends IJsonEntry{
   int contentLength = 0;
   List<IJsonEntry> list = new LinkedList<>();
-  
-  // List<IJsonEntry> list = IJsonSetting.LIST_INSTANCE.clone();
   boolean firstPass = true;
   boolean needDot = false;
   boolean wasDot = false;
@@ -25,7 +22,6 @@ class IJsonArray extends IJsonEntry{
 
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidObjectException{
-    // int i;
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
       char ch = ctx.buffer[ctx.pointer];
       if(IJsonUtil.isWhiteSpace(ch)){
@@ -64,10 +60,8 @@ class IJsonArray extends IJsonEntry{
           addEntry(new IJsonBoolean(), ctx);
         }
         case 'n' -> {
-          // ctx.pointer = i;
           if(!IJsonUtil.testNull(ctx))
             throw new JsonParseException("Expected null",ctx);
-          // i = ctx.pointer;
           ctx.pointer--;
           addEntry(null,ctx);
         }
@@ -82,7 +76,6 @@ class IJsonArray extends IJsonEntry{
         }
       }
     }
-    // ctx.pointer = i;
     ctx.read();
     parse(ctx);
   }
@@ -108,22 +101,7 @@ class IJsonArray extends IJsonEntry{
     	value.parent = this;
     return ctx.pointer;
   }
-  // private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
-  //   int start = ctx.index;
-  //   value.parse(ctx);
-  //   int end = ctx.index;
-  //   if(value instanceof IJsonObject obj){
-  //     contentLength += obj.buffSize();
-  //   } else if (value instanceof IJsonArray arr){
-  //     contentLength += arr.buffSize();
-  //   } else {
-  //     contentLength += end - start + 1;
-  //   }
-  //   list.add(value);
-  //   needDot = true;
-  //   return ctx.pointer;
-  // }
-
+  
   @Override
   public String toFormatedString() {
     return toString(true);
@@ -173,8 +151,6 @@ class IJsonArray extends IJsonEntry{
     boolean first = true;
     ctx.depth++;
     ctx.writer.write('[');
-        // if(ctx.format)
-        //   ctx.writer.write('\n');
     for(IJsonEntry entry: list){
       if(!first){
         ctx.writer.write(',');
@@ -211,12 +187,6 @@ class IJsonArray extends IJsonEntry{
       result += 2 +list.size() * (1 + IJsonSetting.FORMAT_INDENT_COUNT * (ctx.depth + 1) ) + ctx.depth*IJsonSetting.FORMAT_INDENT_COUNT ;
     }
     result += contentLength;
-    // for(IJsonEntry entry : list){
-    //   if(entry == null)
-    //     result += 4;
-    //   else
-    //     result += entry.buffSize(ctx);
-    // }
     return result;
   }
 

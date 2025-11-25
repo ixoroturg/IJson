@@ -1,6 +1,5 @@
 package ixoroturg.json;
 
-import java.io.Reader;
 
 public class JsonParseException extends JsonException {
   public JsonParseException(String description){

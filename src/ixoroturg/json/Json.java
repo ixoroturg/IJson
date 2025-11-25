@@ -33,9 +33,6 @@ public interface Json extends Iterable<Json>{
   public void writeToFormat(OutputStream stream) throws IOException;
   public void writeToFormat(Writer writer) throws IOException;
 
-
-  // public Json getParent() throws JsonNoParentException;
-  // public Json getParentOrNull();
   public String getPropertyName() throws JsonNoParentException;
   public String getPropertyNameOr(String value);
   public Json back() throws JsonNoParentException;
@@ -45,8 +42,6 @@ public interface Json extends Iterable<Json>{
   public int size() throws UnsupportedOperationException;
   public long getParseTime();
   public IJsonEntry getInnerRepresentation();
-
-
   // put(key, value)
   public Json put(String key, byte value) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException;
   public Json put(String key, short value) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException;
@@ -163,15 +158,6 @@ public interface Json extends Iterable<Json>{
   public double getDouble(String key) throws JsonNoParentException, JsonParseException, JsonNoSuchPropertyException,  UnsupportedOperationException;
   public boolean getBoolean(String key) throws JsonNoParentException, JsonParseException, JsonNoSuchPropertyException,  UnsupportedOperationException;
   public String getString(String key) throws JsonNoParentException, JsonParseException, JsonNoSuchPropertyException,  UnsupportedOperationException;
-//  // getTypeOr()
-//  public byte getByteOr(byte value) throws UnsupportedOperationException;
-//  public short getShortOr(short value) throws UnsupportedOperationException;
-//  public int getIntOr(int value) throws UnsupportedOperationException;
-//  public long getLongOr(long value) throws UnsupportedOperationException;
-//  public float getFloatOr(float value) throws UnsupportedOperationException;
-//  public double getDoubleOr(double value) throws UnsupportedOperationException;
-//  public boolean getBooleanOr(boolean value) throws UnsupportedOperationException;
-//  public String getStringOr(String value) throws UnsupportedOperationException;
   // getTypeOr(key)
   public byte getByteOr(String key, byte value) throws JsonNoParentException, JsonParseException, JsonNoSuchPropertyException,  UnsupportedOperationException;
   public short getShortOr(String key, short value) throws JsonNoParentException, JsonParseException, JsonNoSuchPropertyException,  UnsupportedOperationException;
@@ -217,15 +203,6 @@ public interface Json extends Iterable<Json>{
   public double[] getDoubleArray(String key)throws JsonNoParentException, JsonParseException, UnsupportedOperationException,  JsonNoSuchPropertyException, JsonIllegalTypeException;
   public boolean[] getBooleanArray(String key)throws JsonNoParentException, JsonParseException, UnsupportedOperationException,  JsonNoSuchPropertyException, JsonIllegalTypeException;
   public String[] getStringArray(String key)throws JsonNoParentException, JsonParseException, UnsupportedOperationException,  JsonNoSuchPropertyException, JsonIllegalTypeException;
-//  // getTypeArrayOr()
-//  public byte[] getByteArrayOr(byte[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public short[] getShortArrayOr(short[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public int[] getIntArrayOr(int[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public long[] getLongArrayOr(long[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public float[] getFloatArrayOr(float[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public double[] getDoubleArrayOr(double[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public boolean[] getBooleanArrayOr(boolean[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public String[] getStringArrayOr(String[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
   // getTypeArrayOr(key) // 14 * 9 (integer x4, float x2, boolean, String, Json) = 136 methods!!!
   public byte[] getByteArrayOr(String key, byte[] value) throws JsonNoParentException, JsonParseException, UnsupportedOperationException,  JsonNoSuchPropertyException, JsonIllegalTypeException;
   public short[] getShortArrayOr(String key, short[] value) throws JsonNoParentException, JsonParseException, UnsupportedOperationException,  JsonNoSuchPropertyException, JsonIllegalTypeException;
@@ -252,13 +229,6 @@ public interface Json extends Iterable<Json>{
   public LongStream getLongStream(String key) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException;
   public DoubleStream getDoubleStream(String key) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException;
   public Stream<String> getStringStream(String key) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException;
-//  public Stream<Json> getJsonStream(String key) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException;
-//  // getTypeStreamOr(Type[])
-//  public IntStream getIntStreamOr(int[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public LongStream getLongStreamOr(long[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public DoubleStream getDoubleStreamOr(double[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public Stream<String> getStringStreamOr(String[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-//  public Stream<Json> getJsonStreamOr(Json[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
   // getTypeStreamOr(key, Type[]) // 4 * 5 (IntStream, LongStream, DoubleStream, StringStream, JsonStream, not BooleanStream) = 20 methods
   public IntStream getIntStreamOr(String key, int[] value) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException;
   public LongStream getLongStreamOr(String key, long[] value) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException, JsonIllegalTypeException;
@@ -271,7 +241,6 @@ public interface Json extends Iterable<Json>{
  public DoubleStream getDoubleStreamOr(int index, double[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
  public Stream<String> getStringStreamOr(int index, String[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
  public Stream<Json> getJsonStreamOr(int index, Json[] value) throws UnsupportedOperationException, JsonIllegalTypeException;
-  
   // putAddSpecial
   public Json putObject(String key) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException;
   public Json putGetObject(String key) throws JsonNoParentException, JsonParseException, UnsupportedOperationException, JsonNoSuchPropertyException;

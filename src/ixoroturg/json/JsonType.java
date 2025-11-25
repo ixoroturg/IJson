@@ -1,6 +1,0 @@
-package ixoroturg.json;
-
-public enum JsonType {
-  object, array, string, value;
-}
-

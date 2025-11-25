@@ -1,8 +1,6 @@
 package ixoroturg.json;
 
-import java.io.Reader;
 import java.io.IOException;
-import java.io.Writer;
 
 class IJsonString extends IJsonEntry{
 
@@ -11,11 +9,6 @@ class IJsonString extends IJsonEntry{
   IJsonString(){}
   IJsonString(String value){
     this.value = value;
-    // StringBuilder builder = new StringBuilder(value.length());
-    // builder.append('\"')
-    //   .append(value)
-    //   .append('\"');
-    // strValue = builder.toString();
   }
   @Override
   public String toString(){
@@ -95,27 +88,22 @@ class IJsonString extends IJsonEntry{
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException {
       StringBuilder result = validate(ctx);
-      // value = result.substring(1,result.length()-1);
       value = result.toString();
   }
   
   static StringBuilder validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
-    // System.out.println("Начало парсинга: " + ctx.pointer);
     if(ctx.firstPass){
       ctx.builder.setLength(0);
-      // ctx.builder.append('\"');
       ctx.column++;
       ctx.index++;
       ctx.pointer++;
       ctx.firstPass = false;
     }
-    // int i;
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
       char ch = ctx.buffer[ctx.pointer];
       
       switch(ch){
         case (char)65535, (char)0 -> {
-          // ctx.pointer = i;
           throw new JsonParseException("Unexcepted end of line", ctx);
         }
         case 'n' -> {
@@ -125,7 +113,6 @@ class IJsonString extends IJsonEntry{
         }
         case '\t', '\n', '\r', '\b', '\f' -> {
           if(!IJsonSetting.ESCAPE_CONTROL_CHARACTERS){
-            // ctx.pointer = i;
             throw new JsonInvalidStringException("No control characters allowed", ctx);
           }
           if(ch == '\n'){
@@ -149,9 +136,7 @@ class IJsonString extends IJsonEntry{
           if(ctx.wasSlash){
             ctx.wasSlash = false;
           } else {
-            // ctx.pointer = i;
             ctx.firstPass = true;
-            // ctx.builder.append('\"');
             return ctx.builder;
           }
         }
@@ -220,7 +205,6 @@ class IJsonString extends IJsonEntry{
       };
       ctx.builder.append(ch);
     }
-    // ctx.pointer = i;
     ctx.read();
     return validate(ctx);
   }
@@ -244,96 +228,3 @@ class IJsonString extends IJsonEntry{
     return false;
   }
 }
-  // int parse(Reader reader, int offset) throws JsonInvalidStringException, JsonParseException  {
-  //   StringBuilder builder = new StringBuilder(16);
-  //   int index = 0;
-  //   int ch;
-  //   boolean wasSlash = false;
-  //   boolean open = false;
-  //   try{
-  //     while((ch = reader.read()) != -1){
-  //       if(!open && ch != '\"')
-  //         break;
-  //       open = true;
-  //
-  //       switch(ch) {
-  //         case '\t', '\b', '\n', '\r', '\f' -> {
-  //           throw new JsonInvalidStringException("Invalid character found. Code: " + Integer.toHexString(ch), reader, index + offset);
-  //         }
-  //
-  //         case '\\' -> {
-  //           if(!wasSlash){
-  //             wasSlash = true;
-  //             index++;
-  //             continue;
-  //           } else {
-  //             builder.append('\\').append('\\');
-  //             index++;
-  //           }
-  //         }
-  //         case 't','b','n','f','r','/' -> {
-  //           if(wasSlash){
-  //             wasSlash = false;
-  //             builder.append('\\');
-  //             index++;
-  //           }
-  //           builder.append((char)ch);
-  //         }
-  //         case 'u' -> {
-  //           if(wasSlash){
-  //             if(!IJsonSetting.DECODE_UNICODE_SEQUENCE){
-  //               wasSlash = false;
-  //               builder.append('\\').append('u');
-  //               for(int i = 0; i < 4; i++){
-  //                 int test = reader.read();
-  //                 test = Character.toLowerCase(test);
-  //                 index++;
-  //                 if(test <= 'f' && test >= '0')
-  //                   builder.append((char)test);
-  //                 else
-  //                   throw new JsonInvalidStringException("Expected hex digits, but found: "+test,reader,index+offset);
-  //               }
-  //             } else {
-  //               char[] arr = new char[4];
-  //               for(int i = 0; i < 4; i++){
-  //                 int test = reader.read();
-  //                 test = Character.toLowerCase(test);
-  //                 if(test <= 'f' && test >= '0')
-  //                   arr[i] = (char)test;
-  //                 else
-  //                   throw new JsonInvalidStringException("Expected hex digits, but found: "+test,reader,index+offset+i);
-  //               }
-  //               int symbol = Integer.parseInt(new String(arr),16);
-  //               builder.append((char)symbol);
-  //               index--;
-  //               wasSlash = false;
-  //             }
-  //           } else 
-  //             builder.append((char)ch);
-  //         }
-  //         case '\"' -> {
-  //           if(wasSlash){
-  //             builder.append('\\').append('\"');
-  //             wasSlash = false;
-  //           } else {
-  //             value = builder.toString();
-  //             return index+1;
-  //           }
-  //         }
-  //         default -> {
-  //           if(wasSlash){
-  //             throw new JsonInvalidStringException("Invalid character after \\: "+(char)ch, reader, index + offset);
-  //           } else {
-  //             builder.append((char)ch);
-  //           }
-  //         }
-  //       }
-  //       index++;
-  //     }
-  //     throw new JsonParseException("Unexpected end of line", reader, index + offset - 1);
-  //   }catch(IOException e){
-  //     JsonParseException exp = new JsonParseException("IO error");
-  //     exp.initCause(e);
-  //     throw exp;
-  //   }
-  // }

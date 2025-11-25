@@ -28,10 +28,6 @@ public class IJson implements Json {
     public static IJson ofArray(){
       return new IJson(new IJsonArray());
     }
-//    public static IJson ofString(String value) {
-//    	IJsonString str = new IJsonString(value);
-//    	return new IJson(str);
-//    }
     public static Json ofInnerRepresentation(IJsonEntry entry) {
     	return new IJson(entry);
     }
@@ -272,26 +268,14 @@ public class IJson implements Json {
      * 
      */
     private IJsonEntry privateGet(Reader reader, int length, IJsonEntry entry) throws JsonParseException, JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException{
-   	// System.out.println("Получена длина: "+length);	
-      // System.out.println("Принято, длина: "+length);
     		if(length == 0)		
     			return entry;
     		try {
-      // System.out.println("Принято, длина: "+length);
-      // // System.out.println(reader.toString());
-      // reader.mark(length);
-      // char[] testBuf = new char[length];
-      // reader.read(testBuf);
-      // System.out.println(new String(testBuf));
-      // reader.reset();
-
           reader.mark(length);
           boolean wasSlash = false;
           boolean wasParent = false;
           for(int i = 0; i < length; i++) {
         	  char ch = (char)reader.read();
-//        	  if(i == 0 && ch == IJsonSetting.KEY_DELIMETER)
-//        		  continue;
 	          if(ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX && i == 0) {
 	        	  StringBuilder builder = new StringBuilder(); 
 	            if(entry instanceof IJsonArray arr){
@@ -314,9 +298,6 @@ public class IJson implements Json {
 	                  reader.skip(1);
 	                  if(length != 0)
 	                	  length--;
-//	                  ch = (char)reader.read();
-//	                  if(ch != (char)65535 && ch != 0)
-//	                	  length--;
 	                  break;
 	                  
 	                } else {
@@ -325,24 +306,16 @@ public class IJson implements Json {
 	              }
 	              return privateGet(reader,length,entry);
 	            }
-	              // throw new JsonNoSuchPropertyException("Expected integer number, but found: "+builder.toString());
 	              throw new JsonNoSuchPropertyException("Found: "+builder.toString() + " but this json is not array");
 	          } else {
-	           
-//	            for(int i = 0; true ; i++) {
-//	              char ch = (char)reader.read();
-//	            System.out.println("Символ: "+ch+"  slash = "+wasSlash);
 	              if(ch == '\\'){
-//	            	  System.out.println("Был слеш");
 	                wasSlash = !wasSlash;
 	                continue;
 	              }
 	              if(wasSlash && ch == IJsonSetting.PARENT_CHARACTER){
-//	            	  System.out.println("Был спец символ");
 	                wasParent = true;
 	                if(length > 2)
 	                	ch = (char)reader.read();
-//	                continue;
 	              }
 	              if(wasSlash && wasParent){
 	                if(ch != IJsonSetting.KEY_DELIMETER && length > 2)
@@ -353,13 +326,11 @@ public class IJson implements Json {
 	                    return null;
 	                  if(length > 2)
 	                	  length--;
-	                    // throw new JsonNoParentException("This json has no parent");
 	                  return privateGet(reader, length - 2, entry);
 	                }
 	              }
 	            } 
 	            if(i == length - 1 || (ch == IJsonSetting.KEY_DELIMETER) || (ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX )) {
-//	            	System.out.println("Найден конец");
 	            	String newKey = null;
 	            	
 	              if(entry instanceof IJsonObject obj) {
@@ -369,17 +340,11 @@ public class IJson implements Json {
 	            	  length++;
 	            	  i++;
 	              }
-//	              System.out.println("Текущий: "+entry);
 	              char[] buf = new char[i];
-//	              System.out.println("Длина буфера: "+i);
 	              length -= i;
 	              reader.read(buf);
-//	              System.out.println("Буфер: "+ Arrays.toString(buf));
 	              newKey = new String(buf);
-//	              System.out.println("Ключ мапы: "+newKey);
-//	              System.out.println("текущая мапа: "+obj.map);
 	                entry = obj.map.get(newKey);
-//	               System.out.println("Из мапы: "+entry);
 	                length--;
 	                if(entry == null){
                     if(length != 0)
@@ -405,53 +370,24 @@ public class IJson implements Json {
     private innerEntry returnBeforeLastEntry(String key, byte type) throws JsonNoParentException, JsonParseException,
 	UnsupportedOperationException, JsonNoSuchPropertyException {
     	if(type == ARRAY) {
-        // int newLength = key.length();
-        // if(type == BEFORE_ARRAY && IJsonSetting.USE_ARRAY_SYNTAX){
-        //   if(key.charAt(key.length()-1) == ']')
-        //     for(int i = key.length()-2; i <= 0; i--){
-        //       if(key.charAt(i) == '['){
-        //         newLength = i - 1;
-        //         break;
-        //       }
-        //     }
-        // }
     		IJsonEntry entry = privateGet(new StringReader(key), key.length(), currentJson);
-        // System.out.println(key+" : "+entry);
     		if(! (entry instanceof IJsonArray))
     			throw new UnsupportedOperationException("add() and getArray() methods is allowed only for array");
     		return new innerEntry(entry,0);
     	}
-    	
     	int newLength = key.length();
 		if(IJsonSetting.KEY_DELIMETER != 0) {
 			for(int i = newLength-1; i >= 0; i--) {
 				if(key.charAt(i) == IJsonSetting.KEY_DELIMETER || i == 0) {
           newLength = i;
-					// newLength = i - 1;
-					//      if(newLength < 0)
-            // newLength = 0;
 					break;
 				}
 			}	
 		} else
       newLength = 0;
-    // System.out.println("ключ от свойства: "+key.substring(newLength) + " | его длина: "+ newLength + "\nполный ключ: "+key);
 		IJsonEntry entry = privateGet(new StringReader(key),newLength, currentJson);
-    // System.out.println("Получено: "+ entry);
-    // System.out.println("длина: "+newLength+" "+entry+" , current: "+currentJson);
 		if( !(entry instanceof IJsonObject))
 			throw new UnsupportedOperationException("put() and get() methods is allowed only for object");
-		
-//		switch(type) {
-//			case OBJECT -> {
-//				if( !(entry instanceof IJsonObject))
-//					throw new UnsupportedOperationException("put() and get() methods is allowed only for object");
-//			}
-//			case ARRAY -> {
-//				if( !(entry instanceof IJsonArray))
-//					
-//			}
-//		}
 		return new innerEntry(entry, newLength == 0 ? 0 : newLength+1);
     }
     @Override
@@ -538,18 +474,13 @@ public class IJson implements Json {
 	
 	private Json put(String key, IJsonEntry value)throws JsonNoParentException, JsonParseException,
 			UnsupportedOperationException, JsonNoSuchPropertyException {
-        // System.out.println("Ключ: " + key);
 		innerEntry b = returnBeforeLastEntry(key, OBJECT);
 		IJsonObject entry = (IJsonObject) b.entry;
     if(value != null){
       value.parent = entry;
       value.paramName = key.substring(b.start);
     }
-    // System.out.println("Получен: "+ entry + "\nего ключ: " +(value != null ? value.paramName : key.substring(b.start)) );
-    // System.out.println("Дальше");
-    System.out.println(entry.map);
 		entry.map.put(value != null ? value.paramName : key.substring(b.start), value);
-    // System.out.println("Мапа 2: "+entry.map);
 		return this;
 	}
 	// search:add(value)
@@ -699,11 +630,7 @@ public class IJson implements Json {
 
 	private Json add(String key, IJsonEntry value) throws JsonNoParentException, JsonParseException,
 			UnsupportedOperationException, JsonNoSuchPropertyException {
-        // System.out.println("Передача: "+key);
 		innerEntry b = returnBeforeLastEntry(key, ARRAY);
-    // if( !(b instanceof IJsonArray ) || b == null){
-    //   b = returnBeforeLastEntry(key,BEFORE_ARRAY)
-    // }
 		IJsonArray entry = (IJsonArray) b.entry;
 		entry.list.add(value);
 		value.parent = entry;
