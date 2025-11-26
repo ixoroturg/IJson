@@ -197,18 +197,34 @@ public class IJson implements Json {
       }
       return this;
     }
+  
 
     @Override
     public boolean has(String key) throws UnsupportedOperationException, JsonParseException {
-    	if(currentJson instanceof IJsonObject) {
-    		try {
-    			return privateGet(new StringReader(key), key.length(), currentJson) != null;
-    		} catch(JsonNoSuchPropertyException | JsonNoParentException e) {
-    			return false;
-    		}
-    	}
-    	throw new UnsupportedOperationException("has(String) support only for object");
+      if(key == null)
+        return false;
+      try{
+        innerEntry b = returnBeforeLastEntry(key, OBJECT);
+        IJsonEntry entry = b.entry;
+        String newKey = key.substring(b.start);
+        if(entry instanceof IJsonObject obj){
+          return obj.map.containsKey(newKey);
+        }
+        if(entry instanceof IJsonArray arr){
+          for(IJsonEntry e: arr.list){
+            if(e instanceof IJsonString str){
+              if(newKey.equals(str.value))
+                return true;
+            }
+          }
+          return false;
+        }
+        throw new UnsupportedOperationException("has(String key) is allowed only for object or array");
+      } catch(JsonNoSuchPropertyException | JsonNoParentException e){
+        return false;
+      }
     }
+
     @Override
     public boolean has(int key) throws UnsupportedOperationException {
       if(currentJson instanceof IJsonArray arr){
