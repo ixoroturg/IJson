@@ -122,7 +122,9 @@ class IJsonArray extends IJsonEntry{
       toString(ctx);
     } catch(IOException e){}
     String result = writer.toString();
-    ctx.close();
+    try{
+      ctx.close();
+    }catch(IOException e){}
     return result;
   }
 
@@ -130,6 +132,10 @@ class IJsonArray extends IJsonEntry{
   public int buffSize() {
     if(list.size() == 0)
       return 2;
+    int contentLength = 0;
+    for(IJsonEntry entry: list){
+      contentLength += entry.buffSize();
+    }
     return contentLength + list.size() + 1;
   }
 
@@ -138,7 +144,9 @@ class IJsonArray extends IJsonEntry{
     IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
     ctx.format = true;
     int size = buffSize(ctx);
-    ctx.close();
+    try{
+      ctx.close();
+    }catch(IOException e){}
     return size;
   }
 
@@ -186,6 +194,11 @@ class IJsonArray extends IJsonEntry{
     if(ctx.format){
       result += 2 +list.size() * (1 + IJsonSetting.FORMAT_INDENT_COUNT * (ctx.depth + 1) ) + ctx.depth*IJsonSetting.FORMAT_INDENT_COUNT ;
     }
+    ctx.depth++;
+    for(IJsonEntry entry: list){
+      result += entry.buffSize(ctx);
+    }
+    ctx.depth--;
     result += contentLength;
     return result;
   }

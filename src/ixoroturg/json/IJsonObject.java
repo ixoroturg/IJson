@@ -143,7 +143,10 @@ public class IJsonObject extends IJsonEntry {
       toString(ctx);
     }catch(IOException e){}
     String result = writer.toString();
-    ctx.close();
+    try{
+      ctx.close();
+
+    }catch(IOException e){}
     return result;
   }
   @Override
@@ -157,7 +160,9 @@ public class IJsonObject extends IJsonEntry {
       toString(ctx);
     } catch(IOException e){}
     String result = writer.toString();
-    ctx.close();
+    try{
+      ctx.close();
+    } catch(IOException e){}
     return result;
   }
 
@@ -165,6 +170,11 @@ public class IJsonObject extends IJsonEntry {
   public int buffSize() {
     if(map.size() == 0)
       return 2;
+    int contentLength = 0;
+    for(Map.Entry<String, IJsonEntry> entry : map.entrySet()){
+      contentLength += entry.getKey().length() + 2;
+      contentLength += entry.getValue().buffSize();
+    }
     return contentLength + map.size() * 2 + 1 ;
   }
 
@@ -172,7 +182,9 @@ public class IJsonObject extends IJsonEntry {
   public int buffSizeFormat() {
     IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
     int size = buffSize(ctx);
-    ctx.close();
+    try{
+      ctx.close();
+    }catch(IOException e){}
     return size;
   }
 
@@ -230,6 +242,13 @@ public class IJsonObject extends IJsonEntry {
     if(ctx.format){
       result += 2 + map.size() * (1 + IJsonSetting.FORMAT_INDENT_COUNT * (ctx.depth + 1)) + ctx.depth*IJsonSetting.FORMAT_INDENT_COUNT;
     }
+    int contentLength = 0;
+      ctx.depth++;
+    for(Map.Entry<String, IJsonEntry> entry: map.entrySet()){
+      contentLength += entry.getKey().length() + 2;
+      contentLength += entry.getValue().buffSize(ctx);
+    }
+      ctx.depth--;
     result += contentLength;
     return result;
   }

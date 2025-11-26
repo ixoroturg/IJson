@@ -1,5 +1,6 @@
 package ixoroturg.json;
 
+import java.io.IOException;
 import java.io.Writer;
 
 class IJsonFormatContext{
@@ -31,8 +32,9 @@ class IJsonFormatContext{
     open = true;
     return this;
   }
-  void close(){
+  void close() throws IOException{
     open = false;
+    writer.flush();
   }
   private IJsonFormatContext(Writer writer){
     open(writer);
