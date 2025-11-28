@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.io.IOException;
 
 public class IJsonObject extends IJsonEntry {
-  int contentLength = 0;
+  // int contentLength = 0;
   Map<String, IJsonEntry> map = new HashMap<>();
 
   String key;
@@ -109,24 +109,25 @@ public class IJsonObject extends IJsonEntry {
   }
     
     private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
-      contentLength += key.length() + 2;
+      // contentLength += key.length() + 2;
       wasQuote = false;
       needDot = true;
       wasDot = false;
-      if(value == null){
-        contentLength += 4;
-      } else {
-        int start = ctx.index;
+      // if(value == null){
+      //   contentLength += 4;
+      // } else {
+        // int start = ctx.index;
+      if(value != null)
         value.parse(ctx);
-        int end = ctx.index;
-        if(value instanceof IJsonObject obj){
-          contentLength += obj.buffSize();
-        } else if (value instanceof IJsonArray arr){
-          contentLength += arr.buffSize();
-        } else {
-          contentLength += end - start + 1;
-        }
-      }
+        // int end = ctx.index;
+      //   if(value instanceof IJsonObject obj){
+      //     contentLength += obj.buffSize();
+      //   } else if (value instanceof IJsonArray arr){
+      //     contentLength += arr.buffSize();
+      //   } else {
+      //     contentLength += end - start + 1;
+      //   }
+      // }
       map.put(key,value);
       if(value != null)
     	  value.parent = this;
