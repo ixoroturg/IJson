@@ -15,9 +15,9 @@ public class Test {
 //    IJson.Setting.De/
     // KeyCloakApiTest.test();
     // System.exit(0);
-    Json js = IJson.ofObject();
-    js.put("suka","lol");
-    js.writeTo(System.out);
+    // Json js = IJson.ofObject();
+    // js.put("suka","lol");
+    // js.writeTo(System.out);
     try{
       // FileIO.test();
       // Numbers.test();
@@ -25,7 +25,7 @@ public class Test {
       // StringTest.test();
       // GetTest.test();
       // PutAddGetTest.test();
-      // BigFileTest.test();
+      BigFileTest.test();
       // Json js = IJson.of("lol");
 //      js.getInnerRepresentation().
       System.out.println("\nTest complete successfully");

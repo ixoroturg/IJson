@@ -134,7 +134,10 @@ class IJsonArray extends IJsonEntry{
       return 2;
     int contentLength = 0;
     for(IJsonEntry entry: list){
-      contentLength += entry.buffSize();
+      if(entry == null)
+        contentLength +=4;
+      else
+        contentLength += entry.buffSize();
     }
     return contentLength + list.size() + 1;
   }
@@ -196,7 +199,10 @@ class IJsonArray extends IJsonEntry{
     }
     ctx.depth++;
     for(IJsonEntry entry: list){
-      result += entry.buffSize(ctx);
+      if(entry == null)
+        result += 4;
+      else
+        result += entry.buffSize(ctx);
     }
     ctx.depth--;
     result += contentLength;

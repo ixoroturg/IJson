@@ -173,7 +173,12 @@ public class IJsonObject extends IJsonEntry {
     int contentLength = 0;
     for(Map.Entry<String, IJsonEntry> entry : map.entrySet()){
       contentLength += entry.getKey().length() + 2;
-      contentLength += entry.getValue().buffSize();
+      // contentLength += entry.getValue().buffSize();
+      IJsonEntry test = entry.getValue();
+      if(test == null)
+        contentLength +=4;
+      else
+        contentLength += test.buffSize();
     }
     return contentLength + map.size() * 2 + 1 ;
   }
@@ -246,7 +251,11 @@ public class IJsonObject extends IJsonEntry {
       ctx.depth++;
     for(Map.Entry<String, IJsonEntry> entry: map.entrySet()){
       contentLength += entry.getKey().length() + 2;
-      contentLength += entry.getValue().buffSize(ctx);
+      IJsonEntry test = entry.getValue();
+      if(test == null)
+        contentLength +=4;
+      else
+        contentLength += test.buffSize(ctx);
     }
       ctx.depth--;
     result += contentLength;
