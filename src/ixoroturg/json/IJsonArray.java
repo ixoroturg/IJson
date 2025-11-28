@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.LinkedList;
 
 class IJsonArray extends IJsonEntry{
-  // int contentLength = 0;
   List<IJsonEntry> list = new LinkedList<>();
   boolean firstPass = true;
   boolean needDot = false;
@@ -82,21 +81,8 @@ class IJsonArray extends IJsonEntry{
   private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
     needDot = true;
     wasDot = false;
-    // if(value == null){
-    //   contentLength += 4;
-    // } else {
-      // int start = ctx.index;
     if(value != null)
       value.parse(ctx);
-      // int end = ctx.index;
-    //   if(value instanceof IJsonObject obj){
-    //     contentLength += obj.buffSize();
-    //   } else if (value instanceof IJsonArray arr){
-    //     contentLength += arr.buffSize();
-    //   } else {
-    //     contentLength += end - start + 1;
-    //   }
-    // }
     list.add(value);
     if(value != null)
     	value.parent = this;
