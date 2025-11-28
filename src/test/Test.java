@@ -19,13 +19,13 @@ public class Test {
     // js.put("suka","lol");
     // js.writeTo(System.out);
     try{
-      // FileIO.test();
-      // Numbers.test();
-      // BooleanAndNullTest.test();
-      // StringTest.test();
-      // GetTest.test();
-      // PutAddGetTest.test();
-      BigFileTest.test();
+      FileIO.test();
+      Numbers.test();
+      BooleanAndNullTest.test();
+      StringTest.test();
+      GetTest.test();
+      PutAddGetTest.test();
+      // BigFileTest.test();
       // Json js = IJson.of("lol");
 //      js.getInnerRepresentation().
       System.out.println("\nTest complete successfully");

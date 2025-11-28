@@ -60,6 +60,8 @@ class IJsonString extends IJsonEntry{
 
   @Override
   public int buffSize(){
+    if(value == null)
+      return 4;
     return value.length()+2;
   }
   @Override
@@ -211,6 +213,8 @@ class IJsonString extends IJsonEntry{
 
   @Override
   int buffSize(IJsonFormatContext ctx) {
+    if(value == null)
+      return 4;
     return value.length()+2;
   }
 

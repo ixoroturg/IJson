@@ -159,7 +159,6 @@ public class IJsonObject extends IJsonEntry {
     int contentLength = 0;
     for(Map.Entry<String, IJsonEntry> entry : map.entrySet()){
       contentLength += entry.getKey().length() + 2;
-      // contentLength += entry.getValue().buffSize();
       IJsonEntry test = entry.getValue();
       if(test == null)
         contentLength +=4;
