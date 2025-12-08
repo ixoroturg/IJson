@@ -95,7 +95,11 @@ public class IJsonSetting {
    */
   public static boolean USE_LAZY_NUMBER_PARSER = true;
   
-  
+ /**
+  * Invoke flush() method on the end of writeTo(OutputStream or Writer) method<br>
+  * Default: false
+  */
+  public static boolean AUTO_FLUSH = false;
   /**
    * This character using as splitter for keys<br>
    * <p>Example: users.theme.color;</p>

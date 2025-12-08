@@ -1,13 +1,16 @@
 package ixoroturg.json;
 
-
+import java.io.IOException;
 
 public class JsonException extends Exception{
 
   public JsonException(String description, IJsonParseContext ctx){
     super(createMessage(description, ctx));
   }
-
+  // public JsonException(String description, IJsonFormatContext ctx){
+  //   super(description);
+  //   ctx.open = false;
+  // }
   public JsonException(String description){
     super(description);
   }
@@ -54,6 +57,7 @@ public class JsonException extends Exception{
     builder.append('\n');
       builder.append(" ".repeat(length));
     builder.append('^');
+    ctx.close();
     return builder.toString();
   }
 }

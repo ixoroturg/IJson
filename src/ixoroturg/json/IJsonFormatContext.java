@@ -5,7 +5,7 @@ import java.io.Writer;
 
 class IJsonFormatContext{
   Writer writer;
-  private boolean open = false;
+  boolean open = false;
   int depth;
   boolean format = false;
   
@@ -34,7 +34,8 @@ class IJsonFormatContext{
   }
   void close() throws IOException{
     open = false;
-    writer.flush();
+    if(IJsonSetting.AUTO_FLUSH)
+      writer.flush();
   }
   private IJsonFormatContext(Writer writer){
     open(writer);
