@@ -1,0 +1,61 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "User 1",
+      "email": "user1@example.com",
+      "profile": {
+        "age": 25,
+        "address": {
+          "street": "123 Main St",
+          "city": "New York",
+          "country": "USA",
+          "coordinates": {
+            "lat": 40.7128,
+            "lng": -74.0060
+          }
+        },
+        "preferences": {
+          "theme": "dark",
+          "notifications": true,
+          "language": "en"
+        }
+      },
+      "posts": [
+        {
+          "id": 101,
+          "title": "First Post",
+          "content": "This is a longer content section with some text to make the JSON larger. ",
+          "tags": ["tech", "programming", "json"],
+          "metadata": {
+            "created": "2024-01-15T10:30:00Z",
+            "likes": 42,
+            "comments": [
+              {
+                "id": 1001,
+                "user": "commenter1",
+                "text": "Great post!",
+                "replies": [
+                  {
+                    "id": 10001,
+                    "user": "reply_user",
+                    "text": "I agree!"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "generated": "2024-01-15T10:00:00Z",
+    "counts": {
+      "users": 100,
+      "posts": 500,
+      "comments": 2500
+    }
+  }
+}

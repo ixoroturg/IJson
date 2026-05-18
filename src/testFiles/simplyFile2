@@ -1,0 +1,16 @@
+{
+  "id": "abc123",
+  "count": 100,
+  "price": 99.99,
+  "active": true,
+  "tags": ["new", "sale", "limited"],
+  "metadata": {
+    "created": "2024-01-15",
+    "version": 2.1
+  },
+  "coordinates": [55.75, 37.61],
+  "settings": {
+    "notifications": false,
+    "theme": "dark"
+  }
+}
