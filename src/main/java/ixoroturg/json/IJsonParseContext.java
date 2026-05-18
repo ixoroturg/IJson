@@ -1,13 +1,18 @@
 package ixoroturg.json;
 
-import java.io.Reader;
+// import java.io.InputStream;
+import java.nio.ByteBuffer;
+// import java.nio.channels.Channel;
+// import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.io.IOException;
 
 import ixoroturg.pool.IPool;
 
 class IJsonParseContext {
-  Reader reader;
-  char[] buffer; //= new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
+  // Reader reader;
+  ReadableByteChannel channel = null;
+  ByteBuffer buffer; //= new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
   int column;
   int row;
   int index;
@@ -76,10 +81,11 @@ class IJsonParseContext {
 		return pool;
 	}
 
-  static IJsonParseContext openContext(Reader reader) throws JsonParseException {
+  static IJsonParseContext openContext(ReadableByteChannel channel) throws JsonParseException {
 	IPool<IJsonParseContext>.IPoolEntry entry = pool.open();
 	entry.value.entry = entry;
-	entry.value.open(reader);
+	// ReadableByteChannel chan = Channels.newChannel(input);
+	entry.value.open(channel);
 	return entry.value;
   }
 
@@ -88,11 +94,12 @@ class IJsonParseContext {
   	entry.close();
     return result;
   }
-  void open(Reader reader) throws JsonParseException{
+  void open(ReadableByteChannel channel) throws JsonParseException{
   	BUFFER_SIZE = IJsonSetting.BUFFER_SIZE;
 
-	if(buffer == null || buffer.length != (BUFFER_SIZE << 1)){
-		buffer = new char[BUFFER_SIZE << 1];
+	if(buffer == null || buffer.capacity() != BUFFER_SIZE){
+		// buffer = new byte[BUFFER_SIZE << 1];
+		buffer = ByteBuffer.allocate(BUFFER_SIZE);
 	}
 
 	CHARACTERS_BEFORE_ERROR_INDEX = IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
@@ -112,24 +119,48 @@ class IJsonParseContext {
   // PARENT_CHARACTER = IJsonSetting.PARENT_CHARACTER;
   // USE_ARRAY_SYNTAX = IJsonSetting.USE_ARRAY_SYNTAX;
 
-    this.reader = reader;
+    this.channel = channel;
     try{
-      int pos = entry.value.reader.read(buffer);
-      if(pos < buffer.length)
-        buffer[pos] = (char)-1;
+		int pos = channel.read(buffer);
+      if(pos < buffer.capacity()){
+	  	buffer.put((byte)-1);
+	  }
+		buffer.flip();
     }catch(IOException e){
-      JsonParseException exp = new JsonParseException("Cannot read the stream");
+      JsonParseException exp = new JsonParseException("Cannot read the stream/channel");
       exp.initCause(e);
       throw exp;
     }
   }
+
+  boolean lock = false;
+  boolean done = false;
   int read() throws JsonParseException{
-    int buf = BUFFER_SIZE;
-    System.arraycopy(buffer, buf, buffer, 0 ,buf);
+
+  	// synchronized(this){
+		lock = true;
+		while(lock){
+			try {
+				wait();
+			} catch (InterruptedException e) {}
+		}
+	// }
+	
+    int buf = BUFFER_SIZE>>1;
+	buffer.clear();
+	byte[] innerBuf = buffer.array();
+	buffer.get(buf,innerBuf,0,buf);
+	buffer.position(buf);
+    // System.arraycopy(buffer, buf, buffer, 0 ,buf);
     try{
-      reader.read(buffer,buf, buf);
-    } catch(IOException e){
-      JsonParseException exp = new JsonParseException("Cannot read the stream");
+		
+		int len = channel.read(buffer);
+		if(len < buf){
+			buffer.put((byte)-1);
+		}
+      // channel.read(buffer,buf, buf);
+    } catch(Exception e){
+      JsonParseException exp = new JsonParseException("Cannot read the stream/channel");
       exp.initCause(e);
       throw exp;
     }

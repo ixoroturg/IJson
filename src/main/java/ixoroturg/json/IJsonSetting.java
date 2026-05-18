@@ -77,7 +77,9 @@ public class IJsonSetting {
    * Default: false
    */
   public static boolean FORMAT_DIRECT_WRITE_CONTROL_CHARACTER = false;
+  public static boolean FORMAT_FLUSH_WHEN_FULL = false;
 
+	public static int FORMAT_BUFFER_SIZE = 0;
   /**
    * If TRUE then parser use Double.parseDouble() method.<br>
    * Then FALSE then parser use custom double parse algorithm. It is more faster, but can do mistake near 1e-16 position.
