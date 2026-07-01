@@ -19,6 +19,11 @@ public class IJsonParser implements JsonParser{
 		this.json = json;
 		future = new CompletableFuture<Json>();
 	}
+	IJsonParser(ByteBuffer buffer, IJson json){
+		ctx = IJsonParseContext.openContext(buffer);
+		this.json = json;
+		future = new CompletableFuture<Json>();
+	}
 
 	public IJson fullParse(){
 		PartialParser parser = partialParse();

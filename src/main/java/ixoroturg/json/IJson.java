@@ -4,9 +4,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.IOException;
-// import java.io.Reader;
+import java.io.Reader;
 import java.io.InputStream;
-// import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.io.StringReader;
+// import java.io.StringReader;
 // import java.io.Writer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -24,39 +26,48 @@ import java.io.ByteArrayInputStream;
  * hello
  */
 public class IJson implements Json {
-    IJsonEntry currentJson = null;
-    private long parseTime = -1;
+		IJsonEntry currentJson = null;
+		private long parseTime = -1;
 	private IJson(IJsonEntry json){
 		currentJson = json;
 	}
 	private IJson(){}
 
-    public static IJson ofObject(){
-      return new IJson(new IJsonObject());
-    }
-    public static IJson ofArray(){
-      return new IJson(new IJsonArray());
-    }
-    public static Json ofInnerRepresentation(IJsonEntry entry) {
-    	return new IJson(entry);
-    }
-    public static IJson of(String json) throws JsonParseException {
-      // StringReader reader = new StringReader(json);
-	  ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
-      return of(channel);
-    }
-    public static IJson of(InputStream input) throws JsonParseException {
-      // InputStreamReader reader = new InputStreamReader(input);
-	  ReadableByteChannel channel = Channels.newChannel(input);
-      return of(channel);
-    }
-    public static IJson of(ReadableByteChannel channel) throws JsonParseException{
-      // IJsonParseContext ctx = IJsonParseContext.openContext(channel);
+		public static IJson ofObject(){
+			return new IJson(new IJsonObject());
+		}
+		public static IJson ofArray(){
+			return new IJson(new IJsonArray());
+		}
+		public static Json ofInnerRepresentation(IJsonEntry entry) {
+			return new IJson(entry);
+		}
+		public static IJson of(String json) throws JsonParseException {
+			// StringReader reader = new StringReader(json);
+		ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+			return of(channel);
+		}
+		public static IJson of(InputStream input) throws JsonParseException {
+			// InputStreamReader reader = new InputStreamReader(input);
+		ReadableByteChannel channel = Channels.newChannel(input);
+			return of(channel);
+		}
+		public static IJson of(ReadableByteChannel channel) throws JsonParseException{
+			// IJsonParseContext ctx = IJsonParseContext.openContext(channel);
 		IJson result = new IJson();
 		IJsonParser parser = new IJsonParser(channel, result);
 		result = parser.fullParse();
-    	return result;
-    }
+			return result;
+		}
+	public static IJson of(byte[] buffer) throws JsonParseException {
+		return of(ByteBuffer.wrap(buffer));
+	}
+	public static IJson of(ByteBuffer buffer) throws JsonParseException {
+		IJson result = new IJson();
+		IJsonParser parser = new IJsonParser(buffer,result);
+		result = parser.fullParse();
+		return result;
+	}
 
 	public static IJsonParser parser(String input){
 		ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
@@ -71,17 +82,17 @@ public class IJson implements Json {
 		return parser;
 	}
 	
-    @Override
-    public long getParseTime(){
-      return parseTime;
-    }
-    IJson of(IJsonParseContext ctx) throws JsonParseException{
+		@Override
+		public long getParseTime(){
+			return parseTime;
+		}
+		IJson of(IJsonParseContext ctx) throws JsonParseException{
 	synchronized(ctx){
-      // for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
+			// for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
 		for(; ctx.buffer.hasRemaining(); ctx.index++, ctx.column++){
 			byte ch = ctx.buffer.get();
 			// char ch = ctx.buffer[ctx.pointer];
-			if(IJsonUtil.isWhiteSpace((char)ch)){
+			if(IJsonUtil.isWhiteSpace(ch)){
 				if(ch == '\n'){
 					ctx.row++;
 					ctx.column=-1;
@@ -116,341 +127,362 @@ public class IJson implements Json {
 		}
 		ctx.read();
 		return of(ctx);
-	  }
-    }
-    private IJson createEntry(IJsonEntry entry, IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidNumberException, JsonInvalidStringException, JsonInvalidBooleanException{
-      entry.parse(ctx);
-      // IJson result = new IJson(entry);
-	  currentJson = entry;
-	  ctx.done = true;
-      parseTime = ctx.close();
-      return this;
-    }
+		}
+		}
+		private IJson createEntry(IJsonEntry entry, IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidNumberException, JsonInvalidStringException, JsonInvalidBooleanException{
+			entry.parse(ctx);
+			// IJson result = new IJson(entry);
+		currentJson = entry;
+		ctx.done = true;
+			parseTime = ctx.close();
+			return this;
+		}
 
-    @Override
-    public int buffSize() {
-      return currentJson.buffSize();
-    }
+		@Override
+		public int buffSize() {
+			return currentJson.buffSize();
+		}
 
-    @Override
-    public int buffSizeFormat() {
-      return currentJson.buffSizeFormat();
-    }
+		@Override
+		public int buffSizeFormat() {
+			return currentJson.buffSizeFormat();
+		}
 
-    @Override
-    public Json parse(String json) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
-      currentJson = IJson.of(json).currentJson;
-      return this;
-    }
+		@Override
+		public Json parse(String json) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
+			currentJson = IJson.of(json).currentJson;
+			return this;
+		}
 
-    @Override
-    public Json parse(InputStream stream) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException {
-      currentJson = IJson.of(stream).currentJson;
-      return this;
-    }
+		@Override
+		public Json parse(InputStream stream) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException {
+			currentJson = IJson.of(stream).currentJson;
+			return this;
+		}
 
-    @Override
-    public Json parse(ReadableByteChannel reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
-      currentJson = IJson.of(reader).currentJson;
-      return this;
-    }
+		@Override
+		public Json parse(ReadableByteChannel reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
+			currentJson = IJson.of(reader).currentJson;
+			return this;
+		}
+	@Override
+	public Json parse(ByteBuffer buffer) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
+		currentJson = IJson.of(buffer).currentJson;
+		return this;
+	}
+	@Override
+	public Json parse(byte[] buffer) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
+		return parse(ByteBuffer.wrap(buffer));
+	}
 
-    @Override
-    public String toString(){
-      return currentJson.toString();
-    }
-    @Override
-    public String toStringFormat() {
-      return currentJson.toFormatedString();
-    }
+		@Override
+		public String toString(){
+			return currentJson.toString();
+		}
+		@Override
+		public String toStringFormat() {
+			return currentJson.toFormatedString();
+		}
 
-    @Override
-    public void writeTo(OutputStream stream) throws IOException{
-      // OutputStreamWriter writer = new OutputStreamWriter(stream);
-	  WritableByteChannel channel = Channels.newChannel(stream);
-      writeTo(channel);
-	  // writer.flush();
-    }
+		@Override
+		public void writeTo(OutputStream stream) throws IOException{
+			IJsonFormatContext ctx = IJsonFormatContext.openContext(stream);
+			ctx.format = true;
+			currentJson.toString(ctx);
+			ctx.close();
+			// OutputStreamWriter writer = new OutputStreamWriter(stream);
+		// WritableByteChannel channel = Channels.newChannel(stream);
+		// 	writeTo(channel);
+		// writer.flush();
+		}
 
-    @Override
-    public void writeTo(WritableByteChannel writer) throws IOException{
-      IJsonFormatContext ctx = IJsonFormatContext.openContext(writer);
-      ctx.format = false;
-      currentJson.toString(ctx);
-      ctx.close();
-    }
+		@Override
+		public void writeTo(WritableByteChannel writer) throws IOException{
+			OutputStream stream = Channels.newOutputStream(writer);
+			writeTo(stream);
+			// IJsonFormatContext ctx = IJsonFormatContext.openContext(stream);
+			// ctx.format = false;
+			// currentJson.toString(ctx);
+			// ctx.close();
+		}
 
-    @Override
-    public void writeToFormat(OutputStream stream) throws IOException{
-      OutputStreamWriter writer = new OutputStreamWriter(stream);
-      writeToFormat(writer);
-    }
+		@Override
+		public void writeToFormat(OutputStream stream) throws IOException{
+			IJsonFormatContext ctx = IJsonFormatContext.openContext(stream);
+			ctx.format = true;
+			currentJson.toString(ctx);
+			ctx.close();
+			// OutputStreamWriter writer = new OutputStreamWriter(stream);
+			// writeToFormat(writer);
+		}
 
-    @Override
-    public void writeToFormat(WritableByteChannel writer) throws IOException{
-      IJsonFormatContext ctx = IJsonFormatContext.openContext(writer);
-      ctx.format = true;
-      currentJson.toString(ctx);
-      ctx.close();
-    }
+		@Override
+		public void writeToFormat(WritableByteChannel writer) throws IOException{
+			OutputStream stream = Channels.newOutputStream(writer);
+			writeToFormat(stream);
+			// IJsonFormatContext ctx = IJsonFormatContext.openContext(writer);
+			// ctx.format = true;
+			// currentJson.toString(ctx);
+			// ctx.close();
+		}
 
-    @Override
-    public String getPropertyName() throws JsonNoParentException{
-        if(currentJson.paramName == null)
-          throw new JsonNoParentException("This json has no parent");
-        return currentJson.paramName;
-    }
+		@Override
+		public String getPropertyName() throws JsonNoParentException{
+				if(currentJson.paramName == null)
+					throw new JsonNoParentException("This json has no parent");
+				return currentJson.paramName;
+		}
 
-    @Override
-    public String getPropertyNameOr(String value) {
-      String result = currentJson.paramName;
-      if(result == null)
-        return value;
-      return result;
-    }
+		@Override
+		public String getPropertyNameOr(String value) {
+			String result = currentJson.paramName;
+			if(result == null)
+				return value;
+			return result;
+		}
 
-    @Override
-    public Json back() throws JsonNoParentException {
-      if(currentJson.parent == null)
-          throw new JsonNoParentException("This json has no parent");
-      currentJson = currentJson.parent;
-      return this;
-    }
+		@Override
+		public Json back() throws JsonNoParentException {
+			if(currentJson.parent == null)
+					throw new JsonNoParentException("This json has no parent");
+			currentJson = currentJson.parent;
+			return this;
+		}
 
-    @Override
-    public Json back(int depth) throws JsonNoParentException{
-      if(depth == 0){
-        while(currentJson.parent != null){
-          currentJson = currentJson.parent;
-        }
-      } else {
-        for(int i = 0; i < depth; i++){
-          if(currentJson.parent == null)
-            throw new JsonNoParentException("This json has no parent");
-          currentJson = currentJson.parent;
-        }
-      }
-      return this;
-    }
-  
+		@Override
+		public Json back(int depth) throws JsonNoParentException{
+			if(depth == 0){
+				while(currentJson.parent != null){
+					currentJson = currentJson.parent;
+				}
+			} else {
+				for(int i = 0; i < depth; i++){
+					if(currentJson.parent == null)
+						throw new JsonNoParentException("This json has no parent");
+					currentJson = currentJson.parent;
+				}
+			}
+			return this;
+		}
+	
 
-    @Override
-    public boolean has(String key) throws UnsupportedOperationException, JsonParseException {
-      if(key == null)
-        return false;
-      try{
-        innerEntry b = returnBeforeLastEntry(key, OBJECT);
-        IJsonEntry entry = b.entry;
-        String newKey = key.substring(b.start);
-        if(entry instanceof IJsonObject obj){
-          return obj.map.containsKey(newKey);
-        }
-        if(entry instanceof IJsonArray arr){
-          for(IJsonEntry e: arr.list){
-            if(e instanceof IJsonString str){
-              if(newKey.equals(str.value))
-                return true;
-            }
-          }
-          return false;
-        }
-        throw new UnsupportedOperationException("has(String key) is allowed only for object or array");
-      } catch(JsonNoSuchPropertyException | JsonNoParentException e){
-        return false;
-      }
-    }
+		@Override
+		public boolean has(String key) throws UnsupportedOperationException, JsonParseException {
+			if(key == null)
+				return false;
+			try{
+				innerEntry b = returnBeforeLastEntry(key, OBJECT);
+				IJsonEntry entry = b.entry;
+				String newKey = key.substring(b.start);
+				if(entry instanceof IJsonObject obj){
+					return obj.map.containsKey(newKey);
+				}
+				if(entry instanceof IJsonArray arr){
+					for(IJsonEntry e: arr.list){
+						if(e instanceof IJsonString str){
+							if(newKey.equals(str.value))
+								return true;
+						}
+					}
+					return false;
+				}
+				throw new UnsupportedOperationException("has(String key) is allowed only for object or array");
+			} catch(JsonNoSuchPropertyException | JsonNoParentException e){
+				return false;
+			}
+		}
 
-    @Override
-    public boolean has(int key) throws UnsupportedOperationException {
-      if(currentJson instanceof IJsonArray arr){
-        return arr.list.size() > key;
-      }
-      throw new UnsupportedOperationException("has(int) si allowed only for array");
-    }
+		@Override
+		public boolean has(int key) throws UnsupportedOperationException {
+			if(currentJson instanceof IJsonArray arr){
+				return arr.list.size() > key;
+			}
+			throw new UnsupportedOperationException("has(int) si allowed only for array");
+		}
 
-    @Override
-    public int size() throws UnsupportedOperationException {
-      if(currentJson instanceof IJsonObject obj){
-        return obj.map.size();
-      }
-      if(currentJson instanceof IJsonArray arr){
-        return arr.list.size();
-      }
-      throw new UnsupportedOperationException("size() is not allowed for non array or object");
-    }
-    @Override
-    public Json go(String key) throws JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException, JsonParseException {
-    		IJsonEntry test = privateGet(new StringReader(key), key.length(), currentJson);
-        	if(test == null)
-        		throw new JsonNoSuchPropertyException("Property " +key+ " not found");
-        	currentJson = test;
-        	return this;
-    }
-    
-    @Override
-    public Json go(int key) throws JsonNoSuchPropertyException, UnsupportedOperationException {
-    	if(currentJson instanceof IJsonArray arr) {
-    		if(arr.list.size() < key)
-    			throw new JsonNoSuchPropertyException("There is no element with index: "+key);
-    		currentJson = arr.list.get(key);
-    		return this;
-    	}
-    	throw new UnsupportedOperationException("get(int) is allowed only for array");
-    }
-    
-    @Override
-    public Json get(String key) throws JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException, JsonParseException {
-    		IJsonEntry test = privateGet(new StringReader(key), key.length(), currentJson);
-        	if(test == null)
-        		throw new JsonNoSuchPropertyException("Property " +key+ " not found");
-          return new IJson(test);
-    }
-    
-    @Override
-    public Json get(int key) throws JsonNoSuchPropertyException, UnsupportedOperationException {
-    	if(currentJson instanceof IJsonArray arr) {
-    		if(arr.list.size() < key)
-    			throw new JsonNoSuchPropertyException("There is no element with index: "+key);
-        return new IJson(arr.list.get(key));
-    	}
-    	throw new UnsupportedOperationException("get(int) is allowed only for array");
-    }
-    /**
-     * @param reader - StringReader for String;
-     * @param length - String length;
-     * @param entry - recurse accumulator, currentJson by default;
-     * 
-     */
-    private IJsonEntry privateGet(Reader reader, int length, IJsonEntry entry) throws JsonParseException, JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException{
-    		if(length == 0)		
-    			return entry;
-    		try {
-          reader.mark(length);
-          boolean wasSlash = false;
-          boolean wasParent = false;
-          for(int i = 0; i < length; i++) {
-        	  char ch = (char)reader.read();
-	          if(ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX && i == 0) {
-	        	  StringBuilder builder = new StringBuilder(); 
-	            if(entry instanceof IJsonArray arr){
-	              int parse = -1;
-	              for(i = 0; i < length; i++) {
-	                ch = (char)reader.read();
-	                builder.append(ch);
-	                if(ch >= '0' && ch <= '9' && parse < Integer.MAX_VALUE) {
-	                  if(parse == -1)
-	                    parse = 0;
-	                  parse = parse * 10 + ch - '0';
-	                } else if (ch == ']'){
-	                  if(parse == -1)
-	                    throw new JsonParseException("Expected integer number, but found: "+"[]");
-	                  if(parse > arr.list.size())
-	                    return null;
-	                  entry = arr.list.get(parse);
-	                  length -= i;
-	                  length--;
-	                  reader.skip(1);
-	                  if(length != 0)
-	                	  length--;
-	                  break;
-	                  
-	                } else {
-	                  throw new JsonParseException("Expected integer number, but found: "+builder.toString());
-	                }
-	              }
-	              return privateGet(reader,length,entry);
-	            }
-	              throw new JsonNoSuchPropertyException("Found: "+builder.toString() + " but this json is not array");
-	          } else {
-	              if(ch == '\\'){
-	                wasSlash = !wasSlash;
-	                continue;
-	              }
-	              if(wasSlash && ch == IJsonSetting.PARENT_CHARACTER){
-	                wasParent = true;
-	                if(length > 2)
-	                	ch = (char)reader.read();
-	              }
-	              if(wasSlash && wasParent){
-	                if(ch != IJsonSetting.KEY_DELIMETER && length > 2)
-	                  throw new JsonParseException("After \\ and IJsonSetting.PARENT_CHARACTER expected . but found: "+ch);
-	                else{
-	                  entry = entry.parent;
-	                  if(entry == null)
-	                    return null;
-	                  if(length > 2)
-	                	  length--;
-	                  return privateGet(reader, length - 2, entry);
-	                }
-	              }
-	            } 
-	            if(i == length - 1 || (ch == IJsonSetting.KEY_DELIMETER) || (ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX )) {
-	            	String newKey = null;
-	            	
-	              if(entry instanceof IJsonObject obj) {
-	            	  
-	              reader.reset();
-	              if(i == length - 1) {
-	            	  length++;
-	            	  i++;
-	              }
-	              char[] buf = new char[i];
-	              length -= i;
-	              reader.read(buf);
-	              newKey = new String(buf);
-	                entry = obj.map.get(newKey);
-	                length--;
-	                if(entry == null){
-                    if(length != 0)
-                      throw new JsonNoSuchPropertyException("Property not found "+ newKey);
-	                  return null;
-                  }
-	                if(ch != '[')
-	                	reader.skip(1);
-	                return privateGet(reader,length,entry);
-	              } else
-	                throw new JsonNoSuchPropertyException("Property " +newKey+ " not found");
-//	            }
-	          }
-    		}
-        }catch(IOException e) {
-        	e.printStackTrace();
-        }
-    		
-    	throw new JsonParseException("Unexpected error");
-    }
+		@Override
+		public int size() throws UnsupportedOperationException {
+			if(currentJson instanceof IJsonObject obj){
+				return obj.map.size();
+			}
+			if(currentJson instanceof IJsonArray arr){
+				return arr.list.size();
+			}
+			throw new UnsupportedOperationException("size() is not allowed for non array or object");
+		}
+		@Override
+		public Json go(String key) throws JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException, JsonParseException {
+				IJsonEntry test = privateGet(new StringReader(key), key.length(), currentJson);
+					if(test == null)
+						throw new JsonNoSuchPropertyException("Property " +key+ " not found");
+					currentJson = test;
+					return this;
+		}
+		
+		@Override
+		public Json go(int key) throws JsonNoSuchPropertyException, UnsupportedOperationException {
+			if(currentJson instanceof IJsonArray arr) {
+				if(arr.list.size() < key)
+					throw new JsonNoSuchPropertyException("There is no element with index: "+key);
+				currentJson = arr.list.get(key);
+				return this;
+			}
+			throw new UnsupportedOperationException("get(int) is allowed only for array");
+		}
+		
+		@Override
+		public Json get(String key) throws JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException, JsonParseException {
+				IJsonEntry test = privateGet(new StringReader(key), key.length(), currentJson);
+					if(test == null)
+						throw new JsonNoSuchPropertyException("Property " +key+ " not found");
+					return new IJson(test);
+		}
+		
+		@Override
+		public Json get(int key) throws JsonNoSuchPropertyException, UnsupportedOperationException {
+			if(currentJson instanceof IJsonArray arr) {
+				if(arr.list.size() < key)
+					throw new JsonNoSuchPropertyException("There is no element with index: "+key);
+				return new IJson(arr.list.get(key));
+			}
+			throw new UnsupportedOperationException("get(int) is allowed only for array");
+		}
+		/**
+		 * @param reader - StringReader for String;
+		 * @param length - String length;
+		 * @param entry - recurse accumulator, currentJson by default;
+		 * 
+		 */
+		private IJsonEntry privateGet(Reader reader, int length, IJsonEntry entry) throws JsonParseException, JsonNoSuchPropertyException, JsonNoParentException, UnsupportedOperationException{
+				if(length == 0)		
+					return entry;
+				try {
+					reader.mark(length);
+					boolean wasSlash = false;
+					boolean wasParent = false;
+					for(int i = 0; i < length; i++) {
+						char ch = (char)reader.read();
+						if(ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX && i == 0) {
+							StringBuilder builder = new StringBuilder(); 
+							if(entry instanceof IJsonArray arr){
+								int parse = -1;
+								for(i = 0; i < length; i++) {
+									ch = (char)reader.read();
+									builder.append(ch);
+									if(ch >= '0' && ch <= '9' && parse < Integer.MAX_VALUE) {
+										if(parse == -1)
+											parse = 0;
+										parse = parse * 10 + ch - '0';
+									} else if (ch == ']'){
+										if(parse == -1)
+											throw new JsonParseException("Expected integer number, but found: "+"[]");
+										if(parse > arr.list.size())
+											return null;
+										entry = arr.list.get(parse);
+										length -= i;
+										length--;
+										reader.skip(1);
+										if(length != 0)
+											length--;
+										break;
+										
+									} else {
+										throw new JsonParseException("Expected integer number, but found: "+builder.toString());
+									}
+								}
+								return privateGet(reader,length,entry);
+							}
+								throw new JsonNoSuchPropertyException("Found: "+builder.toString() + " but this json is not array");
+						} else {
+								if(ch == '\\'){
+									wasSlash = !wasSlash;
+									continue;
+								}
+								if(wasSlash && ch == IJsonSetting.PARENT_CHARACTER){
+									wasParent = true;
+									if(length > 2)
+										ch = (char)reader.read();
+								}
+								if(wasSlash && wasParent){
+									if(ch != IJsonSetting.KEY_DELIMETER && length > 2)
+										throw new JsonParseException("After \\ and IJsonSetting.PARENT_CHARACTER expected . but found: "+ch);
+									else{
+										entry = entry.parent;
+										if(entry == null)
+											return null;
+										if(length > 2)
+											length--;
+										return privateGet(reader, length - 2, entry);
+									}
+								}
+							} 
+							if(i == length - 1 || (ch == IJsonSetting.KEY_DELIMETER) || (ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX )) {
+								String newKey = null;
+								
+								if(entry instanceof IJsonObject obj) {
+									
+								reader.reset();
+								if(i == length - 1) {
+									length++;
+									i++;
+								}
+								char[] buf = new char[i];
+								length -= i;
+								reader.read(buf);
+								newKey = new String(buf);
+									entry = obj.map.get(newKey);
+									length--;
+									if(entry == null){
+										if(length != 0)
+											throw new JsonNoSuchPropertyException("Property not found "+ newKey);
+										return null;
+									}
+									if(ch != '[')
+										reader.skip(1);
+									return privateGet(reader,length,entry);
+								} else
+									throw new JsonNoSuchPropertyException("Property " +newKey+ " not found");
+//							}
+						}
+				}
+				}catch(IOException e) {
+					e.printStackTrace();
+				}
+				
+			throw new JsonParseException("Unexpected error");
+		}
 
-    private final byte OBJECT = 0, ARRAY = 1;
-    private innerEntry returnBeforeLastEntry(String key, byte type) throws JsonNoParentException, JsonParseException,
+		private final byte OBJECT = 0, ARRAY = 1;
+		private innerEntry returnBeforeLastEntry(String key, byte type) throws JsonNoParentException, JsonParseException,
 	UnsupportedOperationException, JsonNoSuchPropertyException {
-    	if(type == ARRAY) {
-    		IJsonEntry entry = privateGet(new StringReader(key), key.length(), currentJson);
-    		if(! (entry instanceof IJsonArray))
-    			throw new UnsupportedOperationException("add() and getArray() methods is allowed only for array");
-    		return new innerEntry(entry,0);
-    	}
-    	int newLength = key.length();
+			if(type == ARRAY) {
+				IJsonEntry entry = privateGet(new StringReader(key), key.length(), currentJson);
+				if(! (entry instanceof IJsonArray))
+					throw new UnsupportedOperationException("add() and getArray() methods is allowed only for array");
+				return new innerEntry(entry,0);
+			}
+			int newLength = key.length();
 		if(IJsonSetting.KEY_DELIMETER != 0) {
 			for(int i = newLength-1; i >= 0; i--) {
 				if(key.charAt(i) == IJsonSetting.KEY_DELIMETER || i == 0) {
-          newLength = i;
+					newLength = i;
 					break;
 				}
 			}	
 		} else
-      newLength = 0;
+			newLength = 0;
 		IJsonEntry entry = privateGet(new StringReader(key),newLength, currentJson);
 		if( !(entry instanceof IJsonObject))
 			throw new UnsupportedOperationException("put() and get() methods is allowed only for object");
 		return new innerEntry(entry, newLength == 0 ? 0 : newLength+1);
-    }
-    @Override
-    public IJsonEntry getInnerRepresentation() {
-    	return currentJson;
-    }
-    
-    private record innerEntry(IJsonEntry entry, int start) {};
-    // search:put(key, value)
+		}
+		@Override
+		public IJsonEntry getInnerRepresentation() {
+			return currentJson;
+		}
+		
+		private record innerEntry(IJsonEntry entry, int start) {};
+		// search:put(key, value)
 	@Override
 	public Json put(String key, byte value) throws JsonNoParentException, JsonParseException,
 			UnsupportedOperationException, JsonNoSuchPropertyException {
@@ -499,7 +531,7 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		innerEntry b = returnBeforeLastEntry(key,OBJECT);
 		IJsonObject entry = (IJsonObject) b.entry;
-		IJsonEntry val =  new IJsonBoolean(value);
+		IJsonEntry val =	new IJsonBoolean(value);
 		val.parent = entry;
 		val.paramName = key.substring(b.start);
 		entry.map.put(val.paramName, val);
@@ -521,8 +553,8 @@ public class IJson implements Json {
 	@Override
 	public Json put(String key, Json value) throws JsonNoParentException, JsonParseException,
 			UnsupportedOperationException, JsonNoSuchPropertyException {
-        if(value == null)
-          return put(key,(IJsonEntry)null);
+				if(value == null)
+					return put(key,(IJsonEntry)null);
 		return put(key,value.getInnerRepresentation());
 	}
 	
@@ -530,10 +562,10 @@ public class IJson implements Json {
 			UnsupportedOperationException, JsonNoSuchPropertyException {
 		innerEntry b = returnBeforeLastEntry(key, OBJECT);
 		IJsonObject entry = (IJsonObject) b.entry;
-    if(value != null){
-      value.parent = entry;
-      value.paramName = key.substring(b.start);
-    }
+		if(value != null){
+			value.parent = entry;
+			value.paramName = key.substring(b.start);
+		}
 		entry.map.put(value != null ? value.paramName : key.substring(b.start), value);
 		return this;
 	}
@@ -598,14 +630,14 @@ public class IJson implements Json {
 
 	@Override
 	public Json add(Json value) throws UnsupportedOperationException {
-    if(value == null)
-      return add((IJsonEntry)null);
+		if(value == null)
+			return add((IJsonEntry)null);
 		return add(value.getInnerRepresentation());
 	}
 	private Json add(IJsonEntry value) throws UnsupportedOperationException {
 		if(currentJson instanceof IJsonArray arr) {
-      if(value != null)
-        value.parent = arr;
+			if(value != null)
+				value.parent = arr;
 			arr.list.add(value);
 		} else
 			throw new UnsupportedOperationException("add() is allowed only for array");
@@ -2724,7 +2756,7 @@ public class IJson implements Json {
 
 	@Override
 	public Json clone() {
-		return new IJson(currentJson.iClone());
+		return new IJson(currentJson.clone());
 	}
 	
 	@Override

@@ -2,9 +2,13 @@ package ixoroturg.json;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.io.StringWriter;
+
+import ixoroturg.json.IJsonFormatContext.JsonWriter;
+
+// import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class IJsonObject extends IJsonEntry {
@@ -133,12 +137,15 @@ public class IJsonObject extends IJsonEntry {
 	public String toString(){
 		IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
 		ctx.format = false;
-		StringWriter writer = new StringWriter(buffSize(ctx));
-		ctx.writer = writer;
+		// StringWriter writer = new StringWriter(buffSize(ctx));
+		// byte[] res = new byte[buffSize(ctx)];
+		ByteArrayOutputStream stream = new ByteArrayOutputStream(buffSize(ctx));
+		ctx.writer = new JsonWriter(stream);
 		try{
 			toString(ctx);
 		}catch(IOException e){}
-		String result = writer.toString();
+		String result = new String(stream.toByteArray(),StandardCharsets.UTF_8);
+		// String result = writer.toString();
 		try{
 			ctx.close();
 
@@ -149,13 +156,16 @@ public class IJsonObject extends IJsonEntry {
 	public String toFormatedString() {
 		IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
 		ctx.format = true;
-		StringWriter writer = new StringWriter(buffSize(ctx));
-		ctx.writer = writer;
+		// StringWriter writer = new StringWriter(buffSize(ctx));
+		// ctx.writer = writer;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream(buffSize(ctx));
+		ctx.writer = new JsonWriter(stream);
 
 		try{
 			toString(ctx);
 		} catch(IOException e){}
-		String result = writer.toString();
+		// String result = writer.toString();
+		String result = new String(stream.toByteArray(),StandardCharsets.UTF_8);
 		try{
 			ctx.close();
 		} catch(IOException e){}

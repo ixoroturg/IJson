@@ -13,6 +13,7 @@ class IJsonParseContext {
 	// Reader reader;
 	ReadableByteChannel channel = null;
 	ByteBuffer buffer; //= new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
+	ByteBuffer save = null;
 	int column;
 	int row;
 	int index;
@@ -52,7 +53,7 @@ class IJsonParseContext {
 
 
 
-	static IJsonParseContext[] ctx = new IJsonParseContext[IJsonSetting.PARSE_CONTEXT_COUNT];
+	// static IJsonParseContext[] ctx = new IJsonParseContext[IJsonSetting.PARSE_CONTEXT_COUNT];
 
 	static IPool<IJsonParseContext> pool = generatePool(8, 0,2);
 
@@ -85,6 +86,14 @@ class IJsonParseContext {
 		return pool;
 	}
 
+	static IJsonParseContext openContext(ByteBuffer buffer) throws JsonParseException {
+
+		IPool<IJsonParseContext>.IPoolEntry entry = pool.open();
+		entry.value.entry = entry;
+		// ReadableByteChannel chan = Channels.newChannel(input);
+		entry.value.open(buffer);
+		return entry.value;
+	}
 	static IJsonParseContext openContext(ReadableByteChannel channel) throws JsonParseException {
 	IPool<IJsonParseContext>.IPoolEntry entry = pool.open();
 	entry.value.entry = entry;
@@ -99,6 +108,7 @@ class IJsonParseContext {
 		return result;
 	}
 	void open(ReadableByteChannel channel) throws JsonParseException{
+		buffer = save;
 		BUFFER_SIZE = IJsonSetting.BUFFER_SIZE;
 
 	if(buffer == null || buffer.capacity() != BUFFER_SIZE){
@@ -138,6 +148,7 @@ class IJsonParseContext {
 	}
 
 	void open(ByteBuffer buffer){
+		save = this.buffer;
 		this.buffer = buffer;
 		
 		CHARACTERS_BEFORE_ERROR_INDEX = IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
@@ -154,7 +165,7 @@ class IJsonParseContext {
 	boolean lock = false;
 	boolean done = false;
 	boolean newBuffer = false;
-	int read() throws JsonParseException{
+	void read() throws JsonParseException{
 
 		// synchronized(this){
 		lock = true;
@@ -165,7 +176,7 @@ class IJsonParseContext {
 			} catch (InterruptedException e) {}
 		}
 		if(newBuffer){
-			return 0;
+			return;
 		}
 	// }
 	
@@ -187,8 +198,8 @@ class IJsonParseContext {
 			exp.initCause(e);
 			throw exp;
 		}
-		pointer -= buf;
-		return buf;
+		// pointer -= buf;
+		// return buf;
 	}
 
 }

@@ -1,9 +1,14 @@
 package ixoroturg.json;
 
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+
+import ixoroturg.json.IJsonFormatContext.JsonWriter;
+
 import java.util.LinkedList;
 
 class IJsonArray extends IJsonEntry{
@@ -105,13 +110,19 @@ class IJsonArray extends IJsonEntry{
 		if(list.size() == 0)
 			return "[]";
 		IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
-		StringWriter writer = new StringWriter(buffSize(ctx));
-		ctx.writer = writer;
+		// StringWriter writer = new StringWriter(buffSize(ctx));
+		// StringWriter writer = new StringWriter(buffSize(ctx));
+		// ctx.writer = writer;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream(buffSize(ctx));
+		ctx.writer = new JsonWriter(stream);
+
+		// ctx.writer = writer;
 		ctx.format = format;
 		try{
 			toString(ctx);
 		} catch(IOException e){}
-		String result = writer.toString();
+		// String result = writer.toString();
+		String result = new String(stream.toByteArray(),StandardCharsets.UTF_8);
 		try{
 			ctx.close();
 		}catch(IOException e){}

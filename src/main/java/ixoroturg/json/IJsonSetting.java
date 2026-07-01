@@ -151,10 +151,10 @@ public class IJsonSetting {
   public static void setBufferSize(int power){
 	  
     BUFFER_SIZE = (byte)power;
-    for(int i = 0; i < IJsonParseContext.ctx.length; i++){
-      if(IJsonParseContext.ctx[i] != null)
-        IJsonParseContext.ctx[i].updateBuffer = true;
-    }
+    // for(int i = 0; i < IJsonParseContext.ctx.length; i++){
+    //   if(IJsonParseContext.ctx[i] != null)
+    //     IJsonParseContext.ctx[i].updateBuffer = true;
+    // }
   }
 
   public static void setParsePoolSetting(int initialCount, int maxCount, float scaleFactor){
