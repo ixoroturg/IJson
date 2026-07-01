@@ -1,5 +1,6 @@
 package ixoroturg.json;
 
+import java.nio.ByteBuffer;
 // import java.io.ByteArrayInputStream;
 // import java.io.InputStream;
 // import java.nio.channels.Channels;
@@ -38,6 +39,8 @@ public class IJsonParser implements JsonParser{
 		PartialParser(){
 			json.of(ctx);
 		}
+		
+		@Override
 		public IJson read(){
 			synchronized(ctx){
 				if(ctx.done){
@@ -45,6 +48,28 @@ public class IJsonParser implements JsonParser{
 					return json;
 				}
 				ctx.lock = false;
+				ctx.notify();
+			}
+			return null;
+		}
+
+		@Override
+		public Json read(byte[] chunk) {
+			ByteBuffer buf = ByteBuffer.wrap(chunk);
+			return read(buf);
+		}
+
+		@Override
+		public Json read(ByteBuffer chunk) {
+			synchronized(ctx){
+				if(ctx.done){
+					future.complete(json);
+					return json;
+				}
+				ctx.buffer = chunk;
+				ctx.buffer.clear();
+				ctx.lock = false;
+				ctx.newBuffer = true;
 				ctx.notify();
 			}
 			return null;

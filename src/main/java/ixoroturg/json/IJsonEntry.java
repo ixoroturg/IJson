@@ -22,6 +22,4 @@ public abstract class IJsonEntry{
 
   abstract int buffSize(IJsonFormatContext ctx);
   abstract void toString(IJsonFormatContext ctx) throws IOException;
-
-  abstract IJsonEntry iClone();
 }
