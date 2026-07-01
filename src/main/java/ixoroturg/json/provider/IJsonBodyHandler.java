@@ -20,9 +20,7 @@ public class IJsonBodyHandler implements BodyHandler<Json>{
 	public BodySubscriber<Json> apply(ResponseInfo responseInfo) {
 		HttpHeaders headers = responseInfo.headers();
 		
-		long bufferSize = headers.firstValueAsLong("Content-Length").orElseGet(()->{
-			return 4096;
-		});
+		long bufferSize = headers.firstValueAsLong("Content-Length").orElse(0);
 		return new IJsonBodySubscriber(bufferSize);
 	}
 	
@@ -30,10 +28,11 @@ public class IJsonBodyHandler implements BodyHandler<Json>{
 		ByteBuffer buffer = null;
 		CompletableFuture<Json> result = new CompletableFuture<>();
 		Json js = null;
-		int bufferSize = -1;
+		// int bufferSize = -1;
 		List<ByteBuffer> received = new LinkedList<>();
 		IJsonBodySubscriber(long bufferSize){
-			this.bufferSize = (int) bufferSize;
+			// this.bufferSize = (int) bufferSize;
+			buffer = ByteBuffer.allocate((int)bufferSize);
 			// buffer = ByteBuffer.allocate((int) bufferSize);
 		}
 		@Override
@@ -44,7 +43,10 @@ public class IJsonBodyHandler implements BodyHandler<Json>{
 		@Override
 		public void onNext(List<ByteBuffer> item) {
 
-			received.addAll(item);
+			for(ByteBuffer chunk: item){
+				buffer.put(chunk);
+			}
+			// received.addAll(item);
 			// if(item.size() != 0 && item.get(0).limit() == bufferSize){
 			// 	buffer = item.get(0);
 			// } else{
@@ -74,24 +76,34 @@ public class IJsonBodyHandler implements BodyHandler<Json>{
 			
 			CompletableFuture.supplyAsync(()->{
 				
+				if(buffer.capacity() == 0){
+					return null;
+				}
+
+				// ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+				// for(ByteBuffer chunk: received){
+				// 	buffer.put(chunk);
+				// }
 				// for(ByteBuffer buf: received){
 				// 	buf.re
 				// }
-				int remaining = 0;
-				for(ByteBuffer buf: received){
-					remaining += buf.remaining();
-				}
-				byte[] bufs = new byte[remaining];
-				int from = 0;
-				for(ByteBuffer buf: received){
-					int length = buf.remaining();
-					buf.get(bufs, from, length);
-					from += length;
-				}
+				// int remaining = 0;
+				// for(ByteBuffer buf: received){
+				// 	remaining += buf.remaining();
+				// }
+				// byte[] bufs = new byte[remaining];
+				// int from = 0;
+				// for(ByteBuffer buf: received){
+				// 	int length = buf.remaining();
+				// 	buf.get(bufs, from, length);
+				// 	from += length;
+				// }
 
-				Json js = null;
+				buffer.clear();
+				ByteArrayInputStream input = new ByteArrayInputStream(buffer.array());
+				Json js = IJson.of(input);
 				// try{
-					js = IJson.of(new ByteArrayInputStream(bufs));
+					// js = IJson.of(new ByteArrayInputStream(bufs));
 				// }catch(JsonException e){
 				// 	// return null;
 				// 	RuntimeException e2 = new RuntimeException("Error while parsing json");
