@@ -215,7 +215,7 @@ class IJsonString extends IJsonEntry{
 								ctx.builder.put((byte)'u');
 
 							if(ctx.DECODE_UNICODE_SEQUENCE){
-								ctx.unicode = (short)(ctx.unicode << 4);
+								ctx.unicode = ctx.unicode << 4;
 								if(ch <= '9')
 									ctx.unicode += (ch - '0');
 								else

@@ -18,7 +18,9 @@ class IJsonParseContext {
 	int index;
 	int pointer;
 	byte hex = -1;
-	short unicode = 0;
+	int unicode = 0;
+	boolean wasDigit = false;
+	boolean wasExpSign = false;
 	boolean wasSlash = false;
 	boolean wasExp = false;
 	boolean wasDot = false;
