@@ -20,10 +20,9 @@ class IJsonBoolean extends IJsonEntry{
 	}
 	static boolean validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidBooleanException {
 		
-		int remaining = 6;
 		if(ctx.buffer.remaining() < 6){
+		int remaining = 6 - ctx.buffer.remaining();
 			ctx.builder.clear();
-			remaining -= ctx.buffer.remaining();
 			ctx.builder.put(ctx.buffer);
 			ctx.read();
 			int limit = ctx.builder.limit();

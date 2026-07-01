@@ -2,7 +2,7 @@ package ixoroturg.json;
 
 import java.io.IOException;
 
-public abstract class IJsonEntry{
+public abstract class IJsonEntry implements Cloneable{
   int size;
   IJsonEntry parent;
   String paramName;
@@ -22,4 +22,5 @@ public abstract class IJsonEntry{
 
   abstract int buffSize(IJsonFormatContext ctx);
   abstract void toString(IJsonFormatContext ctx) throws IOException;
+  abstract public IJsonEntry clone();
 }
