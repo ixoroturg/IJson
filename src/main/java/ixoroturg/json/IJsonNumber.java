@@ -67,7 +67,8 @@ public class IJsonNumber extends IJsonEntry{
 			if(isEnd(ch)){
 				if(!ctx.wasDigit)
 					throw new JsonInvalidNumberException("Unexpected end of line",ctx);
-				ctx.pointer--;
+				ctx.builder.position(ctx.builder.position() - 1);
+				// ctx.pointer--;
 				ctx.firstPass = true;
 				if(ctx.wasSlash){
 					ctx.unicode = -ctx.unicode;
