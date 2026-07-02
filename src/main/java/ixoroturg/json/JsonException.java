@@ -27,6 +27,7 @@ public class JsonException extends RuntimeException{
 		builder.append(String.valueOf(ctx.index));
 		builder.append(')');
 		builder.append('\n');
+		ctx.buffer.position(ctx.buffer.position()-1);
 		int test = ctx.buffer.position() - ctx.CHARACTERS_BEFORE_ERROR_INDEX;
 		int length = ctx.CHARACTERS_BEFORE_ERROR_INDEX;
 		if(test < 0){
@@ -34,10 +35,10 @@ public class JsonException extends RuntimeException{
 		}
 
 	ctx.buffer.position(ctx.buffer.position() - length);
-	for(int j = 0; j< length + 1; j++){
+	for(int j = 0; j < length+1; j++){
 		// for(int i = ctx.pointer - length, j = 0; j < length + 1; i++, j++){
 		byte ch = ctx.buffer.get();
-		if(ch == 0 || ch == -1){
+		if(ch == -1){
 			break;
 		}
 		if(IJsonUtil.isWhiteSpace(ch)){
@@ -48,7 +49,7 @@ public class JsonException extends RuntimeException{
 	}
 
 	ctx.buffer.position(ctx.buffer.position() + 1);
-		for(int j = 0; j < ctx.CHARACTERS_AFTER_ERROR_INDEX && ctx.buffer.position() < ctx.buffer.limit(); j++){
+		for(int j = 0; j < ctx.CHARACTERS_AFTER_ERROR_INDEX && ctx.buffer.hasRemaining(); j++){
 			// char ch = ctx.buffer[i];
 			byte ch = ctx.buffer.get();
 			if(ch == 0 || ch == -1){
@@ -58,7 +59,7 @@ public class JsonException extends RuntimeException{
 				builder.append(' ');
 				continue;
 			}
-			builder.append(ch);
+			builder.append((char)ch);
 		}
 		builder.append('\n');
 			builder.append(" ".repeat(length));

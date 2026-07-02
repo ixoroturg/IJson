@@ -44,19 +44,23 @@ public class IJson implements Json {
 		}
 		public static IJson of(String json) throws JsonParseException {
 			// StringReader reader = new StringReader(json);
-		ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+			ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 			return of(channel);
 		}
 		public static IJson of(InputStream input) throws JsonParseException {
 			// InputStreamReader reader = new InputStreamReader(input);
-		ReadableByteChannel channel = Channels.newChannel(input);
+			ReadableByteChannel channel = Channels.newChannel(input);
 			return of(channel);
 		}
 		public static IJson of(ReadableByteChannel channel) throws JsonParseException{
 			// IJsonParseContext ctx = IJsonParseContext.openContext(channel);
-		IJson result = new IJson();
-		IJsonParser parser = new IJsonParser(channel, result);
-		result = parser.fullParse();
+		// System.out.println("начало of channel");
+			IJson result = new IJson();
+			// System.out.println("Создание парсера");
+			IJsonParser parser = new IJsonParser(channel, result);
+		
+		// System.out.println("Парсинг");
+			result = parser.fullParse();
 			return result;
 		}
 	public static IJson of(byte[] buffer) throws JsonParseException {
@@ -86,54 +90,61 @@ public class IJson implements Json {
 		public long getParseTime(){
 			return parseTime;
 		}
-		IJson of(IJsonParseContext ctx) throws JsonParseException{
-	synchronized(ctx){
-			// for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
-		for(; ctx.buffer.hasRemaining(); ctx.index++, ctx.column++){
-			byte ch = ctx.buffer.get();
-			// char ch = ctx.buffer[ctx.pointer];
-			if(IJsonUtil.isWhiteSpace(ch)){
-				if(ch == '\n'){
-					ctx.row++;
-					ctx.column=-1;
+	IJson of(IJsonParseContext ctx) throws JsonParseException{
+		synchronized(ctx){
+			// System.out.println("Начало чтения");
+				// for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
+				// System.out.println("Символы: ");
+			for(; ctx.buffer.hasRemaining(); ctx.index++, ctx.column++){
+				byte ch = ctx.buffer.get();
+				// System.out.print((char)ch);
+				// char ch = ctx.buffer[ctx.pointer];
+				if(IJsonUtil.isWhiteSpace(ch)){
+					if(ch == '\n'){
+						ctx.row++;
+						ctx.column=-1;
+					}
+					continue;
 				}
-				continue;
-			}
-			if(ch == -1){
-				return null;
-			}
-			switch(ch){
-				case '{' -> {
-					return createEntry(new IJsonObject(), ctx);
-				}
-				case '[' -> {
-					return createEntry(new IJsonArray(), ctx);
-				}
-				case '\"' -> {
-					return createEntry(new IJsonString(), ctx);
-				}
-				case 't', 'f' -> {
-					return createEntry(new IJsonBoolean(), ctx);
-				}
-				case 'n' -> {
-					if(!IJsonUtil.testNull(ctx))
-					throw new JsonParseException("Expected null", ctx);
+				if(ch == -1){
 					return null;
 				}
-				default -> {
-					return createEntry(new IJsonNumber(), ctx);
+				switch(ch){
+					case '{' -> {
+						return createEntry(new IJsonObject(), ctx);
+					}
+					case '[' -> {
+						return createEntry(new IJsonArray(), ctx);
+					}
+					case '\"' -> {
+						return createEntry(new IJsonString(), ctx);
+					}
+					case 't', 'f' -> {
+						return createEntry(new IJsonBoolean(), ctx);
+					}
+					case 'n' -> {
+						if(!IJsonUtil.testNull(ctx)){
+							throw new JsonParseException("Expected null", ctx);
+						}
+						return null;
+					}
+					default -> {
+						return createEntry(new IJsonNumber(), ctx);
+					}
 				}
 			}
+			// System.out.println("Читаем дальше");
+			ctx.read();
+			// System.out.println("Прочитали дальше");
+			return of(ctx);
 		}
-		ctx.read();
-		return of(ctx);
-		}
-		}
+	}
 		private IJson createEntry(IJsonEntry entry, IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidNumberException, JsonInvalidStringException, JsonInvalidBooleanException{
+			ctx.buffer.position(ctx.buffer.position()-1);
 			entry.parse(ctx);
 			// IJson result = new IJson(entry);
-		currentJson = entry;
-		ctx.done = true;
+			currentJson = entry;
+			ctx.done = true;
 			parseTime = ctx.close();
 			return this;
 		}

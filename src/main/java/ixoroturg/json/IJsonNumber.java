@@ -18,7 +18,7 @@ public class IJsonNumber extends IJsonEntry{
 		return (ch >= '0') && (ch <= '9');
 	}
 	private static boolean isEnd(byte ch){
-		return IJsonSetting.isWhiteSpace(ch) || ch == ',' || ch == '}' || ch == ']';
+		return IJsonSetting.isWhiteSpace(ch) || ch == ',' || ch == '}' || ch == ']' || ch == -1;
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class IJsonNumber extends IJsonEntry{
 		// int i;
 		if(ctx.firstPass){
 			// ctx.builder.setLength(0);
-		ctx.builder.reset();
+			ctx.builder.clear();
 			ctx.firstPass = false;
 			ctx.wasDot = false;
 			ctx.shouldDot = false;
@@ -59,15 +59,18 @@ public class IJsonNumber extends IJsonEntry{
 			ctx.zeroCount = 0;
 			ctx.wasDigit = false;
 		}
-	for(; ctx.buffer.capacity() < ctx.buffer.limit(); ctx.index++, ctx.column++){
+		// System.out.println("\nСимволы чисел: ");
+		// System.out.println(ctx.buffer);
+	for(; ctx.buffer.hasRemaining(); ctx.index++, ctx.column++){
 		// for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
 	
 			// char ch = ctx.buffer[ctx.pointer];
 			byte ch = ctx.buffer.get();
+			// System.out.print((char)ch);
 			if(isEnd(ch)){
 				if(!ctx.wasDigit)
 					throw new JsonInvalidNumberException("Unexpected end of line",ctx);
-				ctx.builder.position(ctx.builder.position() - 1);
+					ctx.buffer.position(ctx.buffer.position() - 1);
 				// ctx.pointer--;
 				ctx.firstPass = true;
 				if(ctx.wasSlash){
@@ -78,7 +81,7 @@ public class IJsonNumber extends IJsonEntry{
 				if(ctx.wasMinus)
 					ctx.numberValue = -ctx.numberValue;
 				ctx.numberValue *= Math.pow(10,ctx.unicode);
-				return ctx.buffer;
+				return ctx.builder;
 				// return ctx.builder.toString();
 			}
 			if(ctx.shouldDot && ch != '.' && ch != 'e' && ch != 'E')
@@ -86,7 +89,7 @@ public class IJsonNumber extends IJsonEntry{
 			ctx.shouldDot = false;
 			if(ctx.builder.position() == 0){
 				if(!(isDigit(ch) || ch == '-'))
-					throw new JsonInvalidNumberException("At first place must be digit or minus", ctx);
+					throw new JsonInvalidNumberException("At first place must be digit or minus, but found "+(char)ch, ctx);
 			}
 			switch(ch){
 				case '.' -> {
@@ -130,7 +133,7 @@ public class IJsonNumber extends IJsonEntry{
 						throw new JsonInvalidNumberException("Unexpected symbol "+ch,ctx);
 				}
 			}
-			ctx.buffer.put(ch);
+			ctx.builder.put(ch);
 			
 			if(!ctx.USE_LAZY_NUMBER_PARSER && ctx.USE_FAST_NUMBER_PARSE	&& isDigit(ch)){
 				if(!ctx.wasExp){
@@ -145,10 +148,11 @@ public class IJsonNumber extends IJsonEntry{
 			ctx.wasDigit = isDigit(ch);
 			ctx.wasExpSign = ch == 'e' || ch == 'E';
 		}
+		// System.out.println("Buffer: "+ctx.buffer);
 		ctx.read();
-		if(ctx.buffer.position() == ctx.buffer.limit()){
-			throw new JsonParseException("Unexpected end of line",ctx);
-		}
+		// if(ctx.buffer.position() == ctx.buffer.limit()){
+		// 	throw new JsonParseException("Unexpected end of line",ctx);
+		// }
 		return validate(ctx);
 	}
 

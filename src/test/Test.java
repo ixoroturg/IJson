@@ -4,6 +4,11 @@ import ixoroturg.json.*;
 public class Test {
   public static void main(String[] args) throws Exception {
 
+	  System.out.println("Test начался");
+	  if(true){
+		  return;
+	  }
+
 //    System.out.println((int)'\t'+ " "+(int)'\n'+" "+(int)'\f'+" "+(int)'\r' + " "+(int)'\b');
 
     IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX = 16;

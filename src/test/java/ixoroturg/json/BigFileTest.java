@@ -46,6 +46,7 @@ public class BigFileTest {
 //     ObjectMapper mapper = new ObjectMapper();
 //
 //  // Прогрев
+
     String test = canada;
     long my = 0;
     long my2 = 0;

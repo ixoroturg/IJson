@@ -69,7 +69,7 @@ class IJsonArray extends IJsonEntry{
 				case 'n' -> {
 					if(!IJsonUtil.testNull(ctx))
 						throw new JsonParseException("Expected null",ctx);
-					ctx.pointer--;
+					// ctx.pointer--;
 					addEntry(null,ctx);
 				}
 				case ',' -> {
@@ -89,8 +89,10 @@ class IJsonArray extends IJsonEntry{
 	private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
 		needDot = true;
 		wasDot = false;
-		if(value != null)
+		if(value != null){
+			ctx.buffer.position(ctx.buffer.position()-1);
 			value.parse(ctx);
+		}
 		list.add(value);
 		if(value != null)
 			value.parent = this;

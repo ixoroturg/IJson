@@ -10,7 +10,7 @@ public class StringTest {
     try{
       IJsonSetting.ESCAPE_CONTROL_CHARACTERS = false;
       IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
-      Json js = IJson.of(new FileReader("./src/testFiles/StringTest"));
+      Json js = IJson.of(new FileInputStream("./src/testFiles/StringTest"));
       
       System.out.println("Total parse time: "+js.getParseTime());
 

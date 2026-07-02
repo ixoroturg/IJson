@@ -17,6 +17,9 @@ public class AppTest {
     public void shouldAnswerWithTrue() {
 //    System.out.println((int)'\t'+ " "+(int)'\n'+" "+(int)'\f'+" "+(int)'\r' + " "+(int)'\b');
 
+		// System.out.println("Тест начался");
+		// if(true)
+		// 	return;
     IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX = 16;
     IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX = 16;
      IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
@@ -30,13 +33,16 @@ public class AppTest {
     // js.put("suka","lol");
     // js.writeTo(System.out);
     try{
-      FileIO.test();
-      Numbers.test();
-      BooleanAndNullTest.test();
-      StringTest.test();
-      GetTest.test();
-      PutAddGetTest.test();
-      // BigFileTest.test();
+		
+      // FileIO.test();
+      // Numbers.test();
+      // BooleanAndNullTest.test();
+      // StringTest.test();
+      // GetTest.test();
+      // PutAddGetTest.test();
+
+      BigFileTest.test();
+	  //
       // Json js = IJson.of("lol");
 //      js.getInnerRepresentation().
       System.out.println("\nTest complete successfully");

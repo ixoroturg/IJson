@@ -11,7 +11,7 @@ public class FileIO{
       System.out.println("Inline test:\n"+js);
       System.out.println("\nFormat test:\n" + js.toStringFormat());
 
-      js.parse(new FileReader("./src/testFiles/simplyFile2"));
+      js.parse(new FileInputStream("./src/testFiles/simplyFile2"));
       System.out.println("Inline test:\n"+js);
       System.out.println("\nFormat test:\n" + js.toStringFormat());
 
@@ -21,7 +21,7 @@ public class FileIO{
 //      System.out.println("\nFormat test:\n" + js.toStringFormat());
 
       IJsonSetting.DECODE_UNICODE_SEQUENCE = false;
-      js.parse(new FileReader("./src/testFiles/unicode"));
+      js.parse(new FileInputStream("./src/testFiles/unicode"));
       System.out.println("Inline test:\n"+js);
       System.out.println("\nFormat test:\n" + js.toStringFormat());
     } catch (Exception e){

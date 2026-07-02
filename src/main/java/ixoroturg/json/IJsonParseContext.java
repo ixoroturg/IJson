@@ -76,7 +76,7 @@ class IJsonParseContext {
 				ctx.row = 0;
 				ctx.fracSize = 0;
 				ctx.unicode = 0;
-				ctx.builder.reset();
+				ctx.builder.clear();
 				// ctx.builder.setLength(0);
 				ctx.firstPass = true;
 				
@@ -134,22 +134,24 @@ class IJsonParseContext {
 	// USE_ARRAY_SYNTAX = IJsonSetting.USE_ARRAY_SYNTAX;
 
 		this.channel = channel;
-		try{
-		int pos = channel.read(buffer);
-			if(pos < buffer.capacity()){
-			buffer.put((byte)-1);
-		}
-		buffer.flip();
-		}catch(IOException e){
-			JsonParseException exp = new JsonParseException("Cannot read the stream/channel");
-			exp.initCause(e);
-			throw exp;
-		}
+		// read();
+		// try{
+		// int pos = channel.read(buffer);
+		// 	if(pos < buffer.capacity()){
+		// 	buffer.put((byte)-1);
+		// }
+		// buffer.flip();
+		// }catch(IOException e){
+		// 	JsonParseException exp = new JsonParseException("Cannot read the stream/channel");
+		// 	exp.initCause(e);
+		// 	throw exp;
+		// }
 	}
 
 	void open(ByteBuffer buffer){
 		save = this.buffer;
 		this.buffer = buffer;
+		// if(buffer.limit())
 		
 		CHARACTERS_BEFORE_ERROR_INDEX = IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
 		CHARACTERS_AFTER_ERROR_INDEX = IJsonSetting.CHARACTERS_AFTER_ERROR_INDEX;
@@ -165,39 +167,69 @@ class IJsonParseContext {
 	boolean lock = false;
 	boolean done = false;
 	boolean newBuffer = false;
+	boolean start = false;
 	void read() throws JsonParseException{
 
 		// synchronized(this){
-		lock = true;
-		newBuffer = false;
-		while(lock){
-			try {
-				wait();
-			} catch (InterruptedException e) {}
-		}
-		if(newBuffer){
-			return;
-		}
-	// }
-	
-	int buf = BUFFER_SIZE>>1;
-	buffer.clear();
-	byte[] innerBuf = buffer.array();
-	buffer.get(buf,innerBuf,0,buf);
-	buffer.position(buf);
-		// System.arraycopy(buffer, buf, buffer, 0 ,buf);
+
+			lock = true;
+			newBuffer = false;
+			if(!start)
+				while(lock){
+					try {
+						// System.out.println("Блокировка ввода");
+						// new Exception().printStackTrace();
+						wait();
+						// System.out.println("lock: "+lock);
+					} catch (InterruptedException e) {}
+				}
+
+			// System.out.println("Ввод разблокирован");
+			if(newBuffer){
+				if(buffer.limit() == 0)
+					throw new JsonParseException("Unexpected end of file",this);
+				return;
+			}
+		// }
+
+		buffer.clear();
 		try{
-		
-		int len = channel.read(buffer);
-		if(len < buf){
-			buffer.put((byte)-1);
-		}
-			// channel.read(buffer,buf, buf);
+			int len = channel.read(buffer);
+			if(len == 0){
+				throw new JsonParseException("Unexpected end of file",this);
+			}
+			if(len < buffer.capacity()){
+				buffer.put((byte)-1);
+			}
+			buffer.flip();
 		} catch(Exception e){
 			JsonParseException exp = new JsonParseException("Cannot read the stream/channel");
 			exp.initCause(e);
 			throw exp;
 		}
+	
+		// int buf = BUFFER_SIZE>>1;
+		// buffer.clear();
+		// byte[] innerBuf = buffer.array();
+		// buffer.get(buf,innerBuf,0,buf);
+		// buffer.position(buf);
+		// 	// System.arraycopy(buffer, buf, buffer, 0 ,buf);
+		// try{
+		//
+		// int len = channel.read(buffer);
+		// if(len == 0){
+		// 	throw new JsonParseException("Unexpected end of file",this);
+		// }
+		// if(len < buf){
+		// 	buffer.put((byte)-1);
+		// }
+		// buffer.flip();
+		// 	// channel.read(buffer,buf, buf);
+		// } catch(Exception e){
+		// 	JsonParseException exp = new JsonParseException("Cannot read the stream/channel");
+		// 	exp.initCause(e);
+		// 	throw exp;
+		// }
 		// pointer -= buf;
 		// return buf;
 	}

@@ -32,10 +32,12 @@ public class IJsonObject extends IJsonEntry {
 	void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
 
 	
-		for(; ctx.buffer.position() < ctx.buffer.limit(); ctx.index++, ctx.column++){
+		// System.out.println("\nBuffer (object): "+ctx.buffer);
+		for(;ctx.buffer.hasRemaining(); ctx.index++, ctx.column++){
 		// for(;ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
 			// char ch = ctx.buffer[ctx.pointer];
 			byte ch = ctx.buffer.get();
+			// System.out.print((char)ch);
 			if(IJsonUtil.isWhiteSpace(ch)){
 				if(ch == '\n'){
 					ctx.row++;
@@ -61,6 +63,7 @@ public class IJsonObject extends IJsonEntry {
 			if(needQuote && ch != ':'){
 				throw new JsonInvalidObjectException("Expected : but found "+(char)ch, ctx);
 			}
+			// System.out.println("\nНужна точка: "+needDot);
 			if(needDot && ch != ','){
 				throw new JsonInvalidObjectException("Expected , but found "+(char)ch, ctx);
 			}
@@ -75,12 +78,15 @@ public class IJsonObject extends IJsonEntry {
 				case '\"' -> {
 					if(needKey){
 						// StringBuilder result = IJsonString.validate(ctx);
+						ctx.buffer.position(ctx.buffer.position()-1);
 						ByteBuffer result = IJsonString.validate(ctx);
 						result.flip();
+						// System.out.println("\nBuffer: "+result);
 						byte[] b = new byte[result.limit()];
 						result.get(b);
 						key = new String(b,StandardCharsets.UTF_8);
 						// key = result.toString();
+						// System.out.println("\nНайден ключ: "+key);
 						needKey = false;
 						needQuote = true;
 					} else {
@@ -96,9 +102,10 @@ public class IJsonObject extends IJsonEntry {
 					continue;
 				}
 				case 'n' -> {
+					ctx.buffer.position(ctx.buffer.position()-1);
 					if(!IJsonUtil.testNull(ctx))
 						throw new JsonParseException("Expected null", ctx);
-					ctx.pointer--;
+					// ctx.pointer--;
 					addEntry(null,ctx);
 				}
 				
@@ -113,10 +120,12 @@ public class IJsonObject extends IJsonEntry {
 				}
 				
 				default -> {
+					// System.out.println("Число: "+(char)ch);
 					addEntry(new IJsonNumber(),ctx);
 				}
 			}
 		}
+		// System.out.println("Чтение object: "+ctx.buffer);
 		ctx.read();
 		parse(ctx);
 	}
@@ -125,8 +134,10 @@ public class IJsonObject extends IJsonEntry {
 			wasQuote = false;
 			needDot = true;
 			wasDot = false;
-			if(value != null)
+			if(value != null){
+				ctx.buffer.position(ctx.buffer.position()-1);
 				value.parse(ctx);
+			}
 			map.put(key,value);
 			if(value != null)
 				value.parent = this;

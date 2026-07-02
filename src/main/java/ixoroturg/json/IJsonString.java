@@ -141,20 +141,27 @@ class IJsonString extends IJsonEntry{
 	static ByteBuffer validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
 		if(ctx.firstPass){
 			// ctx.builder.setLength(0);
-			ctx.builder.reset();
+			ctx.builder.clear();
 			ctx.column++;
 			ctx.index++;
 			ctx.pointer++;
 			ctx.firstPass = false;
 			ctx.wasSlash = false;
+			ctx.buffer.get();
 		}
-	for(; ctx.buffer.position() < ctx.buffer.limit(); ctx.index++, ctx.column++){
+
+		// System.out.println("\nСимволы строки: ");
+	for(;ctx.buffer.hasRemaining(); ctx.index++, ctx.column++){
 		// for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
 		
 			// char ch = ctx.buffer[ctx.pointer];
 			byte ch = ctx.buffer.get();
+			// System.out.print((char)ch);
 			
 			switch(ch){
+				case -1 -> {
+					throw new JsonParseException("Unexpected end of file",ctx);
+				}
 				case 'n' -> {
 					if(ctx.wasSlash){
 						ctx.wasSlash = false;
@@ -253,12 +260,20 @@ class IJsonString extends IJsonEntry{
 					}
 				}
 			};
+			// System.out.println("String validate buffer: "+ctx.builder);
+			if(!ctx.builder.hasRemaining()){
+				ByteBuffer current = ctx.builder;
+				ctx.builder = ByteBuffer.allocate(current.capacity()<<1);
+				current.flip();
+				ctx.builder.put(current);
+			}
 			ctx.builder.put(ch);
 		}
+		// System.out.println("\nСостояние buffer: "+ctx.buffer);
 		ctx.read();
-		if(ctx.buffer.position() == ctx.buffer.limit()){
-			throw new JsonParseException("Unexcepted end of line", ctx);
-		}
+		// if(ctx.buffer.position() == ctx.buffer.limit()){
+		// 	throw new JsonParseException("Unexcepted end of line", ctx);
+		// }
 		return validate(ctx);
 	}
 

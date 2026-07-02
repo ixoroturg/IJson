@@ -15,7 +15,13 @@ public class IJsonParser implements JsonParser{
 	CompletableFuture<Json> future = null;
 
 	IJsonParser(ReadableByteChannel channel, IJson json){
+		// System.out.println("Получение parser");
 		ctx = IJsonParseContext.openContext(channel);
+		ctx.start = true;
+		// System.out.println("Читаем в первый раз");
+		ctx.read();
+		// System.out.println("Прочитали");
+		ctx.start = false;
 		this.json = json;
 		future = new CompletableFuture<Json>();
 	}
@@ -26,9 +32,22 @@ public class IJsonParser implements JsonParser{
 	}
 
 	public IJson fullParse(){
+		// System.out.println("full parse");
 		PartialParser parser = partialParse();
 		IJson result = null;
-		while((result = parser.read()) == null){}
+		// result.parse(json)
+		// for(int i = 0; i < 10; i++){
+		// 	result = parser.read();
+		// 	if(result == null){
+		// 		System.out.println("Читаем дальше");
+		// 	} else {
+		// 		System.out.println("Завершено");
+		// 	}
+		// }
+		while((result = parser.read()) == null){
+			// System.out.println("Цикл");
+		}
+		// System.out.println("Спарсилось");
 		return result;
 	}
 
@@ -41,13 +60,19 @@ public class IJsonParser implements JsonParser{
 	}
 
 	public class PartialParser implements JsonPartialParser{
+
 		PartialParser(){
-			json.of(ctx);
+			// System.out.println("Получаем of(ctx)");
+			Thread.ofVirtual().start(()->{
+				json.of(ctx);
+
+			});
 		}
 		
 		@Override
 		public IJson read(){
 			synchronized(ctx){
+				// System.out.println("Взяли монитор");
 				if(ctx.done){
 					future.complete(json);
 					return json;
@@ -55,6 +80,7 @@ public class IJsonParser implements JsonParser{
 				ctx.lock = false;
 				ctx.notify();
 			}
+			// System.out.println("Отпустили монитор");
 			return null;
 		}
 
