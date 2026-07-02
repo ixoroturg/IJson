@@ -110,6 +110,7 @@ class IJsonParseContext {
 	void open(ReadableByteChannel channel) throws JsonParseException{
 		buffer = save;
 		BUFFER_SIZE = IJsonSetting.BUFFER_SIZE;
+		done = false;
 
 	if(buffer == null || buffer.capacity() != BUFFER_SIZE){
 		// buffer = new byte[BUFFER_SIZE << 1];
@@ -151,6 +152,7 @@ class IJsonParseContext {
 	void open(ByteBuffer buffer){
 		save = this.buffer;
 		this.buffer = buffer;
+		done = false;
 		// if(buffer.limit())
 		
 		CHARACTERS_BEFORE_ERROR_INDEX = IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;

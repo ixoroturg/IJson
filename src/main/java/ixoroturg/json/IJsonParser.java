@@ -32,6 +32,7 @@ public class IJsonParser implements JsonParser{
 	}
 
 	public IJson fullParse(){
+		// System.out.println("НАЧАЛО FULL PARSE");
 		// System.out.println("full parse");
 		PartialParser parser = partialParse();
 		IJson result = null;
@@ -48,6 +49,9 @@ public class IJsonParser implements JsonParser{
 			// System.out.println("Цикл");
 		}
 		// System.out.println("Спарсилось");
+		// System.out.println(result.currentJson != null);
+
+		// System.out.println("КОНЕЦ FULL PARSE");
 		return result;
 	}
 
@@ -64,8 +68,12 @@ public class IJsonParser implements JsonParser{
 		PartialParser(){
 			// System.out.println("Получаем of(ctx)");
 			Thread.ofVirtual().start(()->{
-				json.of(ctx);
-
+				try{
+					json.of(ctx);
+				}catch(Exception e){
+					// System.err.println("Поломка парсера");
+					e.printStackTrace();
+				}
 			});
 		}
 		
@@ -75,6 +83,7 @@ public class IJsonParser implements JsonParser{
 				// System.out.println("Взяли монитор");
 				if(ctx.done){
 					future.complete(json);
+					// ctx.close();
 					return json;
 				}
 				ctx.lock = false;
@@ -95,6 +104,7 @@ public class IJsonParser implements JsonParser{
 			synchronized(ctx){
 				if(ctx.done){
 					future.complete(json);
+					// ctx.close();
 					return json;
 				}
 				ctx.buffer = chunk;

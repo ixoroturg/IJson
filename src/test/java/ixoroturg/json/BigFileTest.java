@@ -1,7 +1,6 @@
 package ixoroturg.json;
 
 import java.io.*;
-import java.io.StringReader;
 
 import ixoroturg.json.*;
 // import com.fasterxml.jackson.*;
@@ -10,6 +9,17 @@ import com.fasterxml.jackson.databind.*;
 
 public class BigFileTest {
   public static void test() throws Exception{
+
+
+
+		//  Json res = IJson.of(new FileInputStream("./src/testFiles/twitter.json"));
+		// System.out.println("Ответ от IJson: "+res);
+		// if(true)
+		// 	return;
+		// System.exit(0);
+
+
+	  
     // FileInputStream reader = new FileInputStream("./src/testFiles/BigFile");
     // String test2 = new String(reader.readAllBytes());
     // String test = "[";
@@ -123,6 +133,10 @@ public class BigFileTest {
         jack2 += System.currentTimeMillis() - start;
         in.close();
       }
+
+		
+		// System.out.println("Ответ от IJson: "+IJson.of(new FileInputStream("./src/testFiles/twitter.json")));
+	  
       System.out.println("\n"+j+" parse time:");
       System.out.println("jackson: "+jack/count);
       System.out.println("IJson with 1KiB buffer: "+my/count);
@@ -133,7 +147,19 @@ public class BigFileTest {
     }
     fullTest = System.currentTimeMillis() - fullTest;
     System.out.println("\nWhole test time: "+fullTest);
-    
+
+	// for(int i = 0; i < 10; i++){
+	// 	 // System.out.println("TEST:");
+	// 	 Json res = IJson.of(new FileInputStream("./src/testFiles/twitter.json"));
+	// 	 // System.out.println("END:");
+	// 	 String str = null;
+	// 	 try{
+	// 		str = res.toString();
+	// 	}catch(Exception e){
+	// 		System.err.println("BigTest ERROR:\n"+e.getMessage());
+	// 		// e.printStackTrace();
+	// 	}
+	// }
     
 //    System.out.println(result);
 //    System.out.println(js.toStringFormat());

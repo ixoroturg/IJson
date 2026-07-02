@@ -61,6 +61,8 @@ public class IJson implements Json {
 		
 		// System.out.println("Парсинг");
 			result = parser.fullParse();
+			// System.out.println("result "+result);
+			
 			return result;
 		}
 	public static IJson of(byte[] buffer) throws JsonParseException {
@@ -141,8 +143,15 @@ public class IJson implements Json {
 	}
 		private IJson createEntry(IJsonEntry entry, IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidNumberException, JsonInvalidStringException, JsonInvalidBooleanException{
 			ctx.buffer.position(ctx.buffer.position()-1);
+			// System.out.println("Парсинг");
+			// System.out.println(this.hashCode());
 			entry.parse(ctx);
 			// IJson result = new IJson(entry);
+			// System.out.println("entry: "+entry);
+			// if(entry == null){
+			// 	System.out.println("Пустой entry");
+			// }
+			// System.out.println("Спаршено");
 			currentJson = entry;
 			ctx.done = true;
 			parseTime = ctx.close();
@@ -188,6 +197,13 @@ public class IJson implements Json {
 
 		@Override
 		public String toString(){
+			// System.out.println("Мой current: "+currentJson);
+			// if(currentJson == null){
+				// System.out.println("NULL:");
+				// new Exception().printStackTrace();
+			// 	return null;
+			// }
+			// new Exception().printStackTrace();
 			return currentJson.toString();
 		}
 		@Override
