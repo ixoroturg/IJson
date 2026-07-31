@@ -1,13 +1,16 @@
 package ixoroturg.json;
 
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import ixoroturg.pool.IPool;
 
 class IJsonParseContext {
-  Reader reader;
-  char[] buffer; //= new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
+  InputStream reader;
+  byte[] buffer; //= new char[(1 << IJsonSetting.BUFFER_SIZE) * 2];
   int column;
   int row;
   int index;
@@ -27,7 +30,10 @@ class IJsonParseContext {
 
   String key;
   long timer; 
-  StringBuilder builder = new StringBuilder(IJsonSetting.STRING_BUILDER_BUFFER_SIZE);
+  // StringBuilder builder = new StringBuilder(IJsonSetting.STRING_BUILDER_BUFFER_SIZE);
+
+  ByteBuilder builder = new ByteBuilder(IJsonSetting.STRING_BUILDER_BUFFER_SIZE);
+
   boolean firstPass = true;
 
 	private IPool<IJsonParseContext>.IPoolEntry entry = null;
@@ -67,7 +73,7 @@ class IJsonParseContext {
 				ctx.row = 0;
 				ctx.fracSize = 0;
 				ctx.unicode = 0;
-				ctx.builder.setLength(0);
+				ctx.builder.reset();
 				ctx.firstPass = true;
 				
 				return ctx;
@@ -76,7 +82,7 @@ class IJsonParseContext {
 		return pool;
 	}
 
-  static IJsonParseContext openContext(Reader reader) throws JsonParseException {
+  static IJsonParseContext openContext(InputStream reader) throws JsonParseException {
 	IPool<IJsonParseContext>.IPoolEntry entry = pool.open();
 	entry.value.entry = entry;
 	entry.value.open(reader);
@@ -88,11 +94,11 @@ class IJsonParseContext {
   	entry.close();
     return result;
   }
-  void open(Reader reader) throws JsonParseException{
+  void open(InputStream reader) throws JsonParseException{
   	BUFFER_SIZE = IJsonSetting.BUFFER_SIZE;
 
-	if(buffer == null || buffer.length != (BUFFER_SIZE << 1)){
-		buffer = new char[BUFFER_SIZE << 1];
+	if(buffer == null || buffer.length != (BUFFER_SIZE)){
+		buffer = new byte[BUFFER_SIZE];
 	}
 
 	CHARACTERS_BEFORE_ERROR_INDEX = IJsonSetting.CHARACTERS_BEFORE_ERROR_INDEX;
@@ -116,18 +122,23 @@ class IJsonParseContext {
     try{
       int pos = entry.value.reader.read(buffer);
       if(pos < buffer.length)
-        buffer[pos] = (char)-1;
+        buffer[pos] = -1;
     }catch(IOException e){
       JsonParseException exp = new JsonParseException("Cannot read the stream");
       exp.initCause(e);
       throw exp;
     }
   }
+
   int read() throws JsonParseException{
-    int buf = BUFFER_SIZE;
-    System.arraycopy(buffer, buf, buffer, 0 ,buf);
+    // int buf = BUFFER_SIZE;
+	int buf = buffer.length - 8;
+    System.arraycopy(buffer, buf, buffer, 0 ,8);
     try{
-      reader.read(buffer,buf, buf);
+      int readed = reader.read(buffer,8, buf);
+	  if(readed < buffer.length - 8){
+	  	buffer[readed+8] = -1;
+	  }
     } catch(IOException e){
       JsonParseException exp = new JsonParseException("Cannot read the stream");
       exp.initCause(e);
@@ -137,4 +148,69 @@ class IJsonParseContext {
     return buf;
   }
 
+	class ByteBuilder {
+		byte[] value = null;
+		int length;
+		void setCapacity(int newCapacity){
+			value = new byte[newCapacity];
+		}
+		ByteBuilder(int cap){
+			value = new byte[cap];
+		}
+
+		void write(byte b){
+			malloc(1);
+			value[length++] = b;
+		}
+		void malloc(int size){
+			if(value.length - length < size){
+				// System.out.println("Buffer: "+value.length+", need: "+size+", current length: "+length+", cap: "+(value.length - length));
+				byte[] tmp = new byte[value.length * 2];
+				System.arraycopy(value, 0, tmp, 0, value.length);
+				value = tmp;
+			}
+		}
+		void reset(){
+			length = 0;
+		}
+		ByteBuilder append(byte b){
+			write(b);
+			return this;
+		}
+		// void write(String str){
+		// 	write(str.getBytes(StandardCharsets.UTF_8));
+		// }
+		void write(byte[] s){
+			// byte[] s = str.getBytes(StandardCharsets.UTF_8);
+			malloc(s.length);
+			System.arraycopy(s, 0, value, length, s.length);
+			length += s.length;
+		}
+		ByteBuilder append(byte[] s){
+			write(s);
+			return this;
+		}
+		// ByteBuilder append(String str){
+		// 	write(str);
+		// 	return this;
+		// }
+		void append(char ch){
+			write((byte) ch);
+		}
+		// public String toString(){
+		// 	byte[] t = toStringB();
+		// 	String s = new String(t,StandardCharsets.UTF_8);
+		// 	System.out.println("Ещё не всё");
+		// 	var elem = new RuntimeException().getStackTrace()[1];
+		// 	System.out.println(elem);
+		// 	return s;
+		// 	// return null;
+		// }
+		byte[] toStringB(){
+			byte[] tmp = new byte[length];
+			System.arraycopy(value, 0, tmp, 0, length);
+			return tmp;
+			// return new String(value,StandardCharsets.UTF_8);
+		}
+	}
 }

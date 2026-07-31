@@ -1,21 +1,23 @@
 package ixoroturg.json;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class IJsonNumber extends IJsonEntry{
   protected double value = Double.NaN;
-  String strValue;
+
+  byte[] strValue;
   IJsonNumber(){}
   IJsonNumber(double value){
     this.value = value;
-    strValue = String.valueOf(value);
+    strValue = String.valueOf(value).getBytes(StandardCharsets.UTF_8);
   }
 
-  private static boolean isDigit(char ch){
-    ch = Character.toLowerCase(ch);
+  private static boolean isDigit(byte ch){
+    // ch = Character.toLowerCase(ch);
     return (ch >= '0') && (ch <= '9');
   }
-  private static boolean isEnd(char ch){
+  private static boolean isEnd(byte ch){
     return IJsonSetting.isWhiteSpace(ch) || ch == ',' || ch == '}' || ch == ']';
   }
 
@@ -24,8 +26,10 @@ public class IJsonNumber extends IJsonEntry{
     strValue = validate(ctx);
     if(!ctx.USE_LAZY_NUMBER_PARSER){
       try{
-        if(!ctx.USE_FAST_NUMBER_PARSE)
-          value = Double.parseDouble(strValue);
+        if(!ctx.USE_FAST_NUMBER_PARSE){
+			String t = new String(strValue,StandardCharsets.UTF_8);
+			value = Double.parseDouble(t);
+		}
         else
           value = ctx.numberValue;
       }catch(NumberFormatException e){
@@ -35,10 +39,10 @@ public class IJsonNumber extends IJsonEntry{
       }
     }
   }
-  static String validate(IJsonParseContext ctx) throws JsonInvalidNumberException, JsonParseException {
+  static byte[] validate(IJsonParseContext ctx) throws JsonInvalidNumberException, JsonParseException {
     // int i;
     if(ctx.firstPass){
-      ctx.builder.setLength(0);
+      ctx.builder.reset();
       ctx.firstPass = false;
       ctx.wasDot = false;
       ctx.shouldDot = false;
@@ -51,8 +55,8 @@ public class IJsonNumber extends IJsonEntry{
       ctx.zeroCount = 0;
     }
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
-      char ch = ctx.buffer[ctx.pointer];
-      if(ch == 65535 || ch == 0)
+      byte ch = ctx.buffer[ctx.pointer];
+      if(ch == -1)
         throw new JsonParseException("Unexpected end of line",ctx);
       if(isEnd(ch)){
         if(!isDigit(ctx.buffer[ctx.pointer-1]))
@@ -67,12 +71,12 @@ public class IJsonNumber extends IJsonEntry{
         if(ctx.wasMinus)
           ctx.numberValue = -ctx.numberValue;
         ctx.numberValue *= Math.pow(10,ctx.unicode);
-        return ctx.builder.toString();
+        return ctx.builder.toStringB();
       }
       if(ctx.shouldDot && ch != '.' && ch != 'e' && ch != 'E')
         throw new JsonInvalidNumberException("After 0 must be dot or exponent",ctx);
       ctx.shouldDot = false;
-      if(ctx.builder.length() == 0){
+      if(ctx.builder.length == 0){
         if(!(isDigit(ch) || ch == '-'))
           throw new JsonInvalidNumberException("At first place must be digit or minus", ctx);
       }
@@ -96,14 +100,14 @@ public class IJsonNumber extends IJsonEntry{
             throw new JsonInvalidNumberException("Before exponent must be digit",ctx);
         }
         case '0' -> {
-          if(ctx.builder.length() == 0){
+          if(ctx.builder.length == 0){
             ctx.shouldDot = true;
-          } else if(ctx.builder.length() == 1 && ctx.buffer[ctx.pointer-1] == '-'){
+          } else if(ctx.builder.length == 1 && ctx.buffer[ctx.pointer-1] == '-'){
             ctx.shouldDot = true;
           }
         }
         case '-','+' -> {
-          if(ctx.builder.length() != 0){
+          if(ctx.builder.length != 0){
             if(!(ctx.buffer[ctx.pointer] == 'e' || ctx.buffer[ctx.pointer] != 'E'))
               throw new JsonInvalidNumberException("Before "+ch+" should be exponent",ctx);
           } else {
@@ -137,25 +141,31 @@ public class IJsonNumber extends IJsonEntry{
 
   @Override
   public String toFormatedString() {
-    return strValue;
+    return new String(strValue,StandardCharsets.UTF_8);
   }
 
   @Override
   public int buffSize() {
-    return strValue.length();
+    return strValue.length;
   }
 
   @Override
   public int buffSizeFormat() {
-    return strValue.length();
+    return strValue.length;
   }
 
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
     if(ctx.SHOW_INNER_DOUBLE_VALUE){
-      if(Double.isNaN(value))
-        value = Double.parseDouble(strValue);
-      ctx.writer.write(String.valueOf(value));
+      if(Double.isNaN(value)){
+        value = Double.parseDouble(new String(strValue,StandardCharsets.UTF_8));
+		strValue = String.valueOf(value).getBytes(StandardCharsets.UTF_8);
+		ctx.writer.write(strValue);
+	  } else {
+		// strValue = String.valueOf(value).getBytes(StandardCharsets.UTF_8);
+		ctx.writer.write(strValue);
+	  }
+
     }
     else 
       ctx.writer.write(strValue);
@@ -163,12 +173,12 @@ public class IJsonNumber extends IJsonEntry{
 
   @Override
   int buffSize(IJsonFormatContext ctx) {
-    return strValue.length();
+    return strValue.length;
   }
 
   @Override
   public String toString(){
-    return strValue;
+    return new String(strValue,StandardCharsets.UTF_8);
   }
   @Override
   public boolean equals(Object obj){

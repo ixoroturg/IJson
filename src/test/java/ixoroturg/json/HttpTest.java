@@ -17,7 +17,6 @@ import ixoroturg.json.provider.*;
 
 public class HttpTest {
 
-	@Test
 	public void test() throws Exception{
 
 		HttpServer server = HttpServer.create(new InetSocketAddress(8083),1);

@@ -1,6 +1,7 @@
 package ixoroturg.json;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 class IJsonBoolean extends IJsonEntry{
   boolean value;
@@ -58,7 +59,7 @@ class IJsonBoolean extends IJsonEntry{
 
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
-    ctx.writer.write(value ? "true" : "false");
+    ctx.writer.write(value ? "true".getBytes(StandardCharsets.UTF_8) : "false".getBytes(StandardCharsets.UTF_8));
   }
 
   @Override

@@ -1,6 +1,9 @@
 package ixoroturg.json;
 
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +25,7 @@ class IJsonArray extends IJsonEntry{
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidObjectException{
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
-      char ch = ctx.buffer[ctx.pointer];
+      byte ch = ctx.buffer[ctx.pointer];
       if(IJsonUtil.isWhiteSpace(ch)){
         if(ch == '\n'){
           ctx.row++;
@@ -30,7 +33,7 @@ class IJsonArray extends IJsonEntry{
         }
         continue;
       }
-      if(ch == 65535 || ch == 0)
+      if(ch == -1)
         throw new JsonParseException("Unexpected end of line", ctx);
       if(ch == '[' && firstPass){
         firstPass = false;
@@ -102,7 +105,7 @@ class IJsonArray extends IJsonEntry{
     if(list.size() == 0)
       return "[]";
     IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
-    StringWriter writer = new StringWriter(buffSize(ctx));
+    ByteArrayOutputStream writer = new ByteArrayOutputStream(buffSize(ctx));
     ctx.writer = writer;
     ctx.format = format;
     try{
@@ -143,7 +146,7 @@ class IJsonArray extends IJsonEntry{
   @Override
   void toString(IJsonFormatContext ctx) throws IOException{
     if(list.size() == 0){
-      ctx.writer.write("[]");
+      ctx.writer.write("[]".getBytes(StandardCharsets.UTF_8));
       return;
     }
     boolean first = true;
@@ -161,7 +164,7 @@ class IJsonArray extends IJsonEntry{
         }
       }
       if(entry == null){
-        ctx.writer.write("null");
+        ctx.writer.write("null".getBytes(StandardCharsets.UTF_8));
       } else 
         entry.toString(ctx);
     }

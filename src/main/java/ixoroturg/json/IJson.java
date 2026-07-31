@@ -3,11 +3,13 @@ package ixoroturg.json;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.DoubleStream;
@@ -36,25 +38,32 @@ public class IJson implements Json {
     	return new IJson(entry);
     }
     public static IJson of(String json) throws JsonParseException {
-      StringReader reader = new StringReader(json);
+      ByteArrayInputStream reader = new ByteArrayInputStream(json.getBytes());
       return of(reader);
     }
+	public static IJson ofString(String value) throws JsonParseException {
+		IJson result = new IJson(new IJsonString(value));
+		return result;
+	}
     public static IJson of(InputStream input) throws JsonParseException {
-      InputStreamReader reader = new InputStreamReader(input);
-      return of(reader);
-    }
-    public static IJson of(Reader reader) throws JsonParseException{
-      IJsonParseContext ctx = IJsonParseContext.openContext(reader);
-      IJson result = of(ctx);
+      // InputStreamReader reader = new InputStreamReader(input);
+	  IJsonParseContext ctx = IJsonParseContext.openContext(input);
+	  IJson result = of(ctx);
       return result;
     }
+		//   public static IJson of(Reader reader) throws JsonParseException{
+		// InputStream r = new InputStream(reader);
+		//     IJsonParseContext ctx = IJsonParseContext.openContext(new reader);
+		//     IJson result = of(ctx);
+		//     return result;
+		//   }
     @Override
     public long getParseTime(){
       return parseTime;
     }
     private static IJson of(IJsonParseContext ctx) throws JsonParseException{
       for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
-        char ch = ctx.buffer[ctx.pointer];
+        byte ch = ctx.buffer[ctx.pointer];
 		if(IJsonUtil.isWhiteSpace(ch)){
 			if(ch == '\n'){
 				ctx.row++;
@@ -120,11 +129,11 @@ public class IJson implements Json {
       return this;
     }
 
-    @Override
-    public Json parse(Reader reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
-      currentJson = IJson.of(reader).currentJson;
-      return this;
-    }
+    // @Override
+    // public Json parse(Reader reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException{
+    //   currentJson = IJson.of(reader).currentJson;
+    //   return this;
+    // }
 
     @Override
     public String toString(){
@@ -137,32 +146,21 @@ public class IJson implements Json {
 
     @Override
     public void writeTo(OutputStream stream) throws IOException{
-      OutputStreamWriter writer = new OutputStreamWriter(stream);
-      writeTo(writer);
-	  writer.flush();
-    }
-
-    @Override
-    public void writeTo(Writer writer) throws IOException{
-      IJsonFormatContext ctx = IJsonFormatContext.openContext(writer);
+      IJsonFormatContext ctx = IJsonFormatContext.openContext(stream);
       ctx.format = false;
       currentJson.toString(ctx);
-      ctx.close();
+	  ctx.close();
     }
+
 
     @Override
     public void writeToFormat(OutputStream stream) throws IOException{
-      OutputStreamWriter writer = new OutputStreamWriter(stream);
-      writeToFormat(writer);
-    }
-
-    @Override
-    public void writeToFormat(Writer writer) throws IOException{
-      IJsonFormatContext ctx = IJsonFormatContext.openContext(writer);
+      IJsonFormatContext ctx = IJsonFormatContext.openContext(stream);
       ctx.format = true;
       currentJson.toString(ctx);
       ctx.close();
     }
+
 
     @Override
     public String getPropertyName() throws JsonNoParentException{
@@ -218,7 +216,7 @@ public class IJson implements Json {
         if(entry instanceof IJsonArray arr){
           for(IJsonEntry e: arr.list){
             if(e instanceof IJsonString str){
-              if(newKey.equals(str.value))
+              if(newKey.equals(new String(str.value,StandardCharsets.UTF_8)))
                 return true;
             }
           }
@@ -1232,7 +1230,7 @@ public class IJson implements Json {
 	public double getDouble() throws UnsupportedOperationException {
 		if(currentJson instanceof IJsonNumber num) {
 			if(Double.isNaN(num.value)) {
-				num.value = Double.parseDouble(num.strValue);
+				num.value = Double.parseDouble(new String(num.strValue,StandardCharsets.UTF_8));
 			}
 			return num.value;
 		} else
@@ -1250,7 +1248,7 @@ public class IJson implements Json {
 	@Override
 	public String getString() throws UnsupportedOperationException {
 		if(currentJson instanceof IJsonString str) {
-			return str.value;
+			return new String(str.value,StandardCharsets.UTF_8);
 		} else
 			throw new UnsupportedOperationException("getString() is allowed only for string");
 	}
@@ -1291,7 +1289,7 @@ public class IJson implements Json {
 		IJsonEntry entry = privateGet(new StringReader(key), key.length(), currentJson);
 		if(entry instanceof IJsonNumber num) {
 			if(Double.isNaN(num.value)) {
-				num.value = Double.parseDouble(num.strValue);
+				num.value = Double.parseDouble(new String(num.strValue,StandardCharsets.UTF_8));
 			}
 			return num.value;
 		} else
@@ -1313,7 +1311,7 @@ public class IJson implements Json {
 			UnsupportedOperationException {
 		IJsonEntry entry = privateGet(new StringReader(key), key.length(), currentJson);
 		if(entry instanceof IJsonString str) {
-			return str.value;
+			return new String(str.value,StandardCharsets.UTF_8);
 		} else
 			throw new UnsupportedOperationException("getString(key) is allowed only for string");
 	}
@@ -1380,7 +1378,7 @@ public class IJson implements Json {
 		if(entry == null)
 			return value;
 		if(entry instanceof IJsonString str) {
-			return str.value;
+			return new String(str.value,StandardCharsets.UTF_8);
 		} else
 			throw new UnsupportedOperationException("getString(key) is allowed only for string");
 	}
@@ -1517,7 +1515,7 @@ public class IJson implements Json {
 			String[] result = new String[arr.list.size()];
 			try {
 				for(int i = 0; i < result.length; i++) {
-					result[i] = ((IJsonString)arr.list.get(i)).value;
+					result[i] = new String(((IJsonString)arr.list.get(i)).value,StandardCharsets.UTF_8);
 				}
 			}catch(ClassCastException e) {
 				JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
@@ -1655,7 +1653,8 @@ public class IJson implements Json {
 		String[] result = new String[arr.list.size()];
 		try {
 			for(int i = 0; i < result.length; i++) {
-				result[i] = ((IJsonString)arr.list.get(i)).value;
+				// result[i] = ((IJsonString)arr.list.get(i)).value;
+				result[i] = new String(((IJsonString)arr.list.get(i)).value,StandardCharsets.UTF_8);
 			}
 		}catch(ClassCastException e) {
 			JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
@@ -1829,7 +1828,8 @@ public class IJson implements Json {
 			String[] result = new String[arr.list.size()];
 			try {
 				for(int i = 0; i < result.length; i++) {
-					result[i] = ((IJsonString)arr.list.get(i)).value;
+					// result[i] = ((IJsonString)arr.list.get(i)).value;
+					result[i] = new String(((IJsonString)arr.list.get(i)).value,StandardCharsets.UTF_8);
 				}
 			}catch(ClassCastException e) {
 				JsonIllegalTypeException t = new JsonIllegalTypeException("Unexpected value");
@@ -2135,7 +2135,7 @@ public class IJson implements Json {
 				throw new JsonNoSuchPropertyException("Index "+index+ " out of bounds for size: "+arr.list.size());
 			IJsonEntry entry = arr.list.get(index);
 			if(entry instanceof IJsonString str) {
-				return str.value;
+				return new String(str.value,StandardCharsets.UTF_8);
 			} else
 				throw new JsonIllegalTypeException("getString(int index) is allowed only for array and string value");
 		}	else
@@ -2320,7 +2320,8 @@ public class IJson implements Json {
 				String[] result = new String[arr2.list.size()];
 				try {
 					for(int i = 0; i < result.length; i++) {
-						result[i] = ((IJsonString)arr2.list.get(i)).value;
+						// result[i] = ((IJsonString)arr2.list.get(i)).value;
+						result[i] = new String(((IJsonString)arr2.list.get(i)).value,StandardCharsets.UTF_8);
 					}
 					return result;
 				}catch(ClassCastException e) {

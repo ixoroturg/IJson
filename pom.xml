@@ -5,7 +5,7 @@
 
   <groupId>ixoroturg</groupId>
   <artifactId>json</artifactId>
-  <version>4.1.0</version>
+  <version>5.0.1</version>
 
   <name>json_mvn</name>
   <!-- FIXME change it to the project's website -->
@@ -16,16 +16,27 @@
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
-	<distributionManagement>
-		<repository>
-			<id>gitflic</id>
-			<url>http://gitflic.meteo.ru:8080/company/meteor/package/-/maven</url>
-		</repository>
-		<snapshotRepository>
-			<id>gitflic</id>
-			<url>http://gitflic.meteo.ru:8080/company/meteor/package/-/maven</url>
-		</snapshotRepository>
-	</distributionManagement>
+	<!-- <distributionManagement> -->
+	<!-- 	<repository> -->
+	<!-- 		<id>gitflic</id> -->
+	<!-- 		<url>http://gitflic.meteo.ru:8081</url> -->
+	<!-- 	</repository> -->
+	<!-- 	<snapshotRepository> -->
+	<!-- 		<id>gitflic</id> -->
+	<!-- 		<url>http://gitflic.meteo.ru:8080/company/meteor/package/-/maven</url> -->
+	<!-- 	</snapshotRepository> -->
+	<!-- </distributionManagement> -->
+
+	<!-- <distributionManagement> -->
+	<!-- 	<repository> -->
+	<!-- 		<id>gitflic</id> -->
+	<!-- 		<url>http://gitflic.meteo.ru:8080/company/meteor/package/-/maven</url> -->
+	<!-- 	</repository> -->
+	<!-- 	<snapshotRepository> -->
+	<!-- 		<id>gitflic</id> -->
+	<!-- 		<url>http://gitflic.meteo.ru:8080/company/meteor/package/-/maven</url> -->
+	<!-- 	</snapshotRepository> -->
+	<!-- </distributionManagement> -->
 
   <dependencyManagement>
     <dependencies>

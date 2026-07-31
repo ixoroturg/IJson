@@ -34,25 +34,25 @@ public class JsonException extends RuntimeException{
     }
 
     for(int i = ctx.pointer - length, j = 0; j < length + 1; i++, j++){
-      if(ctx.buffer[i] == 0 || ctx.buffer[i] == (char)65535){
+      if(ctx.buffer[i] == -1){
         break;
       }
       if(IJsonUtil.isWhiteSpace(ctx.buffer[i])){
         builder.append(' ');
         continue;
       }
-      builder.append(ctx.buffer[i]);
+      builder.append((char)ctx.buffer[i]);
     }
     for(int i = ctx.pointer+1, j = 0; j < ctx.CHARACTERS_AFTER_ERROR_INDEX && i < ctx.buffer.length; i++, j++){
-      char ch = ctx.buffer[i];
-      if(ch == 0 || ch == (char)65535){
+      byte ch = ctx.buffer[i];
+      if(ch == -1){
         break;
       }
       if(IJsonUtil.isWhiteSpace(ch)){
         builder.append(' ');
         continue;
       }
-      builder.append(ch);
+      builder.append((char)ch);
     }
     builder.append('\n');
       builder.append(" ".repeat(length));

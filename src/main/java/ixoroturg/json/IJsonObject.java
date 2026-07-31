@@ -1,8 +1,13 @@
 package ixoroturg.json;
 
 import java.util.Map;
+
+import ixoroturg.json.IJsonParseContext.ByteBuilder;
+
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class IJsonObject extends IJsonEntry {
@@ -26,7 +31,7 @@ public class IJsonObject extends IJsonEntry {
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidArrayException{
 
     for(;ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
-      char ch = ctx.buffer[ctx.pointer];
+      byte ch = ctx.buffer[ctx.pointer];
       if(IJsonUtil.isWhiteSpace(ch)){
         if(ch == '\n'){
           ctx.row++;
@@ -43,7 +48,7 @@ public class IJsonObject extends IJsonEntry {
           throw new JsonParseException("Unexpected end of line",ctx);
         return;
       }
-      if(ch == -1 || ch == 0){
+      if(ch == -1){
           throw new JsonParseException("Unexpected end of line",ctx);
       }
       if(needKey && ch != '\"'){
@@ -65,8 +70,8 @@ public class IJsonObject extends IJsonEntry {
         }
         case '\"' -> {
           if(needKey){
-            StringBuilder result = IJsonString.validate(ctx);
-            key = result.toString();
+            ByteBuilder result = IJsonString.validate(ctx);
+            key = new String(result.toStringB(),StandardCharsets.UTF_8);
             needKey = false;
             needQuote = true;
           } else {
@@ -123,12 +128,12 @@ public class IJsonObject extends IJsonEntry {
   public String toString(){
     IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
     ctx.format = false;
-    StringWriter writer = new StringWriter(buffSize(ctx));
+    ByteArrayOutputStream writer = new ByteArrayOutputStream(buffSize(ctx));
     ctx.writer = writer;
     try{
       toString(ctx);
     }catch(IOException e){}
-    String result = writer.toString();
+    String result = writer.toString(StandardCharsets.UTF_8);
     try{
       ctx.close();
 
@@ -139,13 +144,13 @@ public class IJsonObject extends IJsonEntry {
   public String toFormatedString() {
     IJsonFormatContext ctx = IJsonFormatContext.openContext(null);
     ctx.format = true;
-    StringWriter writer = new StringWriter(buffSize(ctx));
+    ByteArrayOutputStream writer = new ByteArrayOutputStream(buffSize(ctx));
     ctx.writer = writer;
 
     try{
       toString(ctx);
     } catch(IOException e){}
-    String result = writer.toString();
+    String result = writer.toString(StandardCharsets.UTF_8);
     try{
       ctx.close();
     } catch(IOException e){}
@@ -181,7 +186,7 @@ public class IJsonObject extends IJsonEntry {
   @Override
   void toString(IJsonFormatContext ctx) throws IOException{
       if(map.size() == 0){
-        ctx.writer.write("{}");
+        ctx.writer.write("{}".getBytes(StandardCharsets.UTF_8));
         return;
       }
       ctx.depth++;
@@ -202,13 +207,13 @@ public class IJsonObject extends IJsonEntry {
         }
 
         ctx.writer.write('\"');
-        ctx.writer.write(entry.getKey());
-        ctx.writer.write("\":");
+        ctx.writer.write(entry.getKey().getBytes(StandardCharsets.UTF_8));
+        ctx.writer.write("\":".getBytes(StandardCharsets.UTF_8));
         if(ctx.format)
           ctx.writer.write(' ');
         test = entry.getValue();
         if(test == null)
-          ctx.writer.write("null");
+          ctx.writer.write("null".getBytes(StandardCharsets.UTF_8));
         else
           test.toString(ctx);
       }

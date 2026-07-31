@@ -30,12 +30,12 @@ public class AppTest {
     // js.put("suka","lol");
     // js.writeTo(System.out);
     try{
-      // FileIO.test();
-      // Numbers.test();
-      // BooleanAndNullTest.test();
-      // StringTest.test();
-      // GetTest.test();
-      // PutAddGetTest.test();
+      FileIO.test();
+      Numbers.test();
+      BooleanAndNullTest.test();
+      StringTest.test();
+      GetTest.test();
+      PutAddGetTest.test();
       // BigFileTest.test();
       // Json js = IJson.of("lol");
 //      js.getInnerRepresentation().

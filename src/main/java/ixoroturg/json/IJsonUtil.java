@@ -1,7 +1,7 @@
 package ixoroturg.json;
 
 class IJsonUtil {
-  static boolean isWhiteSpace(char ch){
+  static boolean isWhiteSpace(byte ch){
     return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
   }
   static boolean testNull(IJsonParseContext ctx) throws JsonParseException{

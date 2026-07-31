@@ -3,9 +3,6 @@ package ixoroturg.json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.http.HttpRequest.BodyPublisher;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -24,16 +21,13 @@ public interface Json extends Iterable<Json>, Cloneable{
 
   public Json parse(String json) throws JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
   public Json parse(InputStream stream) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
-  public Json parse(Reader reader) throws IOException, JsonParseException, JsonInvalidArrayException, JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException;
 
   public Json clone();
   // public BodyPublisher toBodyPublisher();
   
   public String toStringFormat();
   public void writeTo(OutputStream stream) throws IOException;
-  public void writeTo(Writer writer) throws IOException;
   public void writeToFormat(OutputStream stream) throws IOException;
-  public void writeToFormat(Writer writer) throws IOException;
 
   public String getPropertyName() throws JsonNoParentException;
   public String getPropertyNameOr(String value);

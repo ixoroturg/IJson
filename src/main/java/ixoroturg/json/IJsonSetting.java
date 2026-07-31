@@ -27,7 +27,7 @@ public class IJsonSetting {
    * So you could set this setting before any parse begin.<br>
    * Default: 8192
    */
-  public static int STRING_BUILDER_BUFFER_SIZE = 16;
+  public static int STRING_BUILDER_BUFFER_SIZE = 32;
   /**
    * How many parsing proccess can hold in the memory.<br>
    * Parser use char buffer and StringBuilder across one parsing proccess. To avoid memory leak parser use pool of parser contexts.

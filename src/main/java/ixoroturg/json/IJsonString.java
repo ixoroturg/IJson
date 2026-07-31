@@ -2,9 +2,12 @@ package ixoroturg.json;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+
+import ixoroturg.json.IJsonParseContext.ByteBuilder;
 
 class IJsonString extends IJsonEntry{
-	String value;
+	byte[] value;
 	// int len = -1;
 	// private static Field sizeField = null;
 	// static{
@@ -16,14 +19,20 @@ class IJsonString extends IJsonEntry{
 	// 	}
 	// }
   IJsonString(){}
+  IJsonString(byte[] value){
+	  this.value = value;
+  }
   IJsonString(String value){
-    this.value = value;
+	  if(value == null){
+		  this.value = "null".getBytes(StandardCharsets.UTF_8);
+	} else
+    this.value = value.getBytes(StandardCharsets.UTF_8);
   }
   @Override
   public String toString(){
     if(value == null)
       return null;
-    StringBuilder builder = new StringBuilder(value.length() + 2);
+    StringBuilder builder = new StringBuilder(value.length + 2);
     builder.append('\"')
       .append(value)
       .append('\"');
@@ -32,7 +41,7 @@ class IJsonString extends IJsonEntry{
   @Override
   void toString(IJsonFormatContext ctx) throws IOException {
     if(value == null){
-      ctx.writer.write("null");
+      ctx.writer.write("null".getBytes(StandardCharsets.UTF_8));
       return;
     }
     if(!ctx.FORMAT_DIRECT_WRITE_CONTROL_CHARACTER){
@@ -43,26 +52,26 @@ class IJsonString extends IJsonEntry{
     }
     ctx.writer.write('\"');
     boolean wasSlash = false;
-    for(int i = 0; i < value.length(); i++){
+    for(int i = 0; i < value.length; i++){
       if(wasSlash){
-        switch(value.charAt(i)){
+        switch(value[i]){
           case 't' -> {ctx.writer.write('\t');}
           case 'r' -> {ctx.writer.write('\r');}
           case 'n' -> {ctx.writer.write('\n');}
           case 'f' -> {ctx.writer.write('\f');}
           case 'b' -> {ctx.writer.write('\b');}
-          default -> {ctx.writer.write('\\'); ctx.writer.write(value.charAt(i));}
+          default -> {ctx.writer.write('\\'); ctx.writer.write(value[i]);}
         }
         wasSlash = false;
         continue;
       }
-      if(value.charAt(i) == '\\'){
+      if(value[i] == '\\'){
         if(!wasSlash){
           wasSlash = true;
           continue;
         }
       }
-      ctx.writer.write(value.charAt(i));
+      ctx.writer.write(value[i]);
     }
     ctx.writer.write('\"');
   }
@@ -71,7 +80,7 @@ class IJsonString extends IJsonEntry{
 		return 4;
 	}
 	// if(len == -1){
-	return value.getBytes().length;
+	return value.length;
 		// len = 0;
 		// for(int i = 0; i < value.length(); i++){
 		// 	char ch = value.charAt(i);
@@ -108,7 +117,8 @@ class IJsonString extends IJsonEntry{
   }
   @Override
   public String toFormatedString(){
-    return toString();
+	  return new String(value,StandardCharsets.UTF_8);
+    // return toStringB());
   }
   public boolean equals(Json json) {
     if(json instanceof IJsonString str){
@@ -117,23 +127,30 @@ class IJsonString extends IJsonEntry{
     return false;
   }
 
-  public boolean equals(String str) {
+  public boolean equals(byte[] str) {
     if(value == null && str == null)
       return true;
     if(value == null || str == null)
       return false;
-    return value.equals(str);
+	if(value.length != str.length){
+		return false;
+	}
+	for(int i = 0; i < value.length; i++){
+		if(value[i] != str[i])
+			return false;
+	}
+	return true;
   }
 
   @Override
   void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException {
-      StringBuilder result = validate(ctx);
-      value = result.toString();
+      ByteBuilder result = validate(ctx);
+      value = result.toStringB();
   }
   
-  static StringBuilder validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
+  static ByteBuilder validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidStringException{
     if(ctx.firstPass){
-      ctx.builder.setLength(0);
+      ctx.builder.reset();
       ctx.column++;
       ctx.index++;
       ctx.pointer++;
@@ -141,10 +158,10 @@ class IJsonString extends IJsonEntry{
 	  ctx.wasSlash = false;
     }
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
-      char ch = ctx.buffer[ctx.pointer];
+      byte ch = ctx.buffer[ctx.pointer];
       
       switch(ch){
-        case (char)65535, (char)0 -> {
+        case -1 -> {
           throw new JsonParseException("Unexcepted end of line", ctx);
         }
         case 'n' -> {
@@ -200,7 +217,10 @@ class IJsonString extends IJsonEntry{
             }
           } else {
             if(ctx.hex != -1 && ctx.hex < 4){
-              ch = Character.toLowerCase(ch);
+              // ch = Character.toLowerCase(ch);
+			  if(ch >= 'A' && ch <= 'F'){
+				  ch -= 'A'-'a';
+			  }
               if((ch < '0' || ch > '9') && (ch < 'a' || ch > 'f'))
                 throw new JsonInvalidStringException("After \\u should be 4 hex digits",ctx);
               if(ctx.hex == 0 && !ctx.DECODE_UNICODE_SEQUENCE)
@@ -230,7 +250,9 @@ class IJsonString extends IJsonEntry{
                       ctx.builder.append('b');
                     }
                     default -> {
-                      ctx.builder.setCharAt(ctx.builder.length() - 1, (char) ctx.unicode);
+                      // ctx.builder.setCharAt(ctx.builder.length - 1, (char) ctx.unicode);
+					  ctx.builder.value[ctx.builder.length - 1] = (byte)ctx.unicode;
+					  ctx.builder.write((byte)(ctx.unicode >> 8));
                     }
                   }
                   ctx.hex = -1;

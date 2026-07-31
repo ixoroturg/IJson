@@ -1,12 +1,13 @@
 package ixoroturg.json;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 
 import ixoroturg.pool.IPool;;
 
 class IJsonFormatContext{
-  Writer writer;
+  OutputStream writer;
   int depth;
   boolean format = false;
   IPool<IJsonFormatContext>.IPoolEntry entry;
@@ -31,14 +32,14 @@ class IJsonFormatContext{
 	return pool;
   }
 
-  static IJsonFormatContext openContext(Writer writer){
+  static IJsonFormatContext openContext(OutputStream writer){
 	IPool<IJsonFormatContext>.IPoolEntry entry = pool.open();
 	entry.value.entry = entry;
 	entry.value.open(writer);
     return entry.value;
   }
 
-  private void open(Writer writer){
+  private void open(OutputStream writer){
     this.writer = writer;
     depth = 0;
 
