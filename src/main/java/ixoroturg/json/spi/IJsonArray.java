@@ -1,4 +1,4 @@
-package ixoroturg.json;
+package ixoroturg.json.spi;
 
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -17,13 +17,13 @@ class IJsonArray extends IJsonEntry{
 
   IJsonArray(List<IJsonEntry> list){
     for(IJsonEntry entry: list){
-      this.list.add(entry.iClone());
+      this.list.add(entry.clone());
     }
   }
   IJsonArray(){}
 
   @Override
-  void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidArrayException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonInvalidObjectException{
+  void parse(IJsonParseContext ctx) throws IJsonParseException, IJsonInvalidArrayException, IJsonInvalidStringException, IJsonInvalidNumberException, IJsonInvalidBooleanException, IJsonInvalidObjectException{
     for(; ctx.pointer < ctx.buffer.length; ctx.pointer++, ctx.index++, ctx.column++){
       byte ch = ctx.buffer[ctx.pointer];
       if(IJsonUtil.isWhiteSpace(ch)){
@@ -34,7 +34,7 @@ class IJsonArray extends IJsonEntry{
         continue;
       }
       if(ch == -1)
-        throw new JsonParseException("Unexpected end of line", ctx);
+        throw new IJsonParseException("Unexpected end of line", ctx);
       if(ch == '[' && firstPass){
         firstPass = false;
         continue;
@@ -42,7 +42,7 @@ class IJsonArray extends IJsonEntry{
       if(ch == ']')
         return;
       if(needDot && ch != ','){
-          throw new JsonInvalidArrayException("Expected ,",ctx);
+          throw new IJsonInvalidArrayException("Expected ,",ctx);
       }
       switch(ch){
         case '[' -> {
@@ -63,13 +63,13 @@ class IJsonArray extends IJsonEntry{
         }
         case 'n' -> {
           if(!IJsonUtil.testNull(ctx))
-            throw new JsonParseException("Expected null",ctx);
+            throw new IJsonParseException("Expected null",ctx);
           ctx.pointer--;
           addEntry(null,ctx);
         }
         case ',' -> {
           if(wasDot)
-            throw new JsonInvalidArrayException("Unexpected second ,", ctx);
+            throw new IJsonInvalidArrayException("Unexpected second ,", ctx);
           wasDot = true;
           needDot = false;
         }
@@ -81,7 +81,7 @@ class IJsonArray extends IJsonEntry{
     ctx.read();
     parse(ctx);
   }
-  private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws JsonInvalidObjectException, JsonInvalidStringException, JsonInvalidNumberException, JsonInvalidBooleanException, JsonParseException{
+  private int addEntry(IJsonEntry value, IJsonParseContext ctx) throws IJsonInvalidObjectException, IJsonInvalidStringException, IJsonInvalidNumberException, IJsonInvalidBooleanException, IJsonParseException{
     needDot = true;
     wasDot = false;
     if(value != null)
@@ -200,7 +200,7 @@ class IJsonArray extends IJsonEntry{
   }
 
   @Override
-  public IJsonEntry iClone(){
+  public IJsonEntry clone(){
     IJsonArray js = new IJsonArray(list);
     return js;
   }

@@ -49,7 +49,7 @@ public class GetTest {
     	};
     int i = 0;
     try {
-    	Json js = IJson.of(str);
+    	Json js = IJson.ofInner(str);
     	System.out.println("\nGet test:\n" + js.toStringFormat());
     	
     	
@@ -57,7 +57,7 @@ public class GetTest {
     		if(i == 7) {
     			try {
     				js = js.get(keys[i]);
-    			}catch (JsonNoSuchPropertyException e) {
+    			}catch (IJsonNoSuchPropertyException e) {
     				js = js.back(0);
     				System.out.println("\nnull значения обрабатываются как несуществующие, потому что иначе вы бы могли сделать has(propertyName), потом get(propertyName).someMethod() и получить NullPointerException");
     				System.out.println("На rules, который null, поймано:\n"+e.getMessage()+"\n");
@@ -104,12 +104,12 @@ public class GetTest {
     	System.out.println("\njson не изменился: "+js);
     	try {
     		js.back();
-    	}catch(JsonNoParentException e) {
+    	}catch(IJsonNoParentException e) {
     		System.out.println("\nНет родителя: "+e.getMessage());
     	}
     	try {
     		js.back(123);
-    	}catch(JsonNoParentException e) {
+    	}catch(IJsonNoParentException e) {
     		System.out.println("Нет родителя 2: "+e.getMessage());
     	}
     	js.back(0);

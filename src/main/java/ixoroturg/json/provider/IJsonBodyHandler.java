@@ -14,6 +14,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow.Subscription;
 
+import ixoroturg.json.spi.IJson;
+
 public class IJsonBodyHandler implements BodyHandler<Json>{
 
 	@Override
@@ -101,7 +103,7 @@ public class IJsonBodyHandler implements BodyHandler<Json>{
 
 				buffer.clear();
 				ByteArrayInputStream input = new ByteArrayInputStream(buffer.array());
-				Json js = IJson.of(input);
+				Json js = IJson.ofInner(input);
 				// try{
 					// js = IJson.of(new ByteArrayInputStream(bufs));
 				// }catch(JsonException e){

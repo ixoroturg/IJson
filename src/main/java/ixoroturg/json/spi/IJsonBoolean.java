@@ -1,4 +1,4 @@
-package ixoroturg.json;
+package ixoroturg.json.spi;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,11 +13,11 @@ class IJsonBoolean extends IJsonEntry{
   }
 
   @Override
-  void parse(IJsonParseContext ctx) throws JsonParseException, JsonInvalidBooleanException{
+  void parse(IJsonParseContext ctx) throws IJsonParseException, IJsonInvalidBooleanException{
     value = validate(ctx);
     ctx.pointer--;
   }
-  static boolean validate(IJsonParseContext ctx) throws JsonParseException, JsonInvalidBooleanException {
+  static boolean validate(IJsonParseContext ctx) throws IJsonParseException, IJsonInvalidBooleanException {
     if(ctx.buffer.length - ctx.pointer < 6){
       ctx.read();
     }
@@ -30,13 +30,13 @@ class IJsonBoolean extends IJsonEntry{
           test = f;
         }
         default -> {
-          throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer], ctx);
+          throw new IJsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer], ctx);
         }
       }
 
       for(int i = 0; i < test.length; i++, ctx.pointer++, ctx.index++, ctx.column++){
         if(test[i] != ctx.buffer[ctx.pointer]){
-          throw new JsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer], ctx);
+          throw new IJsonInvalidBooleanException("Unexpected symbol "+ctx.buffer[ctx.pointer], ctx);
         }
       }
       return test == t;
@@ -71,7 +71,7 @@ class IJsonBoolean extends IJsonEntry{
     return value ? "true" : "false";
   }
   @Override
-  public IJsonEntry iClone(){
+  public IJsonEntry clone(){
     IJsonBoolean js = new IJsonBoolean(value);
     return js;
   }

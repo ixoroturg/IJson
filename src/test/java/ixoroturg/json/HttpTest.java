@@ -29,7 +29,7 @@ public class HttpTest {
 
 		Thread.sleep(5000);
 		
-		Json req = IJson.ofObject()
+		Json req = IJson.ofObjectInner()
 			.putGoArray("users")
 				.addGoObject()
 				.put("username","ixoroturg")

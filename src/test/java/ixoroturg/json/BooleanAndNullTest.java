@@ -7,52 +7,52 @@ public class BooleanAndNullTest {
 
     System.out.println("\nBoolean and null test:\n");
     try{
-      Json js = IJson.of("{\"someValue\": true}");
+      Json js = IJson.ofInner("{\"someValue\": true}");
       System.out.println(js);
-      js = IJson.of("{\"someValue\": false}");
+      js = IJson.ofInner("{\"someValue\": false}");
       System.out.println(js);
-      js = IJson.of("{\"someValue\": null}");
+      js = IJson.ofInner("{\"someValue\": null}");
       System.out.println(js);
       
       
       try{
-        js = IJson.of("{\"someValue\": nul}");
+        js = IJson.ofInner("{\"someValue\": nul}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На nul поймано:\n" + e.getMessage());
       }
       try{
-        js = IJson.of("{\"someValue\": nu}");
+        js = IJson.ofInner("{\"someValue\": nu}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На nu поймано:\n" + e.getMessage());
       }
       try{
-        js = IJson.of("{\"someValue\": nula}");
+        js = IJson.ofInner("{\"someValue\": nula}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На nula поймано:\n" + e.getMessage());
       }
       try{
-        js = IJson.of("{\"someValue\": tru}");
+        js = IJson.ofInner("{\"someValue\": tru}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На tru поймано:\n" + e.getMessage());
       }
       try{
-        js = IJson.of("{\"someValue\": fals}");
+        js = IJson.ofInner("{\"someValue\": fals}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На fals поймано:\n" + e.getMessage());
       }
       try{
-        js = IJson.of("{\"someValue\": filse}");
+        js = IJson.ofInner("{\"someValue\": filse}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На filse поймано:\n" + e.getMessage());
       }
       try{
-        js = IJson.of("{\"someValue\": trea}");
+        js = IJson.ofInner("{\"someValue\": trea}");
         System.out.println(js);
       }catch( Exception e){
         System.out.println("На trea поймано:\n" + e.getMessage());

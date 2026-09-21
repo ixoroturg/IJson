@@ -7,7 +7,7 @@ public class FileIO{
   public static void test() {
     System.out.println("Minimum work test:");
     try{
-      Json js = IJson.of(new FileInputStream("./src/testFiles/simplyFile"));
+      Json js = IJson.ofInner(new FileInputStream("./src/testFiles/simplyFile"));
       System.out.println("Inline test:\n"+js);
       System.out.println("\nFormat test:\n" + js.toStringFormat());
 

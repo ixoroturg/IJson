@@ -17,7 +17,7 @@ public class KeyCloakApiTest {
       ;
     
     HttpResponse<InputStream> response = HttpClient.newHttpClient().send(request, BodyHandlers.ofInputStream());
-    Json js = IJson.of(response.body());
+    Json js = IJson.ofInner(response.body());
     System.out.println(js.toStringFormat());
   }
 }

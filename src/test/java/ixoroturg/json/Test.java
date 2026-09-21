@@ -25,7 +25,7 @@ public class Test {
       // StringTest.test();
       // GetTest.test();
       // PutAddGetTest.test();
-      BigFileTest.test();
+      // BigFileTest.test();
       // Json js = IJson.of("lol");
 //      js.getInnerRepresentation().
       System.out.println("\nTest complete successfully");

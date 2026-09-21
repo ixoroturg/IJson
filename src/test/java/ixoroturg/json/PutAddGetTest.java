@@ -11,7 +11,7 @@ public class PutAddGetTest{
     IJsonSetting.PARENT_CHARACTER = 'p';
     IJsonSetting.USE_ARRAY_SYNTAX = true;
     try{
-      js = IJson.ofObject()
+      js = IJson.ofObjectInner()
         .put("byte",(byte)120)
         .put("short",(short)30300)
         .put("int",3242321)

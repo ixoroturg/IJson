@@ -1,4 +1,4 @@
-package ixoroturg.json;
+package ixoroturg.json.spi;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

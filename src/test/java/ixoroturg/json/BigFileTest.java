@@ -7,9 +7,12 @@ import ixoroturg.json.*;
 // import com.fasterxml.jackson.*;
 import com.fasterxml.jackson.databind.*;
 //import org.json4s.jackson.Json;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 public class BigFileTest {
-  public static void test() throws Exception{
+	// @Test
+  public void test() throws Exception{
     // FileInputStream reader = new FileInputStream("./src/testFiles/BigFile");
     // String test2 = new String(reader.readAllBytes());
     // String test = "[";
@@ -20,21 +23,62 @@ public class BigFileTest {
     // test += "]";
 	  
 	IJson js;
+	JsonNode jackFire;
+    ObjectMapper mapper = new ObjectMapper();
+	int fire = 100;
     var in = new FileInputStream("./src/testFiles/canada.json");
-    String canada = new String(in.readAllBytes());
-    in.close();
+	for(int i = 0; i < fire; i++){
+		in = new FileInputStream("./src/testFiles/canada.json");
+		js = IJson.ofInner(in);
+		in.close();
+		in = new FileInputStream("./src/testFiles/canada.json");
+		jackFire = mapper.readTree(in);
+	}
+	in.close();
+    // String canada = new String(in.readAllBytes());
+    // in.close();
 //  IJson js = IJson.of(canada);
 //  System.out.println("canada.json parse time: "+js.getParseTime());
     
     in = new FileInputStream("./src/testFiles/twitter.json");
-    String twitter = new String(in.readAllBytes());
-    in.close();
+	for(int i = 0; i < fire; i++){
+		in = new FileInputStream("./src/testFiles/twitter.json");
+		js = IJson.ofInner(in);
+		in.close();
+		in = new FileInputStream("./src/testFiles/twitter.json");
+		jackFire = mapper.readTree(in);
+	}
+	in.close();
+    // String twitter = new String(in.readAllBytes());
+    // in.close();
     
     
     in = new FileInputStream("./src/testFiles/citm_catalog.json");
-    String citm = new String(in.readAllBytes());
-    in.close();
-//    js = IJson.of(citm);
+	for(int i = 0; i < fire; i++){
+		in = new FileInputStream("./src/testFiles/citm_catalog.json");
+		js = IJson.ofInner(in);
+		in.close();
+		in = new FileInputStream("./src/testFiles/citm_catalog.json");
+		jackFire = mapper.readTree(in);
+	}
+	in.close();
+    // String citm = new String(in.readAllBytes());
+    // in.close();
+
+	// for(int i = 0; i < fire; i++){
+	// 	js = IJson.of(in);
+	// 	jackFire = mapper.readTree(in);
+	// }
+	
+
+
+	
+   // js = IJson.of(twitter);
+   // js.toStringFormat();
+   // if(true){
+   //  return;
+   // }
+   // System.out.println(js.toStringFormat());
 //    System.out.println("citm_catalog.json parse time: "+js.getParseTime());
     
 //    System.out.println("\n\nJackson:\n");
@@ -46,7 +90,8 @@ public class BigFileTest {
 //     ObjectMapper mapper = new ObjectMapper();
 //
 //  // Прогрев
-    String test = canada;
+	System.out.println("Прогрев завершён");
+    // String test = canada;
     long my = 0;
     long my2 = 0;
     long my3 = 0;
@@ -56,9 +101,8 @@ public class BigFileTest {
     int count = 1000;
     long start = 0;
     long fullTest = 0;
-    String[] files = {canada, twitter, citm};
+    String[] files = {"canada","twitter","citm_catalog"};
 
-    ObjectMapper mapper = new ObjectMapper();
     System.out.println("0 = canada, 1 = twitter, 2 = citm_catalog");
 
     fullTest = System.currentTimeMillis();
@@ -84,7 +128,7 @@ public class BigFileTest {
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.of(in);
+        js = IJson.ofInner(in);
         my += System.currentTimeMillis() - start;
         in.close();
       }
@@ -93,7 +137,7 @@ public class BigFileTest {
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.of(in);
+        js = IJson.ofInner(in);
         my2 += System.currentTimeMillis() - start;
         in.close();
       }  
@@ -102,7 +146,7 @@ public class BigFileTest {
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.of(in);
+        js = IJson.ofInner(in);
         my3 += System.currentTimeMillis() - start;
         in.close();
       }
@@ -111,7 +155,7 @@ public class BigFileTest {
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.of(in);
+        js = IJson.ofInner(in);
         my4 += System.currentTimeMillis() - start;
         in.close();
       }
@@ -124,10 +168,10 @@ public class BigFileTest {
       }
       System.out.println("\n"+j+" parse time:");
       System.out.println("jackson: "+jack/count);
-      System.out.println("IJson with 1KiB buffer: "+my/count);
-      System.out.println("IJson with 32KiB buffer: "+my2/count);
-      System.out.println("IJson with 64KiB buffer: "+my3/count);
-      System.out.println("IJson with 16MiB buffer: "+my4/count);
+      System.out.println("IJson with 4KiB buffer: "+my/count);
+      System.out.println("IJson with 8KiB buffer: "+my2/count);
+      System.out.println("IJson with 16KiB buffer: "+my3/count);
+      System.out.println("IJson with 32KiB buffer: "+my4/count);
       System.out.println("jackson 2: "+jack2/count);
     }
     fullTest = System.currentTimeMillis() - fullTest;
