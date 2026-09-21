@@ -1,8 +1,10 @@
 package ixoroturg.json.spi;
 
+import ixoroturg.json.JsonException;
+
 // import java.io.IOException;
 
-public class IJsonException extends RuntimeException{
+public class IJsonException extends JsonException{
 
   public IJsonException(String description, IJsonParseContext ctx){
     super(createMessage(description, ctx));

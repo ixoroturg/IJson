@@ -4,7 +4,7 @@ package ixoroturg.json;
 
 public class JsonException extends RuntimeException{
 
-  // public JsonException(String description){
-  //   super(description);
-  // }
+  public JsonException(String description){
+    super(description);
+  }
 }

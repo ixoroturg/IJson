@@ -2,7 +2,7 @@ package ixoroturg.json.spi;
 
 import java.io.InputStream;
 
-import ixoroturg.json.spi.IJson;
+// import ixoroturg.json.spi.IJson;
 import ixoroturg.json.Json;
 import ixoroturg.json.JsonProvider;
 
@@ -16,7 +16,7 @@ public class IJsonProvider implements JsonProvider{
 
 	@Override
 	public String getVersion() {
-		return "5.1.0";
+		return "6.0.0";
 	}
 
 	@Override
