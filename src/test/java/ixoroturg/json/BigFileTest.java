@@ -22,14 +22,14 @@ public class BigFileTest {
     // test = test.substring(0,test.length()-1);
     // test += "]";
 	  
-	IJson js;
+	Json js;
 	JsonNode jackFire;
     ObjectMapper mapper = new ObjectMapper();
 	int fire = 100;
     var in = new FileInputStream("./src/testFiles/canada.json");
 	for(int i = 0; i < fire; i++){
 		in = new FileInputStream("./src/testFiles/canada.json");
-		js = IJson.ofInner(in);
+		js = Json.of(in);
 		in.close();
 		in = new FileInputStream("./src/testFiles/canada.json");
 		jackFire = mapper.readTree(in);
@@ -37,13 +37,13 @@ public class BigFileTest {
 	in.close();
     // String canada = new String(in.readAllBytes());
     // in.close();
-//  IJson js = IJson.of(canada);
+//  Json js = Json.of(canada);
 //  System.out.println("canada.json parse time: "+js.getParseTime());
     
     in = new FileInputStream("./src/testFiles/twitter.json");
 	for(int i = 0; i < fire; i++){
 		in = new FileInputStream("./src/testFiles/twitter.json");
-		js = IJson.ofInner(in);
+		js = Json.of(in);
 		in.close();
 		in = new FileInputStream("./src/testFiles/twitter.json");
 		jackFire = mapper.readTree(in);
@@ -56,7 +56,7 @@ public class BigFileTest {
     in = new FileInputStream("./src/testFiles/citm_catalog.json");
 	for(int i = 0; i < fire; i++){
 		in = new FileInputStream("./src/testFiles/citm_catalog.json");
-		js = IJson.ofInner(in);
+		js = Json.of(in);
 		in.close();
 		in = new FileInputStream("./src/testFiles/citm_catalog.json");
 		jackFire = mapper.readTree(in);
@@ -66,14 +66,14 @@ public class BigFileTest {
     // in.close();
 
 	// for(int i = 0; i < fire; i++){
-	// 	js = IJson.of(in);
+	// 	js = Json.of(in);
 	// 	jackFire = mapper.readTree(in);
 	// }
 	
 
 
 	
-   // js = IJson.of(twitter);
+   // js = Json.of(twitter);
    // js.toStringFormat();
    // if(true){
    //  return;
@@ -124,38 +124,38 @@ public class BigFileTest {
         jack += System.currentTimeMillis() - start;
         in.close();
       }
-      IJsonSetting.BUFFER_SIZE = 4096;
+      // JsonSetting.BUFFER_SIZE = 4096;
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.ofInner(in);
+        js = Json.of(in);
         my += System.currentTimeMillis() - start;
         in.close();
       }
       
-      IJsonSetting.BUFFER_SIZE = 8192;
+      // JsonSetting.BUFFER_SIZE = 8192;
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.ofInner(in);
+        js = Json.of(in);
         my2 += System.currentTimeMillis() - start;
         in.close();
       }  
 
-      IJsonSetting.BUFFER_SIZE = 16384;
+      // JsonSetting.BUFFER_SIZE = 16384;
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.ofInner(in);
+        js = Json.of(in);
         my3 += System.currentTimeMillis() - start;
         in.close();
       }
 
-      IJsonSetting.BUFFER_SIZE = 32768;
+      // JsonSetting.BUFFER_SIZE = 32768;
       for(int i = 0; i < count; i++){
         in = new FileInputStream(path);
         start = System.currentTimeMillis();
-        js = IJson.ofInner(in);
+        js = Json.of(in);
         my4 += System.currentTimeMillis() - start;
         in.close();
       }
@@ -168,10 +168,10 @@ public class BigFileTest {
       }
       System.out.println("\n"+j+" parse time:");
       System.out.println("jackson: "+jack/count);
-      System.out.println("IJson with 4KiB buffer: "+my/count);
-      System.out.println("IJson with 8KiB buffer: "+my2/count);
-      System.out.println("IJson with 16KiB buffer: "+my3/count);
-      System.out.println("IJson with 32KiB buffer: "+my4/count);
+      System.out.println("Json with 4KiB buffer: "+my/count);
+      System.out.println("Json with 8KiB buffer: "+my2/count);
+      System.out.println("Json with 16KiB buffer: "+my3/count);
+      System.out.println("Json with 32KiB buffer: "+my4/count);
       System.out.println("jackson 2: "+jack2/count);
     }
     fullTest = System.currentTimeMillis() - fullTest;
