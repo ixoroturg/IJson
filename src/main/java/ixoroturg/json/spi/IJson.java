@@ -34,25 +34,25 @@ public class IJson implements Json {
 		currentJson = json;
 	}
 
-	public static IJson ofObjectInner(){
+	public static IJson ofObject(){
 		return new IJson(new IJsonObject());
 	}
-	public static IJson ofArrayInner(){
+	public static IJson ofArray(){
 		return new IJson(new IJsonArray());
 	}
 	public static IJson ofInnerRepresentation(IJsonEntry entry) {
 		return new IJson(entry);
 	}
-	public static IJson ofStringJsonInner(String json) throws IJsonParseException {
+	public static IJson ofStringJson(String json) throws IJsonParseException {
 		ByteArrayInputStream reader = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
-		return ofInner(reader);
+		return of(reader);
 	}
-	public static IJson ofInner(String value) throws IJsonParseException {
+	public static IJson of(String value) throws IJsonParseException {
 		IJson result = new IJson(new IJsonString(value));
 		return result;
 	}
 
-	public static IJson ofInner(InputStream input) throws IJsonParseException {
+	public static IJson of(InputStream input) throws IJsonParseException {
 		// InputStreamReader reader = new InputStreamReader(input);
 		IJsonParseContext ctx = IJsonParseContext.openContext(input);
 		IJson result = of(ctx);
@@ -152,13 +152,13 @@ public class IJson implements Json {
 
 	@Override
 	public IJson parse(String json) throws IJsonParseException, IJsonInvalidArrayException, IJsonInvalidObjectException, IJsonInvalidStringException, IJsonInvalidNumberException, IJsonInvalidBooleanException{
-		currentJson = IJson.ofInner(json).currentJson;
+		currentJson = IJson.of(json).currentJson;
 		return this;
 	}
 
 	@Override
 	public IJson parse(InputStream stream) throws IOException, IJsonParseException, IJsonInvalidArrayException, IJsonInvalidObjectException, IJsonInvalidStringException, IJsonInvalidNumberException, IJsonInvalidBooleanException {
-		currentJson = IJson.ofInner(stream).currentJson;
+		currentJson = IJson.of(stream).currentJson;
 		return this;
 	}
 
@@ -356,7 +356,7 @@ public class IJson implements Json {
 	* 
 	*/
 	private IJsonEntry privateGet(Reader reader, int length, IJsonEntry entry) throws IJsonParseException, IJsonNoSuchPropertyException, IJsonNoParentException, UnsupportedOperationException{
-		if(length == 0)		
+		if(length == 0)
 			return entry;
 		try {
 			reader.mark(length);
@@ -420,7 +420,15 @@ public class IJson implements Json {
 				} 
 				if(i == length - 1 || (ch == IJsonSetting.KEY_DELIMETER) || (ch == '[' && IJsonSetting.USE_ARRAY_SYNTAX )) {
 					String newKey = null;
+					// reader.reset();
+					// reader.read
 
+					// System.out.println(entry.getClass().getName());
+						// char[] buf = new char[i+1];
+						// length -= i;
+						// reader.read(buf);
+						// newKey = new String(buf);
+						// System.out.println("Новый ключ: "+newKey);
 					if(entry instanceof IJsonObject obj) {
 
 						reader.reset();
@@ -1417,6 +1425,7 @@ public class IJson implements Json {
 	public long getLong(String key) throws IJsonNoParentException, IJsonParseException, IJsonNoSuchPropertyException,
 		UnsupportedOperationException {
 			// return getLong(num)
+			// System.out.println("Ищем "+key);
 			IJsonEntry entry = privateGet(new StringReader(key), key.length(), currentJson);
 			if(entry instanceof IJsonNumber num){
 				long result = getInnerLong(num);
@@ -2196,7 +2205,7 @@ public class IJson implements Json {
 	@Override
 	public IJson putGetObject(String key) throws IJsonNoParentException, IJsonParseException,
 		UnsupportedOperationException, IJsonNoSuchPropertyException {
-			IJson js = IJson.ofObjectInner();
+			IJson js = IJson.ofObject();
 			put(key,js);
 			return js;
 	}
@@ -2219,7 +2228,7 @@ public class IJson implements Json {
 	@Override
 	public IJson putGetArray(String key) throws IJsonNoParentException, IJsonParseException, UnsupportedOperationException,
 		IJsonNoSuchPropertyException {
-			IJson js = IJson.ofArrayInner();
+			IJson js = IJson.ofArray();
 			put(key,js);
 			return js;
 	}
@@ -2240,7 +2249,7 @@ public class IJson implements Json {
 
 	@Override
 	public IJson addGetObject() throws UnsupportedOperationException {
-		IJson js = IJson.ofObjectInner();
+		IJson js = IJson.ofObject();
 		add(js);
 		return js;
 	}
@@ -2260,7 +2269,7 @@ public class IJson implements Json {
 
 	@Override
 	public IJson addGetArray() throws UnsupportedOperationException {
-		IJson js = IJson.ofArrayInner();
+		IJson js = IJson.ofArray();
 		add(js);
 		return js;
 	}
@@ -2282,7 +2291,7 @@ public class IJson implements Json {
 	@Override
 	public IJson addGetObject(String key) throws IJsonNoParentException, IJsonParseException,
 		UnsupportedOperationException, IJsonNoSuchPropertyException {
-			IJson js = IJson.ofObjectInner();
+			IJson js = IJson.ofObject();
 			add(key, js);
 			return js;
 	}
@@ -2305,7 +2314,7 @@ public class IJson implements Json {
 	@Override
 	public IJson addGetArray(String key) throws IJsonNoParentException, IJsonParseException, UnsupportedOperationException,
 		IJsonNoSuchPropertyException {
-			IJson js = IJson.ofArrayInner();
+			IJson js = IJson.ofArray();
 			add(key, js);
 			return js;
 	}
@@ -2976,11 +2985,13 @@ public class IJson implements Json {
 
 	@Override
 	public boolean equals(Object obj) {
+		// System.out.println("Instance: "+obj.getClass().getName());
 		if(obj instanceof IJsonEntry e){
 			return currentJson.equals(e);
 		}
 		if(obj instanceof IJson j){
 			IJsonEntry en = j.getInnerRepresentation();
+			// System.out.println("Проверяем на "+en.getClass().getName());
 			return currentJson.equals(en);
 		}
 		return false;

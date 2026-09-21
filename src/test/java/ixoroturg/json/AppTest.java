@@ -15,6 +15,7 @@ public class AppTest {
      */
     @Test
     public void shouldAnswerWithTrue() {
+
 	Json js = Json.ofArray().add(Json.ofObject().put("ru","Тест").put("en","test"));
 	js.forEach(entry -> {
 		System.out.println("Внутренний: "+entry);

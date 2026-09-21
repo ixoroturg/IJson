@@ -7,6 +7,7 @@ import ixoroturg.json.Json;
 import ixoroturg.json.JsonProvider;
 
 public class IJsonProvider implements JsonProvider{
+	// public IJsonProvider(){};
 
 	@Override
 	public String getAuthor() {
@@ -15,32 +16,32 @@ public class IJsonProvider implements JsonProvider{
 
 	@Override
 	public String getVersion() {
-		return "6.0.0";
+		return "5.1.0";
 	}
 
 	@Override
 	public Json of(InputStream input) {
-		return IJson.ofInner(input);
+		return IJson.of(input);
 	}
 
 	@Override
 	public Json of(String string) {
-		return IJson.ofInner(string);
+		return IJson.of(string);
 	}
 
 	@Override
 	public Json ofStringJson(String string) {
-		return IJson.ofStringJsonInner(string);
+		return IJson.ofStringJson(string);
 	}
 
 	@Override
 	public Json ofObject() {
-		return IJson.ofObjectInner();
+		return IJson.ofObject();
 	}
 
 	@Override
 	public Json ofArray() {
-		return IJson.ofArrayInner();
+		return IJson.ofArray();
 	}
 
 }

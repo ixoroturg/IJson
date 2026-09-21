@@ -3,13 +3,17 @@ package ixoroturg.json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.function.BiConsumer;
+import java.util.ServiceLoader.Provider;
 import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+// import jdk.internal.module.ServicesCatalog.ServiceProvider;
 
 public interface Json extends Iterable<Json>, Cloneable{
 
@@ -25,12 +29,15 @@ public interface Json extends Iterable<Json>, Cloneable{
 		if(instance.value != null){
 			return instance.value;
 		}
-		instance.value = ServiceLoader.load(JsonProvider.class)
+		Optional<JsonProvider> provider = ServiceLoader.load(JsonProvider.class)
 			.stream()
 			.dropWhile(p -> {
 				String className = p.type().getName();
 				return !className.equals(instance.className);
-			}).findFirst().get().get();
+			})
+			.map(ServiceLoader.Provider::get)
+			.findFirst();
+		instance.value = provider.orElse(new ixoroturg.json.spi.IJsonProvider());
 		return instance.value;
 	}
 

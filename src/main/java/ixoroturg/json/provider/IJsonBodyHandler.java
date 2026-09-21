@@ -103,7 +103,7 @@ public class IJsonBodyHandler implements BodyHandler<Json>{
 
 				buffer.clear();
 				ByteArrayInputStream input = new ByteArrayInputStream(buffer.array());
-				Json js = IJson.ofInner(input);
+				Json js = IJson.of(input);
 				// try{
 					// js = IJson.of(new ByteArrayInputStream(bufs));
 				// }catch(JsonException e){

@@ -7,6 +7,7 @@ import ixoroturg.json.*;
 import java.io.IOException;
 // import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import ixoroturg.json.spi.IJsonParseContext.ByteBuilder;
 
@@ -338,6 +339,8 @@ class IJsonString extends IJsonEntry{
 	@Override
 	public boolean equals(Object obj){
 		if(obj instanceof IJsonString str){
+			// System.out.println(Arrays.toString(value));
+			// System.out.println(Arrays.toString(str.value));
 			if(value.length != str.value.length){
 				return false;
 			}
