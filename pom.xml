@@ -74,7 +74,7 @@
 	<dependency>
 	    <groupId>com.github.ixoroturg</groupId>
 	    <artifactId>IPool</artifactId>
-	    <version>2.1.0</version>
+	    <version>2.1.0.j2</version>
 	</dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
