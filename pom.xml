@@ -71,7 +71,7 @@
 	</dependency>
 	<dependency>
 	    <groupId>com.github.ixoroturg</groupId>
-	    <artifactId>IJson</artifactId>
+	    <artifactId>IPool</artifactId>
 	    <version>2.1.0</version>
 	</dependency>
     <dependency>
