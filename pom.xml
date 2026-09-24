@@ -72,7 +72,7 @@
 	<dependency>
 	    <groupId>com.github.ixoroturg</groupId>
 	    <artifactId>IJson</artifactId>
-	    <version>Tag</version>
+	    <version>2.1.0</version>
 	</dependency>
 	<!--  	<dependency> -->
 	<!-- 	<groupId>ixoroturg</groupId> -->
