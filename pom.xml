@@ -16,6 +16,12 @@
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
+	<repositories>
+			<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
   <distributionManagement>
 	  <repository>
 		<id>ixoroturg</id>
@@ -63,11 +69,16 @@
 		<artifactId>jackson-databind</artifactId>
 		<version>2.18.2</version>
 	</dependency>
-  	<dependency>
-		<groupId>ixoroturg</groupId>
-		<artifactId>pool</artifactId>
-		<version>2.1.1</version>
+	<dependency>
+	    <groupId>com.github.ixoroturg</groupId>
+	    <artifactId>IJson</artifactId>
+	    <version>Tag</version>
 	</dependency>
+	<!--  	<dependency> -->
+	<!-- 	<groupId>ixoroturg</groupId> -->
+	<!-- 	<artifactId>pool</artifactId> -->
+	<!-- 	<version>2.1.1</version> -->
+	<!-- </dependency> -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
