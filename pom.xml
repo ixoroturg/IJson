@@ -16,6 +16,13 @@
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
+  <distributionManagement>
+	  <repository>
+		<id>ixoroturg</id>
+		<url>https://maven.pkg.github.com/ixoroturg/ijson</url>
+	</repository>
+  </distributionManagement>
+
 	<!-- <distributionManagement> -->
 	<!-- 	<repository> -->
 	<!-- 		<id>gitflic</id> -->
