@@ -13,9 +13,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>21</maven.compiler.release>
+		<maven.compiler.release>21</maven.compiler.release>
 	   <maven.compiler.target>21</maven.compiler.target>
-    <maven.compiler.release>21</maven.compiler.release>
+	   <mave.compiler.source>21</mave.compiler.source>
   </properties>
 
 	<repositories>
